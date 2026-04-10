@@ -1,0 +1,42 @@
+[gd_resource type="Resource" script_class="MapGenerationConfig" format=3 uid="uid://poeolvg7dx0d"]
+
+[ext_resource type="Script" uid="uid://dwr2xwi2p6o2d" path="res://scripts/config/MapGenerationConfig.gd" id="1_mgc"]
+[ext_resource type="Script" uid="uid://brveesf0dp4pq" path="res://scripts/config/MapActRuleConfig.gd" id="2_mar"]
+
+[sub_resource type="Resource" id="MapActRule_1"]
+script = ExtResource("2_mar")
+display_name = "Act I"
+rest_density = 1.15
+optional_event_density = 0.9
+branching_intensity = 0.75
+
+[sub_resource type="Resource" id="MapActRule_2"]
+script = ExtResource("2_mar")
+act_id = 1
+display_name = "Act II"
+relative_length_weight = 1.35
+preferred_path_count = 3
+combat_density = 1.15
+rest_density = 0.9
+optional_event_density = 1.1
+miniboss_chance = 0.45
+branching_intensity = 1.2
+merge_intensity = 0.95
+
+[sub_resource type="Resource" id="MapActRule_3"]
+script = ExtResource("2_mar")
+act_id = 2
+display_name = "Act III"
+combat_density = 1.25
+rest_density = 0.7
+shop_density = 0.85
+optional_event_density = 0.7
+miniboss_chance = 0.2
+branching_intensity = 0.65
+merge_intensity = 1.25
+
+[resource]
+script = ExtResource("1_mgc")
+act_length_weights = PackedFloat32Array(1, 1.35, 1)
+miniboss_allowed_acts = PackedInt32Array(1)
+act_rules = Array[ExtResource("2_mar")]([SubResource("MapActRule_1"), SubResource("MapActRule_2"), SubResource("MapActRule_3")])

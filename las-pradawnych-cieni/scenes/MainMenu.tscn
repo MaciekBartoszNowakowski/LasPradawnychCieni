@@ -1,0 +1,399 @@
+[gd_scene format=3 uid="uid://b4652dvvicjqu"]
+
+[ext_resource type="Script" uid="uid://d16o1dyykpmpf" path="res://scripts/menu/MainMenu.gd" id="1_yqorp"]
+[ext_resource type="Texture2D" uid="uid://btfjlku8ro1f" path="res://assets/ui/menu/background_v0.0.1.png" id="2_0ykhv"]
+[ext_resource type="Texture2D" uid="uid://cj87at3easwk5" path="res://assets/ui/menu/vignette_v0.0.1.png" id="3_2wh52"]
+[ext_resource type="FontFile" uid="uid://ob2p0qtkh4im" path="res://assets/ui/menu/IMFellEnglishSC-Regular.ttf" id="4_ow34m"]
+[ext_resource type="AudioStream" uid="uid://7kjxvpyw7rld" path="res://assets/ui/menu/menu_music.mp3" id="5_l72w3"]
+[ext_resource type="AudioStream" uid="uid://m5c5u5ctubmi" path="res://assets/ui/menu/ui_click.wav" id="6_826wr"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ow34m"]
+content_margin_left = 16.0
+content_margin_top = 16.0
+content_margin_right = 16.0
+content_margin_bottom = 16.0
+bg_color = Color(0, 0, 0, 0)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.84705883, 0.8, 0.68235296, 0.14901961)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_l72w3"]
+content_margin_left = 12.0
+content_margin_top = 8.0
+content_margin_right = 12.0
+content_margin_bottom = 8.0
+bg_color = Color(0, 0, 0, 0.07058824)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.84705883, 0.8, 0.68235296, 0.13333334)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_826wr"]
+content_margin_left = 12.0
+content_margin_top = 9.0
+content_margin_right = 12.0
+content_margin_bottom = 7.0
+bg_color = Color(0, 0, 0, 0.1254902)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.7882353, 0.7372549, 0.6039216, 0.33333334)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ucygd"]
+content_margin_left = 12.0
+content_margin_top = 8.0
+content_margin_right = 12.0
+content_margin_bottom = 8.0
+bg_color = Color(1, 1, 1, 0.0627451)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.9019608, 0.8666667, 0.78431374, 0.4)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_mipys"]
+content_margin_left = 12.0
+content_margin_top = 8.0
+content_margin_right = 12.0
+content_margin_bottom = 8.0
+bg_color = Color(0, 0, 0, 0.03137255)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.5529412, 0.52156866, 0.46666667, 0.13333334)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_8a8k8"]
+content_margin_left = 12.0
+content_margin_top = 8.0
+content_margin_right = 12.0
+content_margin_bottom = 8.0
+bg_color = Color(1, 1, 1, 0.0627451)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.9019608, 0.8666667, 0.78431374, 0.4)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[node name="MainMenu" type="Control" unique_id=455117904]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = 2.0
+offset_bottom = 2.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_yqorp")
+
+[node name="Background" type="TextureRect" parent="." unique_id=1461858457]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("2_0ykhv")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="BackTrees" type="TextureRect" parent="." unique_id=1460832328]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 6
+
+[node name="FogFar" type="TextureRect" parent="." unique_id=291684061]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+stretch_mode = 6
+
+[node name="FogNear" type="TextureRect" parent="." unique_id=864574844]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+stretch_mode = 6
+
+[node name="Ground" type="TextureRect" parent="." unique_id=140489898]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="HutLight" type="TextureRect" parent="." unique_id=1158851419]
+visible = false
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="CampfireGlow" type="TextureRect" parent="." unique_id=1232734282]
+visible = false
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="CrowLayer" type="Node2D" parent="." unique_id=1077524307]
+visible = false
+
+[node name="Crow1" type="AnimatedSprite2D" parent="CrowLayer" unique_id=1352117588]
+
+[node name="Crow2" type="AnimatedSprite2D" parent="CrowLayer" unique_id=741205826]
+
+[node name="Vignette" type="TextureRect" parent="." unique_id=38828628]
+modulate = Color(1, 1, 1, 0.4)
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("3_2wh52")
+expand_mode = 1
+
+[node name="UIRoot" type="MarginContainer" parent="." unique_id=183335415]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 80
+theme_override_constants/margin_top = 50
+theme_override_constants/margin_right = 80
+theme_override_constants/margin_bottom = 40
+
+[node name="CenterBox" type="HBoxContainer" parent="UIRoot" unique_id=2130068689]
+layout_mode = 2
+
+[node name="LeftSpacer" type="Control" parent="UIRoot/CenterBox" unique_id=1850399696]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="MenuColumn" type="VBoxContainer" parent="UIRoot/CenterBox" unique_id=1805022722]
+custom_minimum_size = Vector2(520, 0)
+layout_mode = 2
+theme_override_constants/separation = 14
+
+[node name="TitleLabel" type="Label" parent="UIRoot/CenterBox/MenuColumn" unique_id=1434536608]
+custom_minimum_size = Vector2(0, 60)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.84705883, 0.8, 0.68235296, 1)
+theme_override_colors/font_outline_color = Color(0.09411765, 0.078431375, 0.07058824, 1)
+theme_override_constants/outline_size = 2
+theme_override_fonts/font = ExtResource("4_ow34m")
+theme_override_font_sizes/font_size = 48
+text = "LAS PRADAWNYCH CIENI"
+horizontal_alignment = 1
+
+[node name="SubtitleLabel" type="Label" parent="UIRoot/CenterBox/MenuColumn" unique_id=690692452]
+custom_minimum_size = Vector2(0, 28)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.7176471, 0.68235296, 0.6, 1)
+theme_override_colors/font_outline_color = Color(0.09411765, 0.078431375, 0.07058824, 1)
+theme_override_constants/outline_size = 1
+theme_override_fonts/font = ExtResource("4_ow34m")
+theme_override_font_sizes/font_size = 20
+text = "Na skraju lasu budzi się dawne zło"
+horizontal_alignment = 1
+
+[node name="Space1" type="Control" parent="UIRoot/CenterBox/MenuColumn" unique_id=775541995]
+custom_minimum_size = Vector2(0, 18)
+layout_mode = 2
+
+[node name="BoardPanel" type="PanelContainer" parent="UIRoot/CenterBox/MenuColumn" unique_id=729296015]
+custom_minimum_size = Vector2(420, 340)
+layout_mode = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_ow34m")
+
+[node name="BoardVBox" type="VBoxContainer" parent="UIRoot/CenterBox/MenuColumn/BoardPanel" unique_id=657838113]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="BtnNewGame" type="Button" parent="UIRoot/CenterBox/MenuColumn/BoardPanel/BoardVBox" unique_id=1348207240]
+custom_minimum_size = Vector2(0, 52)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.8666667, 0.827451, 0.7372549, 1)
+theme_override_colors/font_pressed_color = Color(0.8117647, 0.77254903, 0.68235296, 1)
+theme_override_colors/font_hover_color = Color(0.9411765, 0.90588236, 0.8156863, 1)
+theme_override_colors/font_disabled_color = Color(0.5529412, 0.52156866, 0.46666667, 1)
+theme_override_colors/font_outline_color = Color(0.09411765, 0.078431375, 0.07058824, 1)
+theme_override_constants/outline_size = 1
+theme_override_fonts/font = ExtResource("4_ow34m")
+theme_override_font_sizes/font_size = 24
+theme_override_styles/normal = SubResource("StyleBoxFlat_l72w3")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_826wr")
+theme_override_styles/hover = SubResource("StyleBoxFlat_ucygd")
+theme_override_styles/disabled = SubResource("StyleBoxFlat_mipys")
+theme_override_styles/focus = SubResource("StyleBoxFlat_8a8k8")
+text = "Nowa Gra"
+
+[node name="BtnContinue" type="Button" parent="UIRoot/CenterBox/MenuColumn/BoardPanel/BoardVBox" unique_id=677691006]
+custom_minimum_size = Vector2(0, 52)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.8666667, 0.827451, 0.7372549, 1)
+theme_override_colors/font_pressed_color = Color(0.8117647, 0.77254903, 0.68235296, 1)
+theme_override_colors/font_hover_color = Color(0.9411765, 0.90588236, 0.8156863, 1)
+theme_override_colors/font_disabled_color = Color(0.5529412, 0.52156866, 0.46666667, 1)
+theme_override_colors/font_outline_color = Color(0.09411765, 0.078431375, 0.07058824, 1)
+theme_override_constants/outline_size = 1
+theme_override_fonts/font = ExtResource("4_ow34m")
+theme_override_font_sizes/font_size = 24
+theme_override_styles/normal = SubResource("StyleBoxFlat_l72w3")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_826wr")
+theme_override_styles/hover = SubResource("StyleBoxFlat_ucygd")
+theme_override_styles/disabled = SubResource("StyleBoxFlat_mipys")
+theme_override_styles/focus = SubResource("StyleBoxFlat_8a8k8")
+disabled = true
+text = "Kontynuuj"
+
+[node name="BtnOptions" type="Button" parent="UIRoot/CenterBox/MenuColumn/BoardPanel/BoardVBox" unique_id=1331242438]
+custom_minimum_size = Vector2(0, 52)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.8666667, 0.827451, 0.7372549, 1)
+theme_override_colors/font_pressed_color = Color(0.8117647, 0.77254903, 0.68235296, 1)
+theme_override_colors/font_hover_color = Color(0.9411765, 0.90588236, 0.8156863, 1)
+theme_override_colors/font_disabled_color = Color(0.5529412, 0.52156866, 0.46666667, 1)
+theme_override_colors/font_outline_color = Color(0.09411765, 0.078431375, 0.07058824, 1)
+theme_override_constants/outline_size = 1
+theme_override_fonts/font = ExtResource("4_ow34m")
+theme_override_font_sizes/font_size = 24
+theme_override_styles/normal = SubResource("StyleBoxFlat_l72w3")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_826wr")
+theme_override_styles/hover = SubResource("StyleBoxFlat_ucygd")
+theme_override_styles/disabled = SubResource("StyleBoxFlat_mipys")
+theme_override_styles/focus = SubResource("StyleBoxFlat_8a8k8")
+disabled = true
+text = "Opcje"
+
+[node name="BtnCredits" type="Button" parent="UIRoot/CenterBox/MenuColumn/BoardPanel/BoardVBox" unique_id=1376402265]
+visible = false
+custom_minimum_size = Vector2(0, 52)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.8666667, 0.827451, 0.7372549, 1)
+theme_override_colors/font_pressed_color = Color(0.8117647, 0.77254903, 0.68235296, 1)
+theme_override_colors/font_hover_color = Color(0.9411765, 0.90588236, 0.8156863, 1)
+theme_override_colors/font_disabled_color = Color(0.5529412, 0.52156866, 0.46666667, 1)
+theme_override_colors/font_outline_color = Color(0.09411765, 0.078431375, 0.07058824, 1)
+theme_override_constants/outline_size = 1
+theme_override_fonts/font = ExtResource("4_ow34m")
+theme_override_font_sizes/font_size = 24
+theme_override_styles/normal = SubResource("StyleBoxFlat_l72w3")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_826wr")
+theme_override_styles/hover = SubResource("StyleBoxFlat_ucygd")
+theme_override_styles/disabled = SubResource("StyleBoxFlat_mipys")
+theme_override_styles/focus = SubResource("StyleBoxFlat_8a8k8")
+text = "Twórcy"
+
+[node name="BtnExit" type="Button" parent="UIRoot/CenterBox/MenuColumn/BoardPanel/BoardVBox" unique_id=1922760464]
+custom_minimum_size = Vector2(0, 52)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.8666667, 0.827451, 0.7372549, 1)
+theme_override_colors/font_pressed_color = Color(0.8117647, 0.77254903, 0.68235296, 1)
+theme_override_colors/font_hover_color = Color(0.9411765, 0.90588236, 0.8156863, 1)
+theme_override_colors/font_disabled_color = Color(0.5529412, 0.52156866, 0.46666667, 1)
+theme_override_colors/font_outline_color = Color(0.09411765, 0.078431375, 0.07058824, 1)
+theme_override_constants/outline_size = 1
+theme_override_fonts/font = ExtResource("4_ow34m")
+theme_override_font_sizes/font_size = 24
+theme_override_styles/normal = SubResource("StyleBoxFlat_l72w3")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_826wr")
+theme_override_styles/hover = SubResource("StyleBoxFlat_ucygd")
+theme_override_styles/disabled = SubResource("StyleBoxFlat_mipys")
+theme_override_styles/focus = SubResource("StyleBoxFlat_8a8k8")
+text = "Wyjście"
+
+[node name="FooterRow" type="HBoxContainer" parent="UIRoot/CenterBox/MenuColumn" unique_id=547075689]
+custom_minimum_size = Vector2(0, 24)
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="VersionLabel" type="Label" parent="UIRoot/CenterBox/MenuColumn/FooterRow" unique_id=1121876172]
+custom_minimum_size = Vector2(0, 20)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.56078434, 0.5294118, 0.47058824, 1)
+theme_override_colors/font_outline_color = Color(0.09411765, 0.078431375, 0.07058824, 1)
+theme_override_constants/outline_size = 1
+theme_override_fonts/font = ExtResource("4_ow34m")
+text = "v0.0.1 ALPHA"
+
+[node name="Control" type="Control" parent="UIRoot/CenterBox/MenuColumn/FooterRow" unique_id=2039653602]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="AuthorsLabel" type="Label" parent="UIRoot/CenterBox/MenuColumn/FooterRow" unique_id=703158536]
+custom_minimum_size = Vector2(0, 20)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.56078434, 0.5294118, 0.47058824, 1)
+theme_override_colors/font_outline_color = Color(0.09411765, 0.078431375, 0.07058824, 1)
+theme_override_constants/outline_size = 1
+theme_override_fonts/font = ExtResource("4_ow34m")
+text = "ELEPHANT STUDIOS"
+horizontal_alignment = 2
+
+[node name="RightSpacer" type="Control" parent="UIRoot/CenterBox" unique_id=1965859130]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="AudioMusic" type="AudioStreamPlayer" parent="." unique_id=214772373]
+stream = ExtResource("5_l72w3")
+volume_db = -15.0
+
+[node name="AudioAmbience" type="AudioStreamPlayer" parent="." unique_id=171111922]
+
+[node name="AudioUI" type="AudioStreamPlayer" parent="." unique_id=795455085]
+stream = ExtResource("6_826wr")
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="." unique_id=1530418743]
+
+[node name="TimerCrow" type="Timer" parent="." unique_id=1878034088]

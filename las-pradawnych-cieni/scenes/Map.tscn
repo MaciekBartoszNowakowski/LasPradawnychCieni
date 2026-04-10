@@ -1,0 +1,9 @@
+[gd_scene format=3 uid="uid://by0thtrjcijjo"]
+
+[ext_resource type="Script" uid="uid://j7yoa5lbg20q" path="res://scripts/map/Map.gd" id="1_5hauk"]
+
+[node name="Map" type="Node2D" unique_id=219967032]
+script = ExtResource("1_5hauk")
+
+[node name="Camera2D" type="Camera2D" parent="." unique_id=2140812145]
+scale = Vector2(11.71838, -11.246841)
