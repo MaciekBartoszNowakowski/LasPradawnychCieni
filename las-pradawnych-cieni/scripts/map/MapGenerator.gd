@@ -868,7 +868,7 @@ func _get_node_position(layer_index: int, index_in_layer: int, node_count: int, 
 	x += rng.randf_range(-config.jitter_x, config.jitter_x)
 	y += rng.randf_range(-config.jitter_y, config.jitter_y)
 
-	return Vector2(x, y)
+	return Vector2(round(x), round(y))
 
 
 func _connect_layers(layers: Array, config: MapGenerationConfig) -> void:

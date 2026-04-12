@@ -6,7 +6,7 @@ extends Control
 @onready var audio_music: AudioStreamPlayer = $AudioMusic
 @onready var audio_ui: AudioStreamPlayer = $AudioUI
 
-const MAP_SCENE_PATH := "res://scenes/Map.tscn"
+const MAP_SCENE_PATH := "res://scenes/map/Map.tscn"
 
 func _ready() -> void:
 	audio_music.play()

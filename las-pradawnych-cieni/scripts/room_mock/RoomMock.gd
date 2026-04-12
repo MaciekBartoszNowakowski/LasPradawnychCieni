@@ -26,4 +26,4 @@ func _type_to_string(type: int) -> String:
 
 
 func _on_button_pressed() -> void:
-	get_tree().change_scene_to_file("res://scenes/Map.tscn")
+	get_tree().change_scene_to_file("res://scenes/map/Map.tscn")

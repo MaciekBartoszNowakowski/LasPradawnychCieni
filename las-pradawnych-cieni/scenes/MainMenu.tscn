@@ -1,10 +1,10 @@
 [gd_scene format=3 uid="uid://b4652dvvicjqu"]
 
 [ext_resource type="Script" uid="uid://d16o1dyykpmpf" path="res://scripts/menu/MainMenu.gd" id="1_yqorp"]
-[ext_resource type="Texture2D" uid="uid://btfjlku8ro1f" path="res://assets/ui/menu/background_v0.0.1.png" id="2_0ykhv"]
+[ext_resource type="Texture2D" uid="uid://blfylwpicsf1f" path="res://assets/ui/menu/background_v0.0.1.png" id="2_826wr"]
 [ext_resource type="Texture2D" uid="uid://cj87at3easwk5" path="res://assets/ui/menu/vignette_v0.0.1.png" id="3_2wh52"]
-[ext_resource type="FontFile" uid="uid://ob2p0qtkh4im" path="res://assets/ui/menu/IMFellEnglishSC-Regular.ttf" id="4_ow34m"]
-[ext_resource type="AudioStream" uid="uid://7kjxvpyw7rld" path="res://assets/ui/menu/menu_music.mp3" id="5_l72w3"]
+[ext_resource type="FontFile" uid="uid://ob2p0qtkh4im" path="res://assets/ui/fonts/IMFellEnglishSC-Regular.ttf" id="4_ow34m"]
+[ext_resource type="AudioStream" uid="uid://b3lqb0f4uap67" path="res://assets/ui/menu/Beneath_the_Silt.mp3" id="5_826wr"]
 [ext_resource type="AudioStream" uid="uid://m5c5u5ctubmi" path="res://assets/ui/menu/ui_click.wav" id="6_826wr"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ow34m"]
@@ -108,8 +108,6 @@ layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_top = 2.0
-offset_bottom = 2.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_yqorp")
@@ -122,7 +120,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
-texture = ExtResource("2_0ykhv")
+texture = ExtResource("2_826wr")
 expand_mode = 1
 stretch_mode = 6
 
@@ -186,11 +184,13 @@ offset_bottom = 40.0
 visible = false
 
 [node name="Crow1" type="AnimatedSprite2D" parent="CrowLayer" unique_id=1352117588]
+visible = false
 
 [node name="Crow2" type="AnimatedSprite2D" parent="CrowLayer" unique_id=741205826]
+visible = false
 
 [node name="Vignette" type="TextureRect" parent="." unique_id=38828628]
-modulate = Color(1, 1, 1, 0.4)
+modulate = Color(1, 1, 1, 0.5)
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -386,7 +386,7 @@ layout_mode = 2
 size_flags_horizontal = 3
 
 [node name="AudioMusic" type="AudioStreamPlayer" parent="." unique_id=214772373]
-stream = ExtResource("5_l72w3")
+stream = ExtResource("5_826wr")
 volume_db = -15.0
 
 [node name="AudioAmbience" type="AudioStreamPlayer" parent="." unique_id=171111922]

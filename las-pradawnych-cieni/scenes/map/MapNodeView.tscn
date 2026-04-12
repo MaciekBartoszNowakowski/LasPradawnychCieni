@@ -1,0 +1,10 @@
+[gd_scene format=3 uid="uid://cty0hvs0q45fw"]
+
+[ext_resource type="Script" uid="uid://uscwubs0g6ni" path="res://scripts/map/MapNodeView.gd" id="1_cvdme"]
+
+[node name="MapNodeView" type="Node2D" unique_id=1407870183]
+script = ExtResource("1_cvdme")
+
+[node name="ShadowSprite" type="Sprite2D" parent="." unique_id=597700681]
+
+[node name="BaseSprite" type="Sprite2D" parent="." unique_id=436186836]
