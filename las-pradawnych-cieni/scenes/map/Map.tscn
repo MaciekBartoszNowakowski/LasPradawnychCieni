@@ -1,0 +1,276 @@
+[gd_scene format=3 uid="uid://by0thtrjcijjo"]
+
+[ext_resource type="Script" uid="uid://j7yoa5lbg20q" path="res://scripts/map/Map.gd" id="1_qfku7"]
+[ext_resource type="Script" uid="uid://v6ti1jjeont" path="res://scripts/map/BackdropLayer.gd" id="2_48h8m"]
+[ext_resource type="Script" uid="uid://3djkwharkx2n" path="res://scripts/map/PathsLayer.gd" id="4_1covb"]
+[ext_resource type="Script" uid="uid://dbs8jh7fc7ngr" path="res://scripts/map/NodesLayer.gd" id="5_ujv8u"]
+[ext_resource type="Script" uid="uid://77f56u3bhwtw" path="res://scripts/map/MarkerLayer.gd" id="6_u1hfc"]
+[ext_resource type="Texture2D" uid="uid://gklmtnwaawtu" path="res://assets/ui/map/topbar.png" id="7_bt1e1"]
+[ext_resource type="FontFile" uid="uid://ob2p0qtkh4im" path="res://assets/ui/fonts/IMFellEnglishSC-Regular.ttf" id="8_om3rv"]
+[ext_resource type="Script" uid="uid://csehhi8qbsxb3" path="res://scripts/map/MapBottomBar.gd" id="8_qfku7"]
+[ext_resource type="AudioStream" uid="uid://bmt8m27ixnwhy" path="res://assets/ui/map/map_ambient.mp3" id="9_0e3jb"]
+[ext_resource type="AudioStream" uid="uid://m5c5u5ctubmi" path="res://assets/ui/menu/ui_click.wav" id="10_1covb"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_xkm8s"]
+bg_color = Color(0, 0, 0, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_qfku7"]
+bg_color = Color(0.11372549, 0.09019608, 0.07058824, 1)
+border_width_top = 2
+border_color = Color(0.5568628, 0.46666667, 0.34509805, 1)
+
+[node name="Map" type="Node2D" unique_id=219967032]
+script = ExtResource("1_qfku7")
+
+[node name="MapWorld" type="Node2D" parent="." unique_id=424575156]
+
+[node name="BackdropLayer" type="Node2D" parent="MapWorld" unique_id=2083327933]
+script = ExtResource("2_48h8m")
+
+[node name="PathsLayer" type="Node2D" parent="MapWorld" unique_id=43401291]
+script = ExtResource("4_1covb")
+
+[node name="NodesLayer" type="Node2D" parent="MapWorld" unique_id=1604714989]
+script = ExtResource("5_ujv8u")
+
+[node name="MarkerLayer" type="Node2D" parent="MapWorld" unique_id=1383755137]
+script = ExtResource("6_u1hfc")
+
+[node name="UILayer" type="CanvasLayer" parent="." unique_id=38975912]
+
+[node name="UIRoot" type="Control" parent="UILayer" unique_id=1985143798]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="TopBar" type="PanelContainer" parent="UILayer/UIRoot" unique_id=718385731]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 64.0
+grow_horizontal = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_xkm8s")
+
+[node name="Background" type="TextureRect" parent="UILayer/UIRoot/TopBar" unique_id=734431205]
+modulate = Color(0.6862745, 0.6862745, 0.6862745, 1)
+layout_mode = 2
+texture = ExtResource("7_bt1e1")
+expand_mode = 1
+
+[node name="MarginContainer" type="MarginContainer" parent="UILayer/UIRoot/TopBar" unique_id=632998045]
+layout_direction = 2
+layout_mode = 2
+theme_override_constants/margin_left = 40
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 40
+theme_override_constants/margin_bottom = 10
+
+[node name="HBoxContainer" type="HBoxContainer" parent="UILayer/UIRoot/TopBar/MarginContainer" unique_id=1801524387]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="LeftBlock" type="HBoxContainer" parent="UILayer/UIRoot/TopBar/MarginContainer/HBoxContainer" unique_id=9378204]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="TitleLabel" type="Label" parent="UILayer/UIRoot/TopBar/MarginContainer/HBoxContainer/LeftBlock" unique_id=224869049]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9098039, 0.8509804, 0.74509805, 1)
+theme_override_colors/font_outline_color = Color(0.07058824, 0.050980393, 0.03529412, 1)
+theme_override_constants/outline_size = 2
+theme_override_fonts/font = ExtResource("8_om3rv")
+theme_override_font_sizes/font_size = 22
+text = "Mapa wyprawy"
+vertical_alignment = 1
+
+[node name="CenterBlock" type="CenterContainer" parent="UILayer/UIRoot/TopBar/MarginContainer/HBoxContainer" unique_id=1910792400]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="ObejctiveLabel" type="Label" parent="UILayer/UIRoot/TopBar/MarginContainer/HBoxContainer/CenterBlock" unique_id=1383512900]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9411765, 0.8901961, 0.78431374, 1)
+theme_override_colors/font_outline_color = Color(0.07058824, 0.050980393, 0.03529412, 1)
+theme_override_constants/outline_size = 2
+theme_override_fonts/font = ExtResource("8_om3rv")
+theme_override_font_sizes/font_size = 22
+text = "Cel: Dotrzyj do serca lasu"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="RightBlock" type="HBoxContainer" parent="UILayer/UIRoot/TopBar/MarginContainer/HBoxContainer" unique_id=534054088]
+layout_mode = 2
+size_flags_horizontal = 3
+alignment = 2
+
+[node name="GoldLabel" type="Label" parent="UILayer/UIRoot/TopBar/MarginContainer/HBoxContainer/RightBlock" unique_id=979537040]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.84705883, 0.69411767, 0.35686275, 1)
+theme_override_colors/font_outline_color = Color(0.07058824, 0.050980393, 0.03529412, 1)
+theme_override_constants/outline_size = 2
+theme_override_fonts/font = ExtResource("8_om3rv")
+theme_override_font_sizes/font_size = 22
+text = "Złoto: 0"
+horizontal_alignment = 2
+vertical_alignment = 1
+
+[node name="LeftPanel" type="PanelContainer" parent="UILayer/UIRoot" unique_id=1915366482]
+visible = false
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="MarginContainer" type="MarginContainer" parent="UILayer/UIRoot/LeftPanel" unique_id=191514802]
+visible = false
+layout_mode = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="UILayer/UIRoot/LeftPanel/MarginContainer" unique_id=1995817460]
+visible = false
+layout_mode = 2
+
+[node name="RightPanel" type="PanelContainer" parent="UILayer/UIRoot" unique_id=220644750]
+visible = false
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="MarginContainer" type="MarginContainer" parent="UILayer/UIRoot/RightPanel" unique_id=2126484974]
+visible = false
+layout_mode = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="UILayer/UIRoot/RightPanel/MarginContainer" unique_id=1130412513]
+visible = false
+layout_mode = 2
+
+[node name="BottomBar" type="PanelContainer" parent="UILayer/UIRoot" unique_id=1435322882]
+clip_contents = true
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -85.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_styles/panel = SubResource("StyleBoxFlat_qfku7")
+script = ExtResource("8_qfku7")
+
+[node name="MarginContainer" type="MarginContainer" parent="UILayer/UIRoot/BottomBar" unique_id=1404278642]
+layout_mode = 2
+theme_override_constants/margin_left = 18
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 18
+theme_override_constants/margin_bottom = 10
+
+[node name="HBoxContainer" type="HBoxContainer" parent="UILayer/UIRoot/BottomBar/MarginContainer" unique_id=1286475304]
+layout_mode = 2
+theme_override_constants/separation = 28
+
+[node name="LeftBlock" type="HBoxContainer" parent="UILayer/UIRoot/BottomBar/MarginContainer/HBoxContainer" unique_id=1454526997]
+custom_minimum_size = Vector2(260, 0)
+layout_mode = 2
+theme_override_constants/separation = 14
+
+[node name="IconBox" type="CenterContainer" parent="UILayer/UIRoot/BottomBar/MarginContainer/HBoxContainer/LeftBlock" unique_id=281332927]
+custom_minimum_size = Vector2(72, 72)
+layout_mode = 2
+
+[node name="NodeIcon" type="TextureRect" parent="UILayer/UIRoot/BottomBar/MarginContainer/HBoxContainer/LeftBlock/IconBox" unique_id=194615001]
+custom_minimum_size = Vector2(64, 64)
+layout_mode = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="InfoBox" type="VBoxContainer" parent="UILayer/UIRoot/BottomBar/MarginContainer/HBoxContainer/LeftBlock" unique_id=1829840242]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="NodeTypeLabel" type="Label" parent="UILayer/UIRoot/BottomBar/MarginContainer/HBoxContainer/LeftBlock/InfoBox" unique_id=1141772087]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.93333334, 0.88235295, 0.7647059, 1)
+theme_override_colors/font_outline_color = Color(0.16862746, 0.12941177, 0.09019608, 1)
+theme_override_constants/outline_size = 2
+theme_override_fonts/font = ExtResource("8_om3rv")
+theme_override_font_sizes/font_size = 22
+
+[node name="NodeStateLabel" type="Label" parent="UILayer/UIRoot/BottomBar/MarginContainer/HBoxContainer/LeftBlock/InfoBox" unique_id=302978098]
+layout_mode = 2
+theme_override_colors/font_outline_color = Color(0.14117648, 0.105882354, 0.07058824, 1)
+theme_override_constants/outline_size = 1
+theme_override_fonts/font = ExtResource("8_om3rv")
+theme_override_font_sizes/font_size = 17
+
+[node name="CenterBlock" type="VBoxContainer" parent="UILayer/UIRoot/BottomBar/MarginContainer/HBoxContainer" unique_id=1989579954]
+layout_mode = 2
+size_flags_horizontal = 3
+alignment = 1
+
+[node name="NodeDescriptionLabel" type="Label" parent="UILayer/UIRoot/BottomBar/MarginContainer/HBoxContainer/CenterBlock" unique_id=2082001450]
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_colors/font_color = Color(0.84705883, 0.8, 0.69411767, 1)
+theme_override_colors/font_outline_color = Color(0.1254902, 0.09411765, 0.06666667, 1)
+theme_override_constants/outline_size = 1
+theme_override_fonts/font = ExtResource("8_om3rv")
+theme_override_font_sizes/font_size = 16
+horizontal_alignment = 1
+
+[node name="RightBlock" type="VBoxContainer" parent="UILayer/UIRoot/BottomBar/MarginContainer/HBoxContainer" unique_id=941924676]
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 2
+theme_override_constants/separation = 2
+alignment = 1
+
+[node name="ControlsPrimaryLabel" type="Label" parent="UILayer/UIRoot/BottomBar/MarginContainer/HBoxContainer/RightBlock" unique_id=738318324]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.78039217, 0.7254902, 0.6, 1)
+theme_override_colors/font_outline_color = Color(0.10980392, 0.08235294, 0.05882353, 1)
+theme_override_constants/outline_size = 1
+theme_override_fonts/font = ExtResource("8_om3rv")
+theme_override_font_sizes/font_size = 16
+text = "LPM: wybór"
+horizontal_alignment = 2
+
+[node name="ControlsSecondaryLabel" type="Label" parent="UILayer/UIRoot/BottomBar/MarginContainer/HBoxContainer/RightBlock" unique_id=1828230025]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.78039217, 0.7254902, 0.6, 1)
+theme_override_colors/font_outline_color = Color(0.10980392, 0.08235294, 0.05882353, 1)
+theme_override_constants/outline_size = 1
+theme_override_fonts/font = ExtResource("8_om3rv")
+theme_override_font_sizes/font_size = 16
+text = "Kółko myszy: przewijanie"
+horizontal_alignment = 2
+
+[node name="OverlayHints" type="Control" parent="UILayer/UIRoot" unique_id=287489535]
+visible = false
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="PopupLayer" type="CanvasLayer" parent="." unique_id=219450956]
+visible = false
+
+[node name="TooltipPanel" type="PanelContainer" parent="PopupLayer" unique_id=1753855344]
+visible = false
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="TransitionOverlay" type="ColorRect" parent="PopupLayer" unique_id=459127181]
+visible = false
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="OptionalModal" type="PanelContainer" parent="PopupLayer" unique_id=740786587]
+visible = false
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="AudioAmbient" type="AudioStreamPlayer2D" parent="." unique_id=2092926755]
+stream = ExtResource("9_0e3jb")
+volume_db = -5.0
+
+[node name="AudioUI" type="AudioStreamPlayer2D" parent="." unique_id=67738679]
+stream = ExtResource("10_1covb")

@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="RunProfile" format=3 uid="uid://svy4cle0n7e0"]
+
+[ext_resource type="Script" uid="uid://chc2bb42u1lt1" path="res://scripts/config/RunProfile.gd" id="1_rp"]
+[ext_resource type="Resource" uid="uid://poeolvg7dx0d" path="res://data/config/map/DefaultMapGenerationConfig.tres" id="2_mgc"]
+
+[resource]
+script = ExtResource("1_rp")
+profile_description = "Bazowy profil runa dla domyślnej generacji mapy."
+map_generation_config = ExtResource("2_mgc")
+forced_act_lengths = PackedInt32Array()
