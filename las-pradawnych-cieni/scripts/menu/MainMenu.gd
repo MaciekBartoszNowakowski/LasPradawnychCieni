@@ -20,6 +20,7 @@ func _on_btn_new_game_pressed() -> void:
 	_play_click()
 	await get_tree().create_timer(0.08).timeout
 	MapState.reset_map()
+	GameState.player_team = Team.new()
 	get_tree().change_scene_to_file(MAP_SCENE_PATH)
 
 func _on_btn_exit_pressed() -> void:

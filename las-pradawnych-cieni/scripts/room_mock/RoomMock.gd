@@ -8,6 +8,8 @@ func _ready() -> void:
 func _type_to_string(type: int) -> String:
 	match type:
 		MapEnums.NodeType.BATTLE:
+			get_tree().change_scene_to_file("res://battle_map.tscn")
+
 			return "BATTLE"
 		MapEnums.NodeType.EVENT:
 			return "EVENT"
