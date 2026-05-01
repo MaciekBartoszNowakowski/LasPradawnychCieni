@@ -23,7 +23,6 @@ const BOTTOM_BAR_HEIGHT: float = 96.0
 @onready var top_bar_shadow: CanvasItem = get_node_or_null("UILayer/UIRoot/TopBarShadow")
 
 @onready var audio_ambient: AudioStreamPlayer2D = $AudioAmbient
-@onready var audio_ui: AudioStreamPlayer2D = $AudioUI
 
 var map_nodes: Array[MapNode] = []
 var node_by_id: Dictionary = {}
@@ -43,6 +42,13 @@ func _ready() -> void:
 
 	if top_bar_shadow != null:
 		top_bar_shadow.visible = false
+		
+	top_bar.setup(
+		"Mapa świata",
+		"Wybierz następną lokację",
+		0
+	)
+
 
 	_reset_world_transforms()
 
@@ -347,10 +353,16 @@ func _select_node(node: MapNode) -> void:
 	_refresh_visual_layers()
 	_update_bottom_bar()
 	
-	_play_ui_click()
+	UiAudio.play_click()
 	await get_tree().create_timer(0.08).timeout
 	
-	get_tree().change_scene_to_file("res://scenes/RoomMock.tscn")
+	match MapState.selected_node_type:
+		MapEnums.NodeType.BATTLE:
+			get_tree().change_scene_to_file("res://scenes/battle/BattleMap.tscn")
+		MapEnums.NodeType.REST:
+			get_tree().change_scene_to_file("res://scenes/rest/Rest.tscn")
+		_:
+			get_tree().change_scene_to_file("res://scenes/RoomMock.tscn")
 
 
 func _get_max_scroll_x() -> float:
@@ -409,12 +421,3 @@ func _get_layer_count() -> int:
 		max_layer_index = max(max_layer_index, node.layer_index)
 
 	return max_layer_index + 1
-	
-func _play_ui_click() -> void:
-	if audio_ui == null:
-		return
-
-	if audio_ui.playing:
-		audio_ui.stop()
-
-	audio_ui.play()

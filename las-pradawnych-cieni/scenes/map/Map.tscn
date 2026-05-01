@@ -4,15 +4,11 @@
 [ext_resource type="Script" uid="uid://v6ti1jjeont" path="res://scripts/map/BackdropLayer.gd" id="2_48h8m"]
 [ext_resource type="Script" uid="uid://3djkwharkx2n" path="res://scripts/map/PathsLayer.gd" id="4_1covb"]
 [ext_resource type="Script" uid="uid://dbs8jh7fc7ngr" path="res://scripts/map/NodesLayer.gd" id="5_ujv8u"]
+[ext_resource type="PackedScene" uid="uid://wi4nh4xst7w6" path="res://scenes/ui/TopBar.tscn" id="6_0e3jb"]
 [ext_resource type="Script" uid="uid://77f56u3bhwtw" path="res://scripts/map/MarkerLayer.gd" id="6_u1hfc"]
-[ext_resource type="Texture2D" uid="uid://gklmtnwaawtu" path="res://assets/ui/map/topbar.png" id="7_bt1e1"]
 [ext_resource type="FontFile" uid="uid://ob2p0qtkh4im" path="res://assets/ui/fonts/IMFellEnglishSC-Regular.ttf" id="8_om3rv"]
 [ext_resource type="Script" uid="uid://csehhi8qbsxb3" path="res://scripts/map/MapBottomBar.gd" id="8_qfku7"]
 [ext_resource type="AudioStream" uid="uid://bmt8m27ixnwhy" path="res://assets/ui/map/map_ambient.mp3" id="9_0e3jb"]
-[ext_resource type="AudioStream" uid="uid://m5c5u5ctubmi" path="res://assets/ui/menu/ui_click.wav" id="10_1covb"]
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_xkm8s"]
-bg_color = Color(0, 0, 0, 1)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_qfku7"]
 bg_color = Color(0.11372549, 0.09019608, 0.07058824, 1)
@@ -46,76 +42,8 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="TopBar" type="PanelContainer" parent="UILayer/UIRoot" unique_id=718385731]
+[node name="TopBar" parent="UILayer/UIRoot" unique_id=1849835551 instance=ExtResource("6_0e3jb")]
 layout_mode = 1
-anchors_preset = 10
-anchor_right = 1.0
-offset_bottom = 64.0
-grow_horizontal = 2
-theme_override_styles/panel = SubResource("StyleBoxFlat_xkm8s")
-
-[node name="Background" type="TextureRect" parent="UILayer/UIRoot/TopBar" unique_id=734431205]
-modulate = Color(0.6862745, 0.6862745, 0.6862745, 1)
-layout_mode = 2
-texture = ExtResource("7_bt1e1")
-expand_mode = 1
-
-[node name="MarginContainer" type="MarginContainer" parent="UILayer/UIRoot/TopBar" unique_id=632998045]
-layout_direction = 2
-layout_mode = 2
-theme_override_constants/margin_left = 40
-theme_override_constants/margin_top = 10
-theme_override_constants/margin_right = 40
-theme_override_constants/margin_bottom = 10
-
-[node name="HBoxContainer" type="HBoxContainer" parent="UILayer/UIRoot/TopBar/MarginContainer" unique_id=1801524387]
-layout_mode = 2
-theme_override_constants/separation = 16
-
-[node name="LeftBlock" type="HBoxContainer" parent="UILayer/UIRoot/TopBar/MarginContainer/HBoxContainer" unique_id=9378204]
-layout_mode = 2
-size_flags_horizontal = 3
-
-[node name="TitleLabel" type="Label" parent="UILayer/UIRoot/TopBar/MarginContainer/HBoxContainer/LeftBlock" unique_id=224869049]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.9098039, 0.8509804, 0.74509805, 1)
-theme_override_colors/font_outline_color = Color(0.07058824, 0.050980393, 0.03529412, 1)
-theme_override_constants/outline_size = 2
-theme_override_fonts/font = ExtResource("8_om3rv")
-theme_override_font_sizes/font_size = 22
-text = "Mapa wyprawy"
-vertical_alignment = 1
-
-[node name="CenterBlock" type="CenterContainer" parent="UILayer/UIRoot/TopBar/MarginContainer/HBoxContainer" unique_id=1910792400]
-layout_mode = 2
-size_flags_horizontal = 3
-
-[node name="ObejctiveLabel" type="Label" parent="UILayer/UIRoot/TopBar/MarginContainer/HBoxContainer/CenterBlock" unique_id=1383512900]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.9411765, 0.8901961, 0.78431374, 1)
-theme_override_colors/font_outline_color = Color(0.07058824, 0.050980393, 0.03529412, 1)
-theme_override_constants/outline_size = 2
-theme_override_fonts/font = ExtResource("8_om3rv")
-theme_override_font_sizes/font_size = 22
-text = "Cel: Dotrzyj do serca lasu"
-horizontal_alignment = 1
-vertical_alignment = 1
-
-[node name="RightBlock" type="HBoxContainer" parent="UILayer/UIRoot/TopBar/MarginContainer/HBoxContainer" unique_id=534054088]
-layout_mode = 2
-size_flags_horizontal = 3
-alignment = 2
-
-[node name="GoldLabel" type="Label" parent="UILayer/UIRoot/TopBar/MarginContainer/HBoxContainer/RightBlock" unique_id=979537040]
-layout_mode = 2
-theme_override_colors/font_color = Color(0.84705883, 0.69411767, 0.35686275, 1)
-theme_override_colors/font_outline_color = Color(0.07058824, 0.050980393, 0.03529412, 1)
-theme_override_constants/outline_size = 2
-theme_override_fonts/font = ExtResource("8_om3rv")
-theme_override_font_sizes/font_size = 22
-text = "Złoto: 0"
-horizontal_alignment = 2
-vertical_alignment = 1
 
 [node name="LeftPanel" type="PanelContainer" parent="UILayer/UIRoot" unique_id=1915366482]
 visible = false
@@ -271,6 +199,3 @@ offset_bottom = 40.0
 [node name="AudioAmbient" type="AudioStreamPlayer2D" parent="." unique_id=2092926755]
 stream = ExtResource("9_0e3jb")
 volume_db = -5.0
-
-[node name="AudioUI" type="AudioStreamPlayer2D" parent="." unique_id=67738679]
-stream = ExtResource("10_1covb")

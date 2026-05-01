@@ -1,0 +1,79 @@
+[gd_scene format=3 uid="uid://wi4nh4xst7w6"]
+
+[ext_resource type="Script" uid="uid://wgi4clv5ok34" path="res://scripts/ui/TopBar.gd" id="1_hvc3p"]
+[ext_resource type="Texture2D" uid="uid://gklmtnwaawtu" path="res://assets/ui/map/topbar.png" id="1_u4827"]
+[ext_resource type="FontFile" uid="uid://ob2p0qtkh4im" path="res://assets/ui/fonts/IMFellEnglishSC-Regular.ttf" id="2_4y8d4"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_xkm8s"]
+bg_color = Color(0, 0, 0, 1)
+
+[node name="TopBar" type="PanelContainer" unique_id=1849835551]
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 48.0
+grow_horizontal = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_xkm8s")
+script = ExtResource("1_hvc3p")
+
+[node name="Background" type="TextureRect" parent="." unique_id=1984669740]
+modulate = Color(0.6862745, 0.6862745, 0.6862745, 1)
+layout_mode = 2
+texture = ExtResource("1_u4827")
+expand_mode = 1
+
+[node name="MarginContainer" type="MarginContainer" parent="." unique_id=582179136]
+layout_direction = 2
+layout_mode = 2
+theme_override_constants/margin_left = 40
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 40
+theme_override_constants/margin_bottom = 10
+
+[node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer" unique_id=1830589140]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="LeftBlock" type="HBoxContainer" parent="MarginContainer/HBoxContainer" unique_id=456523602]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="TitleLabel" type="Label" parent="MarginContainer/HBoxContainer/LeftBlock" unique_id=1874444429]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9098039, 0.8509804, 0.74509805, 1)
+theme_override_colors/font_outline_color = Color(0.07058824, 0.050980393, 0.03529412, 1)
+theme_override_constants/outline_size = 2
+theme_override_fonts/font = ExtResource("2_4y8d4")
+theme_override_font_sizes/font_size = 22
+text = "Mapa wyprawy"
+vertical_alignment = 1
+
+[node name="CenterBlock" type="CenterContainer" parent="MarginContainer/HBoxContainer" unique_id=792279120]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="ObejctiveLabel" type="Label" parent="MarginContainer/HBoxContainer/CenterBlock" unique_id=700169042]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9411765, 0.8901961, 0.78431374, 1)
+theme_override_colors/font_outline_color = Color(0.07058824, 0.050980393, 0.03529412, 1)
+theme_override_constants/outline_size = 2
+theme_override_fonts/font = ExtResource("2_4y8d4")
+theme_override_font_sizes/font_size = 22
+text = "Cel: Dotrzyj do serca lasu"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="RightBlock" type="HBoxContainer" parent="MarginContainer/HBoxContainer" unique_id=1803329319]
+layout_mode = 2
+size_flags_horizontal = 3
+alignment = 2
+
+[node name="GoldLabel" type="Label" parent="MarginContainer/HBoxContainer/RightBlock" unique_id=1152421577]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.84705883, 0.69411767, 0.35686275, 1)
+theme_override_colors/font_outline_color = Color(0.07058824, 0.050980393, 0.03529412, 1)
+theme_override_constants/outline_size = 2
+theme_override_fonts/font = ExtResource("2_4y8d4")
+theme_override_font_sizes/font_size = 22
+text = "Złoto: 0"
+horizontal_alignment = 2
+vertical_alignment = 1

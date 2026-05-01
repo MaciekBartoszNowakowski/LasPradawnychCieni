@@ -19,6 +19,7 @@ config/icon="res://icon.svg"
 
 MapState="*uid://cydnh0x8efnji"
 GameState="*res://scripts/team/GameState.gd"
+UiAudio="*uid://7s7ci3qjgvf8"
 
 [display]
 

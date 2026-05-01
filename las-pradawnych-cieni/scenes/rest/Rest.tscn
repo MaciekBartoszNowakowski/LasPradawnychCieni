@@ -1,0 +1,221 @@
+[gd_scene format=3 uid="uid://jotwhmqr6hbc"]
+
+[ext_resource type="PackedScene" uid="uid://wi4nh4xst7w6" path="res://scenes/ui/TopBar.tscn" id="1_topbar"]
+[ext_resource type="Script" uid="uid://yst4arcbyy4p" path="res://scripts/rest/Rest.gd" id="2_rest_script"]
+[ext_resource type="Texture2D" uid="uid://c2ppx5apk5i8w" path="res://assets/ui/rest/rest_background_v1.png" id="3_background"]
+[ext_resource type="Texture2D" uid="uid://cj87at3easwk5" path="res://assets/ui/menu/vignette_v0.0.1.png" id="4_vignette"]
+
+[node name="Rest" type="Control" unique_id=1498650610]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("2_rest_script")
+
+[node name="BackgroundLayer" type="Control" parent="." unique_id=293864235]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="Background" type="TextureRect" parent="BackgroundLayer" unique_id=196584279]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("3_background")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="Vignette" type="TextureRect" parent="BackgroundLayer" unique_id=625553291]
+modulate = Color(1, 1, 1, 0.38)
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("4_vignette")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="CampLayer" type="Control" parent="." unique_id=130276667]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="CampfireMarker" type="Control" parent="CampLayer" unique_id=1061924539]
+layout_mode = 1
+anchors_preset = 0
+mouse_filter = 2
+
+[node name="PartySlots" type="Control" parent="CampLayer" unique_id=1557521978]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="HeroSlot1" type="Control" parent="CampLayer/PartySlots" unique_id=2113629431]
+anchors_preset = 0
+
+[node name="HeroSlot2" type="Control" parent="CampLayer/PartySlots" unique_id=1288897541]
+anchors_preset = 0
+
+[node name="HeroSlot3" type="Control" parent="CampLayer/PartySlots" unique_id=2011515651]
+anchors_preset = 0
+
+[node name="HeroSlot4" type="Control" parent="CampLayer/PartySlots" unique_id=500137260]
+anchors_preset = 0
+
+[node name="UILayer" type="CanvasLayer" parent="." unique_id=440461916]
+
+[node name="UIRoot" type="Control" parent="UILayer" unique_id=528709926]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="TopBar" parent="UILayer/UIRoot" unique_id=1469786019 instance=ExtResource("1_topbar")]
+layout_mode = 1
+
+[node name="ControlsPanel" type="PanelContainer" parent="UILayer/UIRoot" unique_id=1550059362]
+layout_mode = 1
+
+[node name="MarginContainer" type="MarginContainer" parent="UILayer/UIRoot/ControlsPanel" unique_id=257355712]
+layout_mode = 2
+theme_override_constants/margin_left = 18
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 18
+theme_override_constants/margin_bottom = 16
+
+[node name="VBoxContainer" type="VBoxContainer" parent="UILayer/UIRoot/ControlsPanel/MarginContainer" unique_id=2026836322]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="TitleLabel" type="Label" parent="UILayer/UIRoot/ControlsPanel/MarginContainer/VBoxContainer" unique_id=729478880]
+layout_mode = 2
+text = "Drużyna"
+
+[node name="HintLabel" type="Label" parent="UILayer/UIRoot/ControlsPanel/MarginContainer/VBoxContainer" unique_id=605728914]
+layout_mode = 2
+text = "Kliknij bohatera przy ognisku, aby zobaczyć jego statystyki."
+autowrap_mode = 3
+
+[node name="ActionPanel" type="PanelContainer" parent="UILayer/UIRoot" unique_id=1897313321]
+layout_mode = 1
+
+[node name="MarginContainer" type="MarginContainer" parent="UILayer/UIRoot/ActionPanel" unique_id=1488313937]
+layout_mode = 2
+theme_override_constants/margin_left = 18
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 18
+theme_override_constants/margin_bottom = 16
+
+[node name="VBoxContainer" type="VBoxContainer" parent="UILayer/UIRoot/ActionPanel/MarginContainer" unique_id=817370020]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="MainActionsRow" type="HBoxContainer" parent="UILayer/UIRoot/ActionPanel/MarginContainer/VBoxContainer" unique_id=2021342400]
+layout_mode = 2
+alignment = 1
+
+[node name="RestButton" type="Button" parent="UILayer/UIRoot/ActionPanel/MarginContainer/VBoxContainer/MainActionsRow" unique_id=765929272]
+layout_mode = 2
+text = "Odpocznij"
+
+[node name="PrepareButton" type="Button" parent="UILayer/UIRoot/ActionPanel/MarginContainer/VBoxContainer/MainActionsRow" unique_id=1439718554]
+visible = false
+layout_mode = 2
+text = "Przygotuj"
+
+[node name="LeaveButton" type="Button" parent="UILayer/UIRoot/ActionPanel/MarginContainer/VBoxContainer" unique_id=1041363153]
+layout_mode = 2
+text = "Ruszaj dalej"
+
+[node name="CharacterPanel" type="PanelContainer" parent="UILayer/UIRoot" unique_id=1025693448]
+layout_mode = 1
+
+[node name="MarginContainer" type="MarginContainer" parent="UILayer/UIRoot/CharacterPanel" unique_id=29899731]
+layout_mode = 2
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_bottom = 12
+
+[node name="CharacterPanelContent" type="VBoxContainer" parent="UILayer/UIRoot/CharacterPanel/MarginContainer" unique_id=456744233]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="HeaderRow" type="HBoxContainer" parent="UILayer/UIRoot/CharacterPanel/MarginContainer/CharacterPanelContent" unique_id=1475992098]
+layout_mode = 2
+
+[node name="CharacterNameLabel" type="Label" parent="UILayer/UIRoot/CharacterPanel/MarginContainer/CharacterPanelContent/HeaderRow" unique_id=528855593]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Bohater"
+
+[node name="CloseButton" type="Button" parent="UILayer/UIRoot/CharacterPanel/MarginContainer/CharacterPanelContent/HeaderRow" unique_id=904297833]
+layout_mode = 2
+text = "X"
+
+[node name="CharacterClassLabel" type="Label" parent="UILayer/UIRoot/CharacterPanel/MarginContainer/CharacterPanelContent" unique_id=1018414920]
+visible = false
+layout_mode = 2
+text = "Klasa"
+
+[node name="HPLabel" type="Label" parent="UILayer/UIRoot/CharacterPanel/MarginContainer/CharacterPanelContent" unique_id=2045792216]
+layout_mode = 2
+text = "HP: 0 / 0"
+
+[node name="HPBar" type="ProgressBar" parent="UILayer/UIRoot/CharacterPanel/MarginContainer/CharacterPanelContent" unique_id=1322869002]
+visible = false
+layout_mode = 2
+max_value = 10.0
+value = 5.0
+
+[node name="StatsTitleLabel" type="Label" parent="UILayer/UIRoot/CharacterPanel/MarginContainer/CharacterPanelContent" unique_id=1047157791]
+layout_mode = 2
+text = "Statystyki:"
+
+[node name="StatusListLabel" type="Label" parent="UILayer/UIRoot/CharacterPanel/MarginContainer/CharacterPanelContent" unique_id=535191859]
+layout_mode = 2
+text = "Brak"
+
+[node name="InventoryTitleLabel" type="Label" parent="UILayer/UIRoot/CharacterPanel/MarginContainer/CharacterPanelContent" unique_id=1367480353]
+layout_mode = 2
+text = "Ekwipunek:"
+
+[node name="InventoryListLabel" type="Label" parent="UILayer/UIRoot/CharacterPanel/MarginContainer/CharacterPanelContent" unique_id=1922441219]
+layout_mode = 2
+text = "Brak"
+
+[node name="PopupLayer" type="CanvasLayer" parent="." unique_id=1121304619]
+
+[node name="TransitionOverlay" type="ColorRect" parent="PopupLayer" unique_id=2011331897]
+visible = false
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0)
+
+[node name="AudioAmbient" type="AudioStreamPlayer" parent="." unique_id=2045391861]
