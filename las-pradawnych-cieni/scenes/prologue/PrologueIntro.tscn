@@ -1,0 +1,34 @@
+[gd_scene format=3 uid="uid://chbwfcvv6bsrr"]
+
+[ext_resource type="Script" uid="uid://c2gr05g0hduxw" path="res://scripts/prologue/PrologueIntro.gd" id="1_7tb4k"]
+[ext_resource type="FontFile" uid="uid://ob2p0qtkh4im" path="res://assets/ui/fonts/IMFellEnglishSC-Regular.ttf" id="2_q8xy6"]
+
+[node name="PrologueIntro" type="CanvasLayer" unique_id=1898545527]
+script = ExtResource("1_7tb4k")
+
+[node name="Dim" type="ColorRect" parent="." unique_id=1505970689]
+modulate = Color(1, 1, 1, 0)
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 1)
+
+[node name="CenterContainer" type="CenterContainer" parent="." unique_id=1747213794]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="IntroText" type="RichTextLabel" parent="CenterContainer" unique_id=1711523497]
+modulate = Color(1, 1, 1, 0)
+custom_minimum_size = Vector2(900, 260)
+layout_mode = 2
+theme_override_fonts/normal_font = ExtResource("2_q8xy6")
+theme_override_font_sizes/normal_font_size = 25
+bbcode_enabled = true
+fit_content = true
+scroll_active = false
+horizontal_alignment = 1
