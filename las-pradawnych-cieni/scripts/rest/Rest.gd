@@ -20,9 +20,6 @@ const CHARACTER_PANEL_SIDE_MARGIN: float = 15.0
 
 const HERO_SLOT_SIZE := Vector2(160.0, 230.0)
 
-const APPLY_ENTRY_BONUS := true
-const ENTRY_HEAL_AMOUNT := 2
-
 var party: Array[Player] = []
 
 var selected_hero_index: int = -1
@@ -129,9 +126,6 @@ func _ready() -> void:
 
 	if character_panel != null:
 		character_panel.visible = false
-
-	if APPLY_ENTRY_BONUS:
-		_apply_entry_bonus()
 
 	_queue_redraw_hero_slots()
 
@@ -617,18 +611,6 @@ func _on_leave_button_pressed() -> void:
 		get_tree().change_scene_to_file(MAP_SCENE_PATH)
 	else:
 		print("Brak sceny mapy pod ścieżką: ", MAP_SCENE_PATH)
-
-
-func _apply_entry_bonus() -> void:
-	for character: Player in party:
-		character.current_life = min(
-			character.max_life,
-			character.current_life + ENTRY_HEAL_AMOUNT
-		)
-
-		character.queue_redraw()
-
-	_queue_redraw_hero_slots()
 
 
 func _show_character_panel(index: int) -> void:
