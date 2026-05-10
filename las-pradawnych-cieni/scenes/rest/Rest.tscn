@@ -132,22 +132,27 @@ theme_override_constants/margin_bottom = 16
 [node name="VBoxContainer" type="VBoxContainer" parent="UILayer/UIRoot/ActionPanel/MarginContainer" unique_id=817370020]
 layout_mode = 2
 theme_override_constants/separation = 10
+alignment = 1
 
 [node name="MainActionsRow" type="HBoxContainer" parent="UILayer/UIRoot/ActionPanel/MarginContainer/VBoxContainer" unique_id=2021342400]
 layout_mode = 2
+theme_override_constants/separation = 12
 alignment = 1
 
 [node name="RestButton" type="Button" parent="UILayer/UIRoot/ActionPanel/MarginContainer/VBoxContainer/MainActionsRow" unique_id=765929272]
 layout_mode = 2
+size_flags_horizontal = 3
 text = "Odpocznij"
 
 [node name="PrepareButton" type="Button" parent="UILayer/UIRoot/ActionPanel/MarginContainer/VBoxContainer/MainActionsRow" unique_id=1439718554]
 visible = false
 layout_mode = 2
+size_flags_horizontal = 3
 text = "Przygotuj"
 
-[node name="LeaveButton" type="Button" parent="UILayer/UIRoot/ActionPanel/MarginContainer/VBoxContainer" unique_id=1041363153]
+[node name="LeaveButton" type="Button" parent="UILayer/UIRoot/ActionPanel/MarginContainer/VBoxContainer/MainActionsRow" unique_id=1041363153]
 layout_mode = 2
+size_flags_horizontal = 3
 text = "Ruszaj dalej"
 
 [node name="CharacterPanel" type="PanelContainer" parent="UILayer/UIRoot" unique_id=1025693448]

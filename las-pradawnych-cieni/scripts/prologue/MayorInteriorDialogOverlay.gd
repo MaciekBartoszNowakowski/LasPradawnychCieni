@@ -10,14 +10,12 @@ signal finished
 @onready var dialogue_text: RichTextLabel = $Root/DialoguePanel/MarginContainer/VBoxContainer/DialogueText
 @onready var continue_button: Button = $Root/DialoguePanel/MarginContainer/VBoxContainer/ContinueButton
 
-const CHAR_DELAY := 0.026
 const PANEL_FADE_TIME := 0.45
 const BACKGROUND_FADE_TIME := 0.9
+const TEXT_FADE_TIME := 0.35
 
 var _step_index := -1
-var _is_typing := false
 var _can_continue := false
-var _current_full_text := ""
 var _current_button_text := "Dalej"
 
 var dialogue_steps := [
@@ -56,37 +54,16 @@ var dialogue_steps := [
 func _ready() -> void:
 	hide()
 
-	background.modulate.a = 0.0
-	dark_overlay.modulate.a = 0.0
-	dialogue_panel.modulate.a = 0.0
-
-	dialogue_text.text = ""
-	dialogue_text.visible_characters = 0
-
-	continue_button.visible = true
-	continue_button.disabled = true
-	continue_button.modulate.a = 0.0
 	continue_button.pressed.connect(_on_continue_pressed)
+	_reset_visuals()
 
 
 func play() -> void:
 	show()
+	_reset_visuals()
 
 	_step_index = -1
-	_is_typing = false
-	_can_continue = false
-	_current_full_text = ""
 	_current_button_text = "Dalej"
-
-	background.modulate.a = 0.0
-	dark_overlay.modulate.a = 0.0
-	dialogue_panel.modulate.a = 0.0
-
-	speaker_label.text = ""
-	dialogue_text.text = ""
-	dialogue_text.visible_characters = 0
-
-	_hide_continue_button()
 
 	var intro_tween := create_tween()
 	intro_tween.tween_property(background, "modulate:a", 1.0, BACKGROUND_FADE_TIME)
@@ -100,6 +77,22 @@ func play() -> void:
 	await panel_tween.finished
 
 	_next_step()
+
+
+func _reset_visuals() -> void:
+	_can_continue = false
+
+	background.modulate.a = 0.0
+	dark_overlay.modulate.a = 0.0
+	dialogue_panel.modulate.a = 0.0
+
+	speaker_label.text = ""
+	speaker_label.modulate.a = 0.0
+	dialogue_text.text = ""
+	dialogue_text.visible_characters = -1
+	dialogue_text.modulate.a = 0.0
+
+	_hide_continue_button()
 
 
 func _next_step() -> void:
@@ -118,31 +111,21 @@ func _show_step(step: Dictionary) -> void:
 
 	_current_button_text = str(step.get("button_text", "Dalej"))
 
+	var fade_out := create_tween()
+	fade_out.tween_property(speaker_label, "modulate:a", 0.0, 0.15)
+	fade_out.parallel().tween_property(dialogue_text, "modulate:a", 0.0, 0.15)
+	await fade_out.finished
+
 	speaker_label.text = str(step.get("speaker", ""))
-	await _type_text(str(step.get("text", "")))
+	dialogue_text.text = str(step.get("text", ""))
+	dialogue_text.visible_characters = -1
+
+	var fade_in := create_tween()
+	fade_in.tween_property(speaker_label, "modulate:a", 1.0, TEXT_FADE_TIME)
+	fade_in.parallel().tween_property(dialogue_text, "modulate:a", 1.0, TEXT_FADE_TIME)
+	await fade_in.finished
 
 	_show_continue_button()
-
-
-func _type_text(text: String) -> void:
-	_is_typing = true
-	_current_full_text = text
-
-	dialogue_text.text = text
-	dialogue_text.visible_characters = 0
-
-	var total_chars := dialogue_text.get_total_character_count()
-
-	for i in range(total_chars + 1):
-		if not _is_typing:
-			dialogue_text.visible_characters = -1
-			return
-
-		dialogue_text.visible_characters = i
-		await get_tree().create_timer(CHAR_DELAY).timeout
-
-	_is_typing = false
-	dialogue_text.visible_characters = -1
 
 
 func _show_continue_button() -> void:
@@ -163,15 +146,12 @@ func _hide_continue_button() -> void:
 
 
 func _on_continue_pressed() -> void:
-	if _is_typing:
-		_is_typing = false
-		dialogue_text.visible_characters = -1
-		return
-
 	if not _can_continue:
 		return
 
 	_can_continue = false
+	continue_button.disabled = true
+
 	UiAudio.play_click()
 
 	_next_step()

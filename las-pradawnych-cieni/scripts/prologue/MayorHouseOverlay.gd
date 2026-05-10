@@ -29,8 +29,8 @@ func play() -> void:
 	_reset_visuals()
 
 	narration_text.text = text_to_show.strip_edges()
-	narration_text.visible_ratio = 0.0
-	narration_text.modulate.a = 1.0
+	narration_text.visible_ratio = 1.0
+	narration_text.modulate.a = 0.0
 
 	var intro_tween := create_tween()
 	intro_tween.tween_property(background, "modulate:a", 1.0, 1.0)
@@ -46,7 +46,7 @@ func play() -> void:
 	await get_tree().create_timer(0.15).timeout
 
 	var text_tween := create_tween()
-	text_tween.tween_property(narration_text, "visible_ratio", 1.0, 1.45)
+	text_tween.tween_property(narration_text, "modulate:a", 1.0, 0.45)
 
 	await text_tween.finished
 	await get_tree().create_timer(0.25).timeout
@@ -65,8 +65,8 @@ func _reset_visuals() -> void:
 	dark_overlay.modulate.a = 0.0
 
 	narration_box.modulate.a = 0.0
-	narration_text.modulate.a = 1.0
-	narration_text.visible_ratio = 0.0
+	narration_text.modulate.a = 0.0
+	narration_text.visible_ratio = 1.0
 	narration_text.text = ""
 
 	knock_button.modulate.a = 0.0
@@ -126,18 +126,17 @@ Wejdźcie. I zamknijcie za sobą drzwi.
 	finished.emit()
 
 
-func _fade_replace_text(new_text: String, reveal_time: float = 1.0) -> void:
+func _fade_replace_text(new_text: String, _reveal_time: float = 1.0) -> void:
 	var fade_out := create_tween()
-	fade_out.tween_property(narration_text, "modulate:a", 0.0, 0.35)
+	fade_out.tween_property(narration_text, "modulate:a", 0.0, 0.25)
 
 	await fade_out.finished
 
 	narration_text.text = new_text.strip_edges()
-	narration_text.visible_ratio = 0.0
+	narration_text.visible_ratio = 1.0
 
 	var fade_in := create_tween()
-	fade_in.tween_property(narration_text, "modulate:a", 1.0, 0.25)
-	fade_in.parallel().tween_property(narration_text, "visible_ratio", 1.0, reveal_time)
+	fade_in.tween_property(narration_text, "modulate:a", 1.0, 0.35)
 
 	await fade_in.finished
 
