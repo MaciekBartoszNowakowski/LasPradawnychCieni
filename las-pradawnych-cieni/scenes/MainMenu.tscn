@@ -5,6 +5,11 @@
 [ext_resource type="Texture2D" uid="uid://cj87at3easwk5" path="res://assets/ui/menu/vignette_v0.0.1.png" id="3_2wh52"]
 [ext_resource type="FontFile" uid="uid://ob2p0qtkh4im" path="res://assets/ui/fonts/IMFellEnglishSC-Regular.ttf" id="4_ow34m"]
 [ext_resource type="AudioStream" uid="uid://b3lqb0f4uap67" path="res://assets/ui/menu/Beneath_the_Silt.mp3" id="5_826wr"]
+[ext_resource type="PackedScene" uid="uid://chbwfcvv6bsrr" path="res://scenes/prologue/PrologueIntro.tscn" id="6_826wr"]
+[ext_resource type="PackedScene" uid="uid://dwj3h0tryuak2" path="res://scenes/prologue/VillageGateOverlay.tscn" id="7_ucygd"]
+[ext_resource type="PackedScene" uid="uid://b230vyie5n31c" path="res://scenes/prologue/NoticeBoardOverlay.tscn" id="8_mipys"]
+[ext_resource type="PackedScene" path="res://scenes/prologue/MayorHouseOverlay.tscn" id="9_8a8k8"]
+[ext_resource type="PackedScene" uid="uid://x81gjwrscmi5" path="res://scenes/prologue/MayorInteriorDialogOverlay.tscn" id="10_7la6k"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ow34m"]
 content_margin_left = 16.0
@@ -393,3 +398,15 @@ volume_db = -15.0
 [node name="AnimationPlayer" type="AnimationPlayer" parent="." unique_id=1530418743]
 
 [node name="TimerCrow" type="Timer" parent="." unique_id=1878034088]
+
+[node name="PrologueIntro" parent="." unique_id=1898545527 instance=ExtResource("6_826wr")]
+
+[node name="VillageGateOverlay" parent="." unique_id=643514943 instance=ExtResource("7_ucygd")]
+
+[node name="NoticeBoardOverlay" parent="." unique_id=469763795 instance=ExtResource("8_mipys")]
+visible = true
+
+[node name="MayorHouseOverlay" parent="." unique_id=288783384 instance=ExtResource("9_8a8k8")]
+visible = true
+
+[node name="MayorInteriorDialogOverlay" parent="." unique_id=433480999 instance=ExtResource("10_7la6k")]

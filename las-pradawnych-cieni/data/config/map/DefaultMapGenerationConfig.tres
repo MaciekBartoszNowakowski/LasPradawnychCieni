@@ -5,35 +5,26 @@
 
 [sub_resource type="Resource" id="MapActRule_1"]
 script = ExtResource("2_mar")
-display_name = "Act I"
 rest_density = 1.15
 optional_event_density = 0.9
-branching_intensity = 0.75
 
 [sub_resource type="Resource" id="MapActRule_2"]
 script = ExtResource("2_mar")
 act_id = 1
-display_name = "Act II"
-relative_length_weight = 1.35
 preferred_path_count = 3
 combat_density = 1.15
 rest_density = 0.9
 optional_event_density = 1.1
 miniboss_chance = 0.45
-branching_intensity = 1.2
-merge_intensity = 0.95
 
 [sub_resource type="Resource" id="MapActRule_3"]
 script = ExtResource("2_mar")
 act_id = 2
-display_name = "Act III"
 combat_density = 1.25
 rest_density = 0.7
 shop_density = 0.85
 optional_event_density = 0.7
 miniboss_chance = 0.2
-branching_intensity = 0.65
-merge_intensity = 1.25
 
 [resource]
 script = ExtResource("1_mgc")

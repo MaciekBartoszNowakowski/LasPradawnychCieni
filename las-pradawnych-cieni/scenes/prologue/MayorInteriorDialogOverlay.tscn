@@ -1,0 +1,174 @@
+[gd_scene format=3 uid="uid://x81gjwrscmi5"]
+
+[ext_resource type="Script" uid="uid://brtjirgten2im" path="res://scripts/prologue/MayorInteriorDialogOverlay.gd" id="1_script"]
+[ext_resource type="Texture2D" uid="uid://ugehk63kff4p" path="res://assets/ui/prologue/mayor_interior.png" id="2_bg"]
+[ext_resource type="FontFile" uid="uid://ob2p0qtkh4im" path="res://assets/ui/fonts/IMFellEnglishSC-Regular.ttf" id="3_font"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_dialogue_panel"]
+content_margin_left = 24.0
+content_margin_top = 16.0
+content_margin_right = 24.0
+content_margin_bottom = 16.0
+bg_color = Color(0.03529412, 0.02745098, 0.01960784, 0.82)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.84705883, 0.8, 0.68235296, 0.32)
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_button_normal"]
+content_margin_left = 18.0
+content_margin_top = 10.0
+content_margin_right = 18.0
+content_margin_bottom = 10.0
+bg_color = Color(0.03529412, 0.02745098, 0.01960784, 0.58)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.84705883, 0.8, 0.68235296, 0.32)
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_button_pressed"]
+content_margin_left = 18.0
+content_margin_top = 10.0
+content_margin_right = 18.0
+content_margin_bottom = 10.0
+bg_color = Color(0.12, 0.085, 0.045, 0.72)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.9019608, 0.8666667, 0.78431374, 0.55)
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_button_hover"]
+content_margin_left = 18.0
+content_margin_top = 10.0
+content_margin_right = 18.0
+content_margin_bottom = 10.0
+bg_color = Color(0.12, 0.085, 0.045, 0.72)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.9019608, 0.8666667, 0.78431374, 0.55)
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
+[node name="MayorInteriorDialogOverlay" type="CanvasLayer" unique_id=171497216]
+script = ExtResource("1_script")
+
+[node name="Root" type="Control" parent="." unique_id=2105109265]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Background" type="TextureRect" parent="Root" unique_id=1304651454]
+modulate = Color(1, 1, 1, 0)
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("2_bg")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="DarkOverlay" type="ColorRect" parent="Root" unique_id=469179134]
+modulate = Color(1, 1, 1, 0)
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0, 0, 0, 0.22)
+
+[node name="DialoguePanel" type="Panel" parent="Root" unique_id=1622512372]
+custom_minimum_size = Vector2(1040, 230)
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -520.0
+offset_top = -285.0
+offset_right = 520.0
+offset_bottom = -26.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_styles/panel = SubResource("StyleBoxFlat_dialogue_panel")
+
+[node name="MarginContainer" type="MarginContainer" parent="Root/DialoguePanel" unique_id=614588188]
+layout_mode = 0
+offset_left = 24.0
+offset_top = 18.0
+offset_right = 1016.0
+offset_bottom = 241.0
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 4
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 4
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Root/DialoguePanel/MarginContainer" unique_id=496771388]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="SpeakerLabel" type="Label" parent="Root/DialoguePanel/MarginContainer/VBoxContainer" unique_id=909551108]
+custom_minimum_size = Vector2(0, 30)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9411765, 0.90588236, 0.8156863, 1)
+theme_override_colors/font_outline_color = Color(0.04, 0.03, 0.025, 1)
+theme_override_constants/outline_size = 2
+theme_override_fonts/font = ExtResource("3_font")
+theme_override_font_sizes/font_size = 24
+horizontal_alignment = 1
+
+[node name="DialogueText" type="RichTextLabel" parent="Root/DialoguePanel/MarginContainer/VBoxContainer" unique_id=1497007056]
+custom_minimum_size = Vector2(0, 105)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_colors/default_color = Color(0.8666667, 0.827451, 0.7372549, 1)
+theme_override_fonts/normal_font = ExtResource("3_font")
+theme_override_font_sizes/normal_font_size = 22
+bbcode_enabled = true
+scroll_active = false
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="ContinueButton" type="Button" parent="Root/DialoguePanel/MarginContainer/VBoxContainer" unique_id=1882664872]
+custom_minimum_size = Vector2(220, 48)
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 0
+focus_mode = 0
+theme_override_colors/font_color = Color(0.8666667, 0.827451, 0.7372549, 1)
+theme_override_colors/font_hover_color = Color(0.9411765, 0.90588236, 0.8156863, 1)
+theme_override_colors/font_pressed_color = Color(0.7607843, 0.6901961, 0.52156866, 1)
+theme_override_colors/font_disabled_color = Color(0.5529412, 0.52156866, 0.46666667, 1)
+theme_override_colors/font_outline_color = Color(0.09411765, 0.078431375, 0.07058824, 1)
+theme_override_constants/outline_size = 1
+theme_override_fonts/font = ExtResource("3_font")
+theme_override_font_sizes/font_size = 24
+theme_override_styles/normal = SubResource("StyleBoxFlat_button_normal")
+theme_override_styles/hover = SubResource("StyleBoxFlat_button_hover")
+theme_override_styles/pressed = SubResource("StyleBoxFlat_button_hover")
+theme_override_styles/focus = SubResource("StyleBoxFlat_button_normal")
+text = "Dalej"

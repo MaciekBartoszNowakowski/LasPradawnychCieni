@@ -35,7 +35,64 @@ func ensure_map_exists() -> void:
 
 	var generator := MapGenerator.new()
 	map_nodes = generator.generate_map(runtime_map_config, run_profile)
+
+	_initialize_start_node()
+
 	map_generated = true
+
+
+func _initialize_start_node() -> void:
+	if map_nodes.is_empty():
+		selected_node_id = -1
+		selected_node_type = -1
+		return
+
+	var start_node := _get_start_node()
+
+	if start_node == null:
+		selected_node_id = -1
+		selected_node_type = -1
+		return
+
+	for node in map_nodes:
+		node.available = false
+		node.visited = false
+
+	start_node.visited = true
+	start_node.available = false
+
+	selected_node_id = start_node.id
+	selected_node_type = start_node.type
+
+	for next_id in start_node.connections:
+		var next_node := get_node_by_id(next_id)
+
+		if next_node != null:
+			next_node.available = true
+
+
+func _get_start_node() -> MapNode:
+	if map_nodes.is_empty():
+		return null
+
+	var start_node: MapNode = map_nodes[0]
+
+	for node in map_nodes:
+		if node.layer_index < start_node.layer_index:
+			start_node = node
+		elif node.layer_index == start_node.layer_index:
+			if node.position.y < start_node.position.y:
+				start_node = node
+
+	return start_node
+
+
+func get_node_by_id(node_id: int) -> MapNode:
+	for node in map_nodes:
+		if node.id == node_id:
+			return node
+
+	return null
 
 
 func _load_default_run_profile() -> void:
@@ -60,6 +117,7 @@ func set_run_profile_from_path(path: String) -> void:
 		return
 
 	var loaded_profile := load(path) as RunProfile
+
 	if loaded_profile == null:
 		push_warning("Nie udało się załadować RunProfile z: %s" % path)
 		return
