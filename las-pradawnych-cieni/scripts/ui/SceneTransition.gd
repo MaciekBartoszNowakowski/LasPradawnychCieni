@@ -1,7 +1,7 @@
 extends CanvasLayer
 
 var fade_rect: ColorRect
-var _is_transitioning := false
+var _is_transitioning: bool = false
 
 
 func _ready() -> void:
@@ -10,7 +10,7 @@ func _ready() -> void:
 	fade_rect = ColorRect.new()
 	fade_rect.name = "FadeRect"
 	fade_rect.color = Color(0, 0, 0, 0)
-	fade_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	fade_rect.mouse_filter = Control.MOUSE_FILTER_STOP
 	
 	add_child(fade_rect)
 	
@@ -19,9 +19,11 @@ func _ready() -> void:
 	fade_rect.offset_top = 0
 	fade_rect.offset_right = 0
 	fade_rect.offset_bottom = 0
+	
+	fade_rect.hide()
 
 
-func change_scene(scene_path: String, fade_out_time := 0.7, fade_in_time := 0.7) -> void:
+func change_scene(scene_path: String, fade_out_time: float = 0.45, fade_in_time: float = 0.45) -> void:
 	if _is_transitioning:
 		return
 	
@@ -34,10 +36,23 @@ func change_scene(scene_path: String, fade_out_time := 0.7, fade_in_time := 0.7)
 	fade_out.tween_property(fade_rect, "color:a", 1.0, fade_out_time)
 	await fade_out.finished
 	
-	get_tree().change_scene_to_file(scene_path)
+	var error := get_tree().change_scene_to_file(scene_path)
+	if error != OK:
+		push_error("SceneTransition: nie udało się zmienić sceny na: " + scene_path)
+		_finish_failed_transition(fade_in_time)
+		return
 	
 	await get_tree().process_frame
 	
+	var fade_in := create_tween()
+	fade_in.tween_property(fade_rect, "color:a", 0.0, fade_in_time)
+	await fade_in.finished
+	
+	fade_rect.hide()
+	_is_transitioning = false
+
+
+func _finish_failed_transition(fade_in_time: float) -> void:
 	var fade_in := create_tween()
 	fade_in.tween_property(fade_rect, "color:a", 0.0, fade_in_time)
 	await fade_in.finished

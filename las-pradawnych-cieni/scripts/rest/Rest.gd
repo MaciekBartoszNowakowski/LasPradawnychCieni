@@ -186,18 +186,12 @@ func _setup_top_bar() -> void:
 	if top_bar == null:
 		return
 
-	var gold: int = 0
-
-	if GameState.player_team != null:
-		gold = GameState.player_team.money
-
 	top_bar.mouse_filter = Control.MOUSE_FILTER_IGNORE
 
 	if top_bar.has_method("setup"):
 		top_bar.setup(
 			"Leśne Obozowisko",
-			"Odpocznij przed dalszą wyprawą",
-			gold
+			"Odpocznij przed dalszą wyprawą"
 		)
 
 
@@ -598,20 +592,7 @@ func _on_rest_button_pressed() -> void:
 	
 	UiAudio.play_click()
 	
-	for character: Player in party:
-		var missing_hp: int = character.max_life - character.current_life
-
-		if missing_hp <= 0:
-			continue
-
-		var heal_amount: int = max(1, int(ceil(float(missing_hp) * 0.4)))
-
-		character.current_life = min(
-			character.max_life,
-			character.current_life + heal_amount
-		)
-
-		character.queue_redraw()
+	GameState.heal_team_missing_percent(0.4)
 
 	rest_used = true
 
@@ -633,7 +614,7 @@ func _on_leave_button_pressed() -> void:
 	UiAudio.play_click()
 	
 	if ResourceLoader.exists(MAP_SCENE_PATH):
-		get_tree().change_scene_to_file(MAP_SCENE_PATH)
+		SceneTransition.change_scene(MAP_SCENE_PATH)
 	else:
 		print("Brak sceny mapy pod ścieżką: ", MAP_SCENE_PATH)
 

@@ -1,0 +1,48 @@
+[gd_resource type="Resource" script_class="SideQuestConfig" format=3 uid="uid://klrq0s7u1s5r"]
+
+[ext_resource type="Script" uid="uid://2qvhujuh3vo8" path="res://scripts/quests/SideQuestConfig.gd" id="1_config"]
+[ext_resource type="Script" uid="uid://cgsvyyw6bj1w4" path="res://scripts/quests/SideQuestChoiceConfig.gd" id="2_choice"]
+
+[ext_resource type="Texture2D" path="res://assets/ui/side_quests/old_shrine_intro.png" id="3_bg"]
+[ext_resource type="Texture2D" path="res://assets/ui/side_quests/old_shrine_pray_result.png" id="4_pray"]
+[ext_resource type="Texture2D" path="res://assets/ui/side_quests/old_shrine_take_amulet_result.png" id="5_amulet"]
+[ext_resource type="Texture2D" path="res://assets/ui/side_quests/old_shrine_leave_result.png" id="6_leave"]
+[sub_resource type="Resource" id="Choice_1"]
+script = ExtResource("2_choice")
+text = "Pomódl się przy kapliczce"
+result_text = "Przez chwilę las milknie. Znak wyryty w drewnie jaśnieje bladym światłem, a ciężar niepokoju powoli opuszcza drużynę."
+result_background = ExtResource("4_pray")
+result_background_note = "Stara kapliczka rozświetlona słabym, ciepłym światłem; las na chwilę spokojniejszy."
+health_delta = 8
+continue_button_text = "Wróć na mapę"
+
+[sub_resource type="Resource" id="Choice_2"]
+script = ExtResource("2_choice")
+text = "Zabierz stary amulet"
+result_text = "Amulet jest zimny jak kamień z dna studni. Może będzie coś wart, ale kiedy odrywacie go od kapliczki, między korzeniami coś porusza się gwałtownie."
+result_background = ExtResource("5_amulet")
+result_background_note = "Kapliczka po zabraniu amuletu; ciemniejsze światło, poruszone korzenie, niepokojący cień."
+gold_delta = 12
+health_delta = -4
+continue_button_text = "Wróć na mapę"
+
+[sub_resource type="Resource" id="Choice_3"]
+script = ExtResource("2_choice")
+text = "Odejdź bez dotykania niczego"
+result_text = "Zostawiacie kapliczkę za sobą. Przez kilka kroków macie wrażenie, że ktoś obserwuje was spomiędzy drzew, lecz nic nie rusza waszym śladem."
+result_background = ExtResource("6_leave")
+result_background_note = "Drużyna odchodzi od starej kapliczki; mroczny las, ale bez bezpośredniego zagrożenia."
+continue_button_text = "Wróć na mapę"
+
+[resource]
+script = ExtResource("1_config")
+quest_id = &"old_shrine"
+title = "Stara kapliczka"
+description = "Między korzeniami pradawnego dębu stoi zapomniana kapliczka. Drewno jest spróchniałe, ale wyryty znak nadal lekko połyskuje, jakby czekał na czyjąś decyzję."
+background = ExtResource("3_bg")
+background_note = "Leśna ścieżka nocą, pradawny dąb, spróchniała kapliczka między korzeniami, klimat dark folk fantasy."
+dark_overlay_alpha = 0.32
+vignette_alpha = 0.48
+panel_side = "right"
+choices = Array[Resource]([SubResource("Choice_1"), SubResource("Choice_2"), SubResource("Choice_3")])
+allowed_acts = PackedInt32Array()

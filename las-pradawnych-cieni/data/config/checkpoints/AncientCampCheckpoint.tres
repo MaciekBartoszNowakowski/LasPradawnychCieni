@@ -1,0 +1,32 @@
+[gd_resource type="Resource" script_class="CheckpointConfig" format=3]
+
+[ext_resource type="Script" path="res://scripts/checkpoints/CheckpointConfig.gd" id="1_checkpoint_config"]
+[ext_resource type="Script" path="res://scripts/checkpoints/CheckpointChoiceConfig.gd" id="2_checkpoint_choice"]
+[ext_resource type="Texture2D" path="res://assets/ui/checkpoints/ancient_camp/cp_003_intro.png" id="3_intro"]
+[ext_resource type="Texture2D" path="res://assets/ui/checkpoints/ancient_camp/cp_003_result_a.png" id="4_result_a"]
+[ext_resource type="Texture2D" path="res://assets/ui/checkpoints/ancient_camp/cp_003_result_b.png" id="5_result_b"]
+
+[sub_resource type="Resource" id="CheckpointChoice_1"]
+script = ExtResource("2_checkpoint_choice")
+text = "Odczytaj kronikę wyprawy"
+result_text = "Notatki opisują, że mieszkańcy składali \"daninę ciszy\" opiekuńczemu duchowi lasu. Ostatni wpis mówi, że sołtys przerwał rytuał, by nie ujawnić ceny."
+lore_tag = &"camp_chronicle"
+continue_button_text = "Zatrzymaj kronikę"
+result_background = ExtResource("4_result_a")
+
+[sub_resource type="Resource" id="CheckpointChoice_2"]
+script = ExtResource("2_checkpoint_choice")
+text = "Przesłuchaj echo przy kamiennym kręgu"
+result_text = "W ciszy słyszysz urwane głosy: \"to miało chronić wieś\" i \"nikt nie może się dowiedzieć\". Echo brzmi bardziej jak wspomnienie ludzi niż czarów."
+lore_tag = &"camp_echo"
+continue_button_text = "Ruszaj dalej"
+result_background = ExtResource("5_result_b")
+
+[resource]
+script = ExtResource("1_checkpoint_config")
+checkpoint_id = &"ancient_camp"
+title = "Obóz Dawnych Strażników"
+description = "W opuszczonym obozie stoją pale rytualne i zatarte herby osady. To miejsce wygląda jak punkt, z którego dawniej pilnowano granicy lasu."
+lore_tag = &"ritual_break"
+background = ExtResource("3_intro")
+choices = Array[Resource]([SubResource("CheckpointChoice_1"), SubResource("CheckpointChoice_2")])

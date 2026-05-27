@@ -97,3 +97,44 @@ func world_to_grid(pos: Vector2) -> Vector2i:
 
 func _draw() -> void:
 	draw_circle(Vector2.ZERO, RADIUS, color)
+
+
+func apply_life_delta(amount: int) -> int:
+	if amount == 0:
+		return 0
+
+	var previous_life: int = current_life
+
+	current_life = clampi(
+		current_life + amount,
+		0,
+		max_life
+	)
+
+	queue_redraw()
+
+	return current_life - previous_life
+
+
+func heal(amount: int) -> int:
+	if amount <= 0:
+		return 0
+
+	return apply_life_delta(amount)
+
+
+func damage(amount: int) -> int:
+	if amount <= 0:
+		return 0
+
+	return apply_life_delta(-amount)
+
+
+func heal_missing_percent(percent: float) -> int:
+	var missing_life: int = max_life - current_life
+
+	if missing_life <= 0:
+		return 0
+
+	var heal_amount: int = max(1, int(ceil(float(missing_life) * percent)))
+	return heal(heal_amount)

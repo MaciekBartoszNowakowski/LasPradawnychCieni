@@ -341,11 +341,11 @@ func _on_end_turn_button_pressed() -> void:
 	_advance_turn()
 
 func _on_end_battle_button_pressed() -> void:
-	for char: Player in player_characters:
-		if char.is_moving():
+	for charcter: Player in player_characters:
+		if charcter.is_moving():
 			return
-	for char: Player in player_characters:
-		char.reparent(GameState)
+	for charcter: Player in player_characters:
+		charcter.reparent(GameState)
 	get_tree().change_scene_to_file(\"res://scenes/map/Map.tscn\")
 "
 

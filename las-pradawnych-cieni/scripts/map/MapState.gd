@@ -7,6 +7,10 @@ var map_generated: bool = false
 
 var selected_node_type: int = -1
 var selected_node_id: int = -1
+var selected_side_quest: SideQuestConfig = null
+var completed_side_quest_ids: Dictionary = {}
+var selected_checkpoint: CheckpointConfig = null
+var completed_checkpoint_ids: Dictionary = {}
 
 var run_profile: RunProfile = null
 var runtime_map_config: MapGenerationConfig = null
@@ -133,9 +137,66 @@ func get_run_profile() -> RunProfile:
 	return run_profile
 
 
+func set_selected_side_quest(quest: SideQuestConfig) -> void:
+	selected_side_quest = quest
+
+
+func get_selected_side_quest() -> SideQuestConfig:
+	return selected_side_quest
+
+
+func clear_selected_side_quest() -> void:
+	selected_side_quest = null
+
+
+func set_selected_checkpoint(checkpoint: CheckpointConfig) -> void:
+	selected_checkpoint = checkpoint
+
+
+func get_selected_checkpoint() -> CheckpointConfig:
+	return selected_checkpoint
+
+
+func clear_selected_checkpoint() -> void:
+	selected_checkpoint = null
+
+
+func complete_selected_checkpoint() -> void:
+	if selected_checkpoint == null:
+		return
+
+	var checkpoint_id: String = str(selected_checkpoint.checkpoint_id)
+	if not checkpoint_id.is_empty():
+		completed_checkpoint_ids[checkpoint_id] = true
+
+	selected_checkpoint = null
+
+
+func is_checkpoint_completed(checkpoint_id: String) -> bool:
+	return completed_checkpoint_ids.has(checkpoint_id)
+
+
+func complete_selected_side_quest() -> void:
+	if selected_side_quest == null:
+		return
+
+	if selected_side_quest.quest_id != "":
+		completed_side_quest_ids[selected_side_quest.quest_id] = true
+
+	selected_side_quest = null
+
+
+func is_side_quest_completed(quest_id: String) -> bool:
+	return completed_side_quest_ids.has(quest_id)
+
+
 func reset_map() -> void:
 	map_nodes.clear()
 	map_generated = false
 	selected_node_type = -1
 	selected_node_id = -1
 	runtime_map_config = null
+	selected_side_quest = null
+	selected_checkpoint = null
+	completed_side_quest_ids.clear()
+	completed_checkpoint_ids.clear()
