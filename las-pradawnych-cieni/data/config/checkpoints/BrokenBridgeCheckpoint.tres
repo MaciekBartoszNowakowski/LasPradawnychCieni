@@ -1,0 +1,32 @@
+[gd_resource type="Resource" script_class="CheckpointConfig" format=3]
+
+[ext_resource type="Script" path="res://scripts/checkpoints/CheckpointConfig.gd" id="1_checkpoint_config"]
+[ext_resource type="Script" path="res://scripts/checkpoints/CheckpointChoiceConfig.gd" id="2_checkpoint_choice"]
+[ext_resource type="Texture2D" path="res://assets/ui/checkpoints/broken_bridge/cp_002_intro.png" id="3_intro"]
+[ext_resource type="Texture2D" path="res://assets/ui/checkpoints/broken_bridge/cp_002_result_a.png" id="4_result_a"]
+[ext_resource type="Texture2D" path="res://assets/ui/checkpoints/broken_bridge/cp_002_result_b.png" id="5_result_b"]
+
+[sub_resource type="Resource" id="CheckpointChoice_1"]
+script = ExtResource("2_checkpoint_choice")
+text = "Przeszukaj sakwę przy poręczy"
+result_text = "W mokrej sakwie znajdujesz list od łowczego: \"Sołtys każe milczeć o rytuale pod korzeniami\". Podpis urywa się, jakby autor pisał w pośpiechu."
+lore_tag = &"bridge_letter"
+continue_button_text = "Schowaj list"
+result_background = ExtResource("4_result_a")
+
+[sub_resource type="Resource" id="CheckpointChoice_2"]
+script = ExtResource("2_checkpoint_choice")
+text = "Zejdź pod most i zbadaj filary"
+result_text = "Na kamieniu wyryto symbole ochronne, celowo przecięte nożem. To nie wygląda na działanie bestii, tylko kogoś, kto znał znaczenie znaków."
+lore_tag = &"bridge_sigils_cut"
+continue_button_text = "Zapamiętaj znak"
+result_background = ExtResource("5_result_b")
+
+[resource]
+script = ExtResource("1_checkpoint_config")
+checkpoint_id = &"broken_bridge"
+title = "Zerwany Most"
+description = "Stary most nad parowem został zerwany od strony osady. Liny przecięto czysto, a nie wyrwano siłą, jak twierdziły plotki o bestii."
+lore_tag = &"sabotage_hint"
+background = ExtResource("3_intro")
+choices = Array[Resource]([SubResource("CheckpointChoice_1"), SubResource("CheckpointChoice_2")])

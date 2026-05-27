@@ -9,6 +9,7 @@ func _ready() -> void:
 	click_player = AudioStreamPlayer.new()
 	click_player.stream = CLICK_SOUND
 	click_player.bus = "SFX" # opcjonalnie, jeśli masz bus SFX
+	click_player.volume_db = -10.0
 	add_child(click_player)
 
 

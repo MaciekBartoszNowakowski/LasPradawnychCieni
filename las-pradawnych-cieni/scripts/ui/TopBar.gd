@@ -12,24 +12,42 @@ class_name GameTopBar
 
 func _ready() -> void:
 	_apply_texts()
+	_connect_team()
+	_refresh_gold()
 
 
-func setup(title: String, objective: String, gold: int = -1) -> void:
+func setup(title: String, objective: String) -> void:
 	title_text = title
 	objective_text = objective
-
-	if gold >= 0:
-		show_gold = true
-		gold_label.text = "Złoto: " + str(gold)
-
 	_apply_texts()
+	_refresh_gold()
 
 
 func _apply_texts() -> void:
 	title_label.text = title_text
 	objective_label.text = objective_text
-
 	gold_label.visible = show_gold
 
+
+func _connect_team() -> void:
+	if GameState.player_team == null:
+		return
+	
+	if not GameState.player_team.money_changed.is_connected(_on_team_money_changed):
+		GameState.player_team.money_changed.connect(_on_team_money_changed)
+
+
+func _refresh_gold() -> void:
+	if not show_gold:
+		return
+	
+	if GameState.player_team == null:
+		gold_label.text = "Złoto: 0"
+		return
+	
+	gold_label.text = "Złoto: " + str(GameState.player_team.money)
+
+
+func _on_team_money_changed(new_money: int) -> void:
 	if show_gold:
-		gold_label.text = "Złoto: " + str(0);
+		gold_label.text = "Złoto: " + str(new_money)

@@ -58,7 +58,7 @@ func _on_btn_new_game_pressed() -> void:
 	await get_tree().create_timer(0.08).timeout
 
 	MapState.reset_map()
-	GameState.player_team = Team.new()
+	GameState.reset_game()
 
 	prologue_backdrop.show()
 	prologue_backdrop.modulate.a = 0.0

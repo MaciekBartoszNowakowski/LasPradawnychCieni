@@ -1,0 +1,32 @@
+[gd_resource type="Resource" script_class="CheckpointConfig" format=3]
+
+[ext_resource type="Script" path="res://scripts/checkpoints/CheckpointConfig.gd" id="1_checkpoint_config"]
+[ext_resource type="Script" path="res://scripts/checkpoints/CheckpointChoiceConfig.gd" id="2_checkpoint_choice"]
+[ext_resource type="Texture2D" path="res://assets/ui/checkpoints/whispering_totem/cp_001_intro.png" id="3_intro"]
+[ext_resource type="Texture2D" path="res://assets/ui/checkpoints/whispering_totem/cp_001_result_a.png" id="4_result_a"]
+[ext_resource type="Texture2D" path="res://assets/ui/checkpoints/whispering_totem/cp_001_result_b.png" id="5_result_b"]
+
+[sub_resource type="Resource" id="CheckpointChoice_1"]
+script = ExtResource("2_checkpoint_choice")
+text = "Odczytaj wyryte znaki na totemie"
+result_text = "Znaki nie są modlitwą, lecz listą nazwisk. Obok imion zaginionych widnieją daty i pieczęć osady. Ktoś wiedział, że wyprawy kończyły się źle, zanim ogłoszono nagrodę."
+lore_tag = &"soltys_register"
+continue_button_text = "Zapamiętaj nazwiska"
+result_background = ExtResource("4_result_a")
+
+[sub_resource type="Resource" id="CheckpointChoice_2"]
+script = ExtResource("2_checkpoint_choice")
+text = "Spal stare ofiarne wstążki"
+result_text = "Dym pachnie ziołami i mokrą ziemią. W płomieniach miga herb sołtysa, jakby tkwił w nich od lat. Szepty milkną tylko na chwilę."
+lore_tag = &"soltys_crest"
+continue_button_text = "Ruszaj dalej"
+result_background = ExtResource("5_result_b")
+
+[resource]
+script = ExtResource("1_checkpoint_config")
+checkpoint_id = &"whispering_totem"
+title = "Rejestr Dębowy"
+description = "Pradawny totem stoi na rozwidleniu dróg. Między maskami ktoś wbił świeże gwoździe i zawiesił strzępy pergaminu z pieczęcią osady."
+lore_tag = &"contract_truth"
+background = ExtResource("3_intro")
+choices = Array[Resource]([SubResource("CheckpointChoice_1"), SubResource("CheckpointChoice_2")])

@@ -113,7 +113,7 @@ func _get_description(node_type: int) -> String:
 		MapEnums.NodeType.BOSS:
 			return "Główne starcie prowadzące do zakończenia etapu."
 		MapEnums.NodeType.CHECKPOINT:
-			return "Ważny punkt wyprawy prowadzący dalej."
+			return "Fabularny punkt kontrolny odsłaniający tajemnice lasu."
 		_:
 			return "Brak opisu."
 
