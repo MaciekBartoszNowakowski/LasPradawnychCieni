@@ -7,12 +7,19 @@ func _init() -> void:
 	color = Color(0.8, 0.2, 0.2)
 
 # Moves toward the closest player character using A*.
-func move(astar: AStarGrid2D, cells: Dictionary, player_characters: Array[Player]) -> void:
+func move(astar: AStarGrid2D, cells: Dictionary, player_characters: Array[Player], all_combatants: Array[Player]) -> void:
 	var closest := _find_closest_player(player_characters)
 	if closest == null:
 		return
 
+	var blocked_coords: Array[Vector2i] = []
+	for combatant: Player in all_combatants:
+		if combatant != self and combatant.grid_pos != closest.grid_pos:
+			astar.set_point_solid(combatant.grid_pos, true)
+			blocked_coords.append(combatant.grid_pos)
 	var full_path: Array[Vector2i] = astar.get_id_path(grid_pos, closest.grid_pos)
+	for coord: Vector2i in blocked_coords:
+		astar.set_point_solid(coord, false)
 	if full_path.size() <= 1:
 		return
 
@@ -40,6 +47,35 @@ func move(astar: AStarGrid2D, cells: Dictionary, player_characters: Array[Player
 	var path_with_start: Array[Vector2i] = [grid_pos]
 	path_with_start.append_array(full_path)
 	set_path(path_with_start)
+
+# Returns a log-info Dictionary if an attack was made, empty dict otherwise.
+func attack(player_characters: Array[Player]) -> Dictionary:
+	if has_acted or actions.is_empty():
+		return {}
+	var action: BattleAction = actions[0]
+	var target := _find_closest_in_range(player_characters, action.range)
+	if target == null:
+		return {}
+	has_acted = true
+	var result := BattleAction.resolve(action, target)
+	if result["hit"]:
+		target.current_life = maxi(target.current_life - result["damage"], 0)
+	result["attacker"] = character_name
+	result["action"] = action.action_name
+	result["target"] = target.character_name
+	return result
+
+func _find_closest_in_range(chars: Array[Player], r: int) -> Player:
+	var best: Player = null
+	var min_dist := INF
+	for c: Player in chars:
+		if c.current_life <= 0:
+			continue
+		var d: int = abs(grid_pos.x - c.grid_pos.x) + abs(grid_pos.y - c.grid_pos.y)
+		if d <= r and float(d) < min_dist:
+			min_dist = float(d)
+			best = c
+	return best
 
 func _draw() -> void:
 	var points := PackedVector2Array([

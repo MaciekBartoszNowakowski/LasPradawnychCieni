@@ -18,6 +18,9 @@ var current_life: int = 10
 
 var color: Color = Color.DODGER_BLUE
 
+var actions: Array[BattleAction] = []
+var has_acted: bool = false
+
 var move_points_max: int = 6
 var move_points_left: int = 6
 
@@ -78,6 +81,7 @@ func set_path(path: Array[Vector2i]) -> void:
 
 func reset_turn() -> void:
 	move_points_left = move_points_max
+	has_acted = false
 	queue_redraw()
 
 func is_moving() -> bool:

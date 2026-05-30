@@ -11,3 +11,8 @@ func _init() -> void:
 	max_life = 10
 	current_life = 10
 	color = Color.FOREST_GREEN
+	var a := BattleAction.new()
+	a.action_name = "Shoot"
+	a.damage = strength
+	a.range = 5
+	actions.append(a)
