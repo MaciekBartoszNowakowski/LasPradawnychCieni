@@ -13,6 +13,12 @@ const REGULAR_CHECKPOINT_ORDER: Array[String] = [
 var rng: RandomNumberGenerator = RandomNumberGenerator.new()
 var next_id: int = 0
 
+const PRE_BOSS_SHOP_COUNT: int = 1
+const PRE_BOSS_REST_COUNT: int = 1
+
+var _pre_boss_zone_layer_set: Dictionary = {}
+var _last_pre_boss_zone_layers: Array[int] = []
+
 
 func generate_map(config: MapGenerationConfig, run_profile: RunProfile = null) -> Array[MapNode]:
 	var retry_limit: int = 1
@@ -43,8 +49,32 @@ func _setup_rng(run_profile: RunProfile, attempt: int = 0) -> void:
 		
 func _generate_map_once(config: MapGenerationConfig) -> Array[MapNode]:
 	var act_decision_counts: PackedInt32Array = _build_act_decision_counts(config)
-	var layer_specs: Array = _build_layer_specs(config, act_decision_counts)
-	var layers: Array = _create_layers_from_specs(layer_specs, config, act_decision_counts)
+	var total_layers: int = max(2, config.get_safe_base_decision_length() + 1)
+	var story_anchor_layers: PackedInt32Array = _pick_story_anchor_layers(total_layers, config)
+	var layer_specs: Array = _build_layer_specs(
+		config,
+		act_decision_counts,
+		story_anchor_layers,
+		total_layers
+	)
+	var pre_boss_recovery_plan: Dictionary = _plan_pre_boss_recovery(
+		total_layers,
+		story_anchor_layers,
+		layer_specs,
+		config
+	)
+
+	_pre_boss_zone_layer_set.clear()
+	_last_pre_boss_zone_layers = pre_boss_recovery_plan.get("zone_layers", []) as Array[int]
+	for zone_layer_index in _last_pre_boss_zone_layers:
+		_pre_boss_zone_layer_set[zone_layer_index] = true
+
+	var layers: Array = _create_layers_from_specs(
+		layer_specs,
+		config,
+		act_decision_counts,
+		pre_boss_recovery_plan
+	)
 
 	_connect_layers(layers, config)
 	_make_first_layer_available(layers)
@@ -71,8 +101,51 @@ func _validate_generated_map(map_nodes: Array[MapNode], config: MapGenerationCon
 	if _get_max_consecutive_battle_streak(map_nodes, reachable_ids) > config.max_consecutive_combats:
 		return false
 
+	if not _validate_pre_boss_recovery(map_nodes, config, reachable_ids):
+		return false
+
 	return true
-	
+
+
+func _validate_pre_boss_recovery(
+	map_nodes: Array[MapNode],
+	_config: MapGenerationConfig,
+	reachable_ids: Dictionary
+) -> bool:
+	if _last_pre_boss_zone_layers.is_empty():
+		return false
+
+	var zone_layer_set: Dictionary = {}
+	for layer_index in _last_pre_boss_zone_layers:
+		zone_layer_set[layer_index] = true
+
+	var zone_shop_count: int = 0
+	var zone_rest_count: int = 0
+	var reachable_shop_count: int = 0
+	var reachable_rest_count: int = 0
+
+	for node in map_nodes:
+		if not zone_layer_set.has(node.layer_index):
+			continue
+
+		if node.type == MapEnums.NodeType.SHOP:
+			zone_shop_count += 1
+			if reachable_ids.has(node.id):
+				reachable_shop_count += 1
+		elif node.type == MapEnums.NodeType.REST:
+			zone_rest_count += 1
+			if reachable_ids.has(node.id):
+				reachable_rest_count += 1
+
+	if zone_shop_count != PRE_BOSS_SHOP_COUNT or zone_rest_count != PRE_BOSS_REST_COUNT:
+		return false
+
+	if reachable_shop_count < PRE_BOSS_SHOP_COUNT or reachable_rest_count < PRE_BOSS_REST_COUNT:
+		return false
+
+	return true
+
+
 func _build_node_lookup(map_nodes: Array[MapNode]) -> Dictionary:
 	var result: Dictionary = {}
 
@@ -255,9 +328,12 @@ func _build_act_decision_counts(config: MapGenerationConfig) -> PackedInt32Array
 	return result
 
 
-func _build_layer_specs(config: MapGenerationConfig, act_decision_counts: PackedInt32Array) -> Array:
-	var total_layers: int = max(2, config.get_safe_base_decision_length() + 1)
-	var story_anchor_layers: PackedInt32Array = _pick_story_anchor_layers(total_layers, config)
+func _build_layer_specs(
+	config: MapGenerationConfig,
+	act_decision_counts: PackedInt32Array,
+	story_anchor_layers: PackedInt32Array,
+	total_layers: int
+) -> Array:
 	var planned_node_counts: PackedInt32Array = _build_segmented_node_count_plan(
 		total_layers,
 		story_anchor_layers,
@@ -460,13 +536,175 @@ func _pick_story_anchor_layers(total_layers: int, config: MapGenerationConfig) -
 	return result
 
 
+func _get_pre_boss_zone_layer_indices(
+	total_layers: int,
+	story_anchor_layers: PackedInt32Array,
+	config: MapGenerationConfig
+) -> Array[int]:
+	var result: Array[int] = []
+
+	if total_layers <= 2:
+		return result
+
+	var start_layer: int = int(ceil((total_layers - 1) * config.get_pre_boss_zone_start_progress()))
+	var end_exclusive: int = total_layers - 1
+
+	if config.require_pre_boss_story_event:
+		end_exclusive = min(end_exclusive, total_layers - 2)
+
+	start_layer = clamp(start_layer, 1, max(1, end_exclusive - 1))
+
+	for layer_index in range(start_layer, end_exclusive):
+		if story_anchor_layers.has(layer_index):
+			continue
+
+		if config.require_pre_boss_story_event and layer_index == total_layers - 2:
+			continue
+
+		result.append(layer_index)
+
+	return result
+
+
+func _plan_pre_boss_recovery(
+	total_layers: int,
+	story_anchor_layers: PackedInt32Array,
+	layer_specs: Array,
+	config: MapGenerationConfig
+) -> Dictionary:
+	var zone_layers: Array[int] = _get_pre_boss_zone_layer_indices(
+		total_layers,
+		story_anchor_layers,
+		config
+	)
+	var shop_layers: PackedInt32Array = PackedInt32Array()
+	var rest_layers: PackedInt32Array = PackedInt32Array()
+	var shop_node_index: int = 0
+	var rest_node_index: int = 0
+
+	if zone_layers.size() < 2:
+		push_warning(
+			"MapGenerator: za mało warstw w strefie pre-boss na sklep i odpoczynek."
+		)
+		return {
+			"shop_layers": shop_layers,
+			"rest_layers": rest_layers,
+			"shop_node_index": shop_node_index,
+			"rest_node_index": rest_node_index,
+			"zone_layers": zone_layers,
+		}
+
+	var shuffled_layers: Array[int] = zone_layers.duplicate()
+	_shuffle_int_array(shuffled_layers)
+
+	var spacing: int = config.get_pre_boss_recovery_min_layer_spacing()
+	var shop_layer: int = shuffled_layers[0]
+	var rest_layer: int = -1
+
+	for layer_index in shuffled_layers:
+		if layer_index == shop_layer:
+			continue
+		if abs(layer_index - shop_layer) >= spacing:
+			rest_layer = layer_index
+			break
+
+	if rest_layer == -1:
+		for layer_index in shuffled_layers:
+			if layer_index != shop_layer:
+				rest_layer = layer_index
+				break
+
+	var layer_for_shop: int = shop_layer
+	var layer_for_rest: int = rest_layer
+
+	if rest_layer != -1 and rng.randi_range(0, 1) == 1:
+		layer_for_shop = rest_layer
+		layer_for_rest = shop_layer
+
+	var shop_spec: Dictionary = (
+		layer_specs[layer_for_shop] if layer_for_shop < layer_specs.size() else {}
+	)
+	var rest_spec: Dictionary = (
+		layer_specs[layer_for_rest] if layer_for_rest >= 0 and layer_for_rest < layer_specs.size() else {}
+	)
+	var shop_node_count: int = max(1, int(shop_spec.get("node_count", 1)))
+	var rest_node_count: int = max(1, int(rest_spec.get("node_count", 1)))
+
+	shop_node_index = _pick_planned_recovery_node_index(shop_node_count)
+	var shop_branch_lane: int = _branch_lane(shop_node_count, shop_node_index)
+	rest_node_index = _pick_planned_recovery_node_index(rest_node_count, shop_branch_lane)
+
+	if rest_layer == -1:
+		shop_layers.append(shop_layer)
+	else:
+		shop_layers.append(layer_for_shop)
+		rest_layers.append(layer_for_rest)
+
+	return {
+		"shop_layers": shop_layers,
+		"rest_layers": rest_layers,
+		"shop_node_index": shop_node_index,
+		"rest_node_index": rest_node_index,
+		"zone_layers": zone_layers,
+	}
+
+
+func _branch_lane(layer_size: int, node_index: int) -> int:
+	if layer_size <= 1:
+		return 0
+
+	return int(round(float(node_index) / float(layer_size - 1) * 2.0))
+
+
+func _pick_planned_recovery_node_index(node_count: int, avoid_branch_lane: int = -1) -> int:
+	if node_count <= 1:
+		return 0
+
+	var candidates: Array[int] = []
+	for index in range(node_count):
+		candidates.append(index)
+
+	_shuffle_int_array(candidates)
+
+	if avoid_branch_lane < 0:
+		return candidates[0]
+
+	var alternate: Array[int] = []
+	for index in candidates:
+		if _branch_lane(node_count, index) != avoid_branch_lane:
+			alternate.append(index)
+
+	if alternate.is_empty():
+		return candidates[rng.randi_range(0, candidates.size() - 1)]
+
+	return alternate[rng.randi_range(0, alternate.size() - 1)]
+
+
+func _shuffle_int_array(values: Array[int]) -> void:
+	for i in range(values.size() - 1, 0, -1):
+		var j: int = rng.randi_range(0, i)
+		var temp: int = values[i]
+		values[i] = values[j]
+		values[j] = temp
+
+
+func _packed_int32_has(values: PackedInt32Array, layer_index: int) -> bool:
+	for value in values:
+		if int(value) == layer_index:
+			return true
+
+	return false
+
+
 func _create_layers_from_specs(
 	layer_specs: Array,
 	config: MapGenerationConfig,
-	act_decision_counts: PackedInt32Array
+	act_decision_counts: PackedInt32Array,
+	pre_boss_recovery_plan: Dictionary = {}
 ) -> Array:
 	var layers: Array = []
 	var generated_counts: Dictionary = {}
+	var pre_boss_generated_counts: Dictionary = {}
 	var layer_type_history: Array = []
 	var used_side_quests: Dictionary = {}
 	var checkpoint_order_index: int = 0
@@ -508,10 +746,120 @@ func _create_layers_from_specs(
 			_increment_node_count(generated_counts, node_type)
 			next_id += 1
 
+		_apply_pre_boss_recovery_for_layer(
+			layer,
+			layer_index,
+			pre_boss_recovery_plan,
+			config,
+			generated_counts,
+			pre_boss_generated_counts,
+			layer_types
+		)
+
 		layers.append(layer)
 		layer_type_history.append(layer_types)
 
 	return layers
+
+
+func _apply_pre_boss_recovery_for_layer(
+	layer: Array,
+	layer_index: int,
+	plan: Dictionary,
+	config: MapGenerationConfig,
+	generated_counts: Dictionary,
+	pre_boss_generated_counts: Dictionary,
+	layer_types: Array[int]
+) -> void:
+	if layer.is_empty() or plan.is_empty():
+		return
+
+	var shop_layers: PackedInt32Array = plan.get("shop_layers", PackedInt32Array())
+	var rest_layers: PackedInt32Array = plan.get("rest_layers", PackedInt32Array())
+	var target_type: int = -1
+
+	if _packed_int32_has(shop_layers, layer_index):
+		target_type = MapEnums.NodeType.SHOP
+	elif _packed_int32_has(rest_layers, layer_index):
+		target_type = MapEnums.NodeType.REST
+	else:
+		return
+
+	var preferred_node_index: int = -1
+	if target_type == MapEnums.NodeType.SHOP:
+		preferred_node_index = int(plan.get("shop_node_index", -1))
+	elif target_type == MapEnums.NodeType.REST:
+		preferred_node_index = int(plan.get("rest_node_index", -1))
+
+	var node: MapNode = _pick_recovery_node_in_layer(layer, preferred_node_index)
+	if node == null:
+		push_warning(
+			"MapGenerator: nie udało się wstrzyknąć recovery na warstwie %d." % layer_index
+		)
+		return
+
+	var old_type: int = node.type
+	if old_type == target_type:
+		return
+
+	_decrement_node_count(generated_counts, old_type)
+
+	if old_type == MapEnums.NodeType.EVENT:
+		node.side_quest_config = null
+
+	node.type = target_type
+
+	if config.pre_boss_recovery_use_separate_quota:
+		_increment_node_count(pre_boss_generated_counts, target_type)
+	else:
+		_increment_node_count(generated_counts, target_type)
+
+	var node_index: int = layer.find(node)
+	if node_index >= 0 and node_index < layer_types.size():
+		layer_types[node_index] = target_type
+
+
+func _is_recovery_eligible_node(node: MapNode) -> bool:
+	if node == null:
+		return false
+
+	if node.type == MapEnums.NodeType.CHECKPOINT:
+		return false
+	if node.type == MapEnums.NodeType.BOSS:
+		return false
+	if node.type == MapEnums.NodeType.ELITE:
+		return false
+
+	return true
+
+
+func _pick_recovery_node_in_layer(layer: Array, preferred_index: int = -1) -> MapNode:
+	if layer.is_empty():
+		return null
+
+	var eligible_indices: Array[int] = []
+	for index in range(layer.size()):
+		var node: MapNode = layer[index] as MapNode
+		if _is_recovery_eligible_node(node):
+			eligible_indices.append(index)
+
+	if eligible_indices.is_empty():
+		return null
+
+	if preferred_index >= 0 and eligible_indices.has(preferred_index):
+		return layer[preferred_index] as MapNode
+
+	var fallback_indices: Array[int] = eligible_indices.duplicate()
+	_shuffle_int_array(fallback_indices)
+	return layer[fallback_indices[0]] as MapNode
+
+
+func _decrement_node_count(counts: Dictionary, node_type: int) -> void:
+	var current_count: int = _get_node_count(counts, node_type)
+	if current_count <= 0:
+		return
+
+	counts[node_type] = current_count - 1
 
 func _assign_side_quest_if_needed(
 	node: MapNode,
@@ -788,6 +1136,10 @@ func _calculate_node_type_weight(
 
 	if node_type == MapEnums.NodeType.ELITE:
 		weight += max(0.0, float(config.miniboss_target_count - current_count))
+
+	if _pre_boss_zone_layer_set.has(layer_index):
+		if node_type == MapEnums.NodeType.SHOP or node_type == MapEnums.NodeType.REST:
+			return 0
 
 	return max(0, int(round(weight)))
 

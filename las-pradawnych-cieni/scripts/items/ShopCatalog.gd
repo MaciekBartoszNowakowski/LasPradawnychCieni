@@ -2,9 +2,18 @@ extends RefCounted
 class_name ShopCatalog
 
 static func get_items() -> Array[ItemConfig]:
+	var entries := get_stock_entries()
 	var items: Array[ItemConfig] = []
+	for entry: ShopStockEntry in entries:
+		if entry.item != null:
+			items.append(entry.item)
+	return items
 
-	items.append(_create_item(
+
+static func get_stock_entries() -> Array[ShopStockEntry]:
+	var entries: Array[ShopStockEntry] = []
+
+	entries.append(_create_stock_entry(
 		"field_bandages",
 		"Polowe bandaże",
 		"Bandaże",
@@ -12,10 +21,11 @@ static func get_items() -> Array[ItemConfig]:
 		ItemConfig.ItemKind.HEAL_SINGLE,
 		10,
 		8,
-		"res://assets/ui/shop/items/bandaze_polowe.png"
+		"res://assets/ui/shop/items/bandaze_polowe.png",
+		3
 	))
 
-	items.append(_create_item(
+	entries.append(_create_stock_entry(
 		"herbal_dressing",
 		"Ziołowy opatrunek",
 		"Opatrunek",
@@ -23,10 +33,11 @@ static func get_items() -> Array[ItemConfig]:
 		ItemConfig.ItemKind.HEAL_SINGLE,
 		14,
 		12,
-		"res://assets/ui/shop/items/ziolowy_opatrunek.png"
+		"res://assets/ui/shop/items/ziolowy_opatrunek.png",
+		2
 	))
 
-	items.append(_create_item(
+	entries.append(_create_stock_entry(
 		"campfire_brew",
 		"Napar ogniskowy",
 		"Napar",
@@ -34,10 +45,11 @@ static func get_items() -> Array[ItemConfig]:
 		ItemConfig.ItemKind.HEAL_TEAM,
 		22,
 		4,
-		"res://assets/ui/shop/items/napar_ogniskowy.png"
+		"res://assets/ui/shop/items/napar_ogniskowy.png",
+		2
 	))
 
-	items.append(_create_item(
+	entries.append(_create_stock_entry(
 		"healer_talisman",
 		"Talizman uzdrowiciela",
 		"Talizman",
@@ -45,10 +57,11 @@ static func get_items() -> Array[ItemConfig]:
 		ItemConfig.ItemKind.HEAL_TEAM,
 		28,
 		6,
-		"res://assets/ui/shop/items/talizman_uzdrowiciela.png"
+		"res://assets/ui/shop/items/talizman_uzdrowiciela.png",
+		1
 	))
 
-	items.append(_create_item(
+	entries.append(_create_stock_entry(
 		"rusty_sword",
 		"Zardzewiały miecz",
 		"Miecz",
@@ -56,10 +69,11 @@ static func get_items() -> Array[ItemConfig]:
 		ItemConfig.ItemKind.FUTURE_EQUIPMENT,
 		18,
 		0,
-		"res://assets/ui/shop/items/zardzewialy_miecz.png"
+		"res://assets/ui/shop/items/zardzewialy_miecz.png",
+		1
 	))
 
-	items.append(_create_item(
+	entries.append(_create_stock_entry(
 		"hunter_shield",
 		"Tarcza tropiciela",
 		"Tarcza",
@@ -67,10 +81,11 @@ static func get_items() -> Array[ItemConfig]:
 		ItemConfig.ItemKind.FUTURE_EQUIPMENT,
 		24,
 		0,
-		"res://assets/ui/shop/items/tarcza_tropiciela.png"
+		"res://assets/ui/shop/items/tarcza_tropiciela.png",
+		1
 	))
 
-	items.append(_create_item(
+	entries.append(_create_stock_entry(
 		"alchemist_flask",
 		"Fiolka alchemika",
 		"Fiolka",
@@ -78,10 +93,35 @@ static func get_items() -> Array[ItemConfig]:
 		ItemConfig.ItemKind.FUTURE_EQUIPMENT,
 		16,
 		0,
-		"res://assets/ui/shop/items/fiolka_alchemika.png"
+		"res://assets/ui/shop/items/fiolka_alchemika.png",
+		1
 	))
 
-	return items
+	return entries
+
+
+static func _create_stock_entry(
+	item_id: String,
+	display_name: String,
+	short_name: String,
+	description: String,
+	item_kind: ItemConfig.ItemKind,
+	price: int,
+	effect_value: int,
+	icon_path: String,
+	default_stock: int
+) -> ShopStockEntry:
+	var item := _create_item(
+		item_id,
+		display_name,
+		short_name,
+		description,
+		item_kind,
+		price,
+		effect_value,
+		icon_path
+	)
+	return ShopStockEntry.new(item, default_stock)
 
 
 static func _create_item(

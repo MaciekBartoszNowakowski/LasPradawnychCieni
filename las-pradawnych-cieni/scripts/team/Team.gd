@@ -3,7 +3,7 @@ class_name Team
 signal money_changed(new_money: int)
 signal inventory_changed(items: Array[String])
 
-var _money: int = 0
+var _money: int = 1000
 
 var money: int:
 	get:

@@ -11,6 +11,7 @@ const NOTICE_TEXT_HOVER_COLOR := Color(0.9411765, 0.90588236, 0.8156863, 1.0)
 const NOTICE_TEXT_PRESSED_COLOR := Color(0.7607843, 0.6901961, 0.52156866, 1.0)
 const NOTICE_TEXT_DISABLED_COLOR := Color(0.5529412, 0.52156866, 0.46666667, 1.0)
 const NOTICE_OUTLINE_COLOR := Color(0.09411765, 0.078431375, 0.07058824, 1.0)
+const SLOT_SOLD_OUT_TWEEN_DURATION := 0.12
 
 @onready var top_bar: Control = $UILayer/UIRoot/TopBar
 @onready var merchant_panel: PanelContainer = $UILayer/UIRoot/ContentMargin/MainRoot/LeftPanelRoot/MerchantPanel
@@ -37,7 +38,7 @@ const NOTICE_OUTLINE_COLOR := Color(0.09411765, 0.078431375, 0.07058824, 1.0)
 @onready var hero_target_buttons: HBoxContainer = $OverlayLayer/SlotsOverlayRoot/OverlayCenter/OverlayPanel/MarginContainer/OverlayVBox/OverlayBody/DetailsPanel/MarginContainer/DetailsVBox/HeroTargetButtons
 @onready var buy_button: Button = $OverlayLayer/SlotsOverlayRoot/OverlayCenter/OverlayPanel/MarginContainer/OverlayVBox/OverlayBody/DetailsPanel/MarginContainer/DetailsVBox/BuyButton
 
-var shop_items: Array[ItemConfig] = []
+var stock_entries: Array[ShopStockEntry] = []
 var selected_item_index: int = -1
 var selected_hero_target_index: int = -1
 var slot_buttons: Array[Button] = []
@@ -125,30 +126,83 @@ func _create_slot_buttons() -> void:
 
 
 func _load_catalog() -> void:
-	shop_items = ShopCatalog.get_items()
+	stock_entries = ShopCatalog.get_stock_entries()
+	_refresh_all_slots()
+	_select_first_available_slot()
 
+
+func _refresh_all_slots() -> void:
 	for i in range(slot_buttons.size()):
 		var slot_button: Button = slot_buttons[i]
+		_apply_slot_visual(slot_button, i)
 
-		if i >= shop_items.size():
-			slot_button.text = "Pusty slot"
-			slot_button.icon = null
-			slot_button.disabled = true
-			continue
 
-		var item: ItemConfig = shop_items[i]
-		slot_button.disabled = false
-		slot_button.text = "%s\n%d zł" % [_get_short_name(item), item.price]
-		slot_button.icon = _load_icon(item)
-		slot_button.tooltip_text = item.description
+func _apply_slot_visual(slot_button: Button, index: int) -> void:
+	if index >= stock_entries.size():
+		_set_empty_slot(slot_button)
+		return
 
-	if not shop_items.is_empty():
-		selected_item_index = 0
-	else:
-		selected_item_index = -1
+	var entry: ShopStockEntry = stock_entries[index]
+	if entry == null or entry.item == null or entry.quantity <= 0:
+		_set_empty_slot(slot_button)
+		return
+
+	var item: ItemConfig = entry.item
+	slot_button.disabled = false
+	slot_button.text = "%s\n%d zł\nx%d" % [_get_short_name(item), item.price, entry.quantity]
+	slot_button.icon = _load_icon(item)
+	slot_button.tooltip_text = "%s\nNa stanie: %d szt." % [item.description, entry.quantity]
+	slot_button.modulate = Color(1.0, 1.0, 1.0, 1.0)
+
+
+func _set_empty_slot(slot_button: Button) -> void:
+	slot_button.text = "Pusty slot"
+	slot_button.icon = null
+	slot_button.tooltip_text = ""
+	slot_button.disabled = true
+	slot_button.modulate = Color(1.0, 1.0, 1.0, 0.58)
+
+
+func _get_stock_entry(index: int) -> ShopStockEntry:
+	if index < 0 or index >= stock_entries.size():
+		return null
+	return stock_entries[index]
+
+
+func _slot_has_stock(index: int) -> bool:
+	var entry := _get_stock_entry(index)
+	return entry != null and entry.item != null and entry.quantity > 0
+
+
+func _select_first_available_slot() -> void:
+	selected_item_index = -1
+	for i in range(stock_entries.size()):
+		if _slot_has_stock(i):
+			selected_item_index = i
+			return
+
+
+func _select_next_available_slot() -> void:
+	if _slot_has_stock(selected_item_index):
+		return
+
+	for i in range(selected_item_index + 1, stock_entries.size()):
+		if _slot_has_stock(i):
+			selected_item_index = i
+			return
+
+	for i in range(selected_item_index):
+		if _slot_has_stock(i):
+			selected_item_index = i
+			return
+
+	selected_item_index = -1
 
 
 func _on_slot_button_pressed(index: int) -> void:
+	if not _slot_has_stock(index):
+		return
+
 	UiAudio.play_click()
 	selected_item_index = index
 	_refresh_selection_ui()
@@ -168,11 +222,12 @@ func _on_close_slots_pressed() -> void:
 func _on_buy_button_pressed() -> void:
 	UiAudio.play_click()
 
-	if selected_item_index < 0 or selected_item_index >= shop_items.size():
+	if not _slot_has_stock(selected_item_index):
 		_set_status("Wybierz przedmiot.")
 		return
 
-	var selected_item: ItemConfig = shop_items[selected_item_index]
+	var entry: ShopStockEntry = _get_stock_entry(selected_item_index)
+	var selected_item: ItemConfig = entry.item
 	var target_index: int = -1
 
 	if selected_item.item_kind == ItemConfig.ItemKind.HEAL_SINGLE:
@@ -180,8 +235,46 @@ func _on_buy_button_pressed() -> void:
 
 	var result: Dictionary = GameState.buy_shop_item(selected_item, target_index)
 	_set_status(str(result.get("message", "Brak informacji o zakupie.")))
+
+	if not bool(result.get("success", false)):
+		_refresh_selection_ui()
+		return
+
+	var purchased_slot_index := selected_item_index
+	var was_last_piece := entry.quantity == 1
+	entry.quantity -= 1
+
+	if was_last_piece:
+		_play_slot_sold_out_tween(purchased_slot_index, func() -> void:
+			_finish_purchase_refresh()
+		)
+	else:
+		_finish_purchase_refresh()
+
+
+func _finish_purchase_refresh() -> void:
+	_refresh_all_slots()
+	_select_next_available_slot()
 	_refresh_party_info()
 	_refresh_selection_ui()
+
+
+func _play_slot_sold_out_tween(slot_index: int, on_finished: Callable) -> void:
+	if slot_index < 0 or slot_index >= slot_buttons.size():
+		on_finished.call()
+		return
+
+	var slot_button: Button = slot_buttons[slot_index]
+	slot_button.modulate = Color(1.0, 1.0, 1.0, 1.0)
+
+	var tween := create_tween()
+	tween.tween_property(
+		slot_button,
+		"modulate",
+		Color(0.45, 0.4, 0.35, 0.35),
+		SLOT_SOLD_OUT_TWEEN_DURATION
+	)
+	tween.tween_callback(on_finished)
 
 
 func _on_leave_button_pressed() -> void:
@@ -192,27 +285,29 @@ func _on_leave_button_pressed() -> void:
 
 
 func _refresh_selection_ui() -> void:
-	if selected_item_index < 0 or selected_item_index >= shop_items.size():
+	if not _slot_has_stock(selected_item_index):
 		detail_item_icon.texture = null
 		detail_item_name_label.text = "Wybierz przedmiot"
 		detail_item_type_label.text = "-"
 		detail_item_price_label.text = "Cena: -"
-		detail_item_description_label.text = "Brak przedmiotów."
+		detail_item_description_label.text = "Brak przedmiotów na stanie."
 		_set_target_section_enabled(false)
 		buy_button.text = "Kup za - zł"
 		buy_button.disabled = true
+		_refresh_slot_highlight()
 		return
 
-	var item: ItemConfig = shop_items[selected_item_index]
+	var entry: ShopStockEntry = _get_stock_entry(selected_item_index)
+	var item: ItemConfig = entry.item
 	detail_item_icon.texture = _load_icon(item)
 	detail_item_name_label.text = item.display_name
 	detail_item_type_label.text = _get_item_kind_label(item.item_kind)
-	detail_item_price_label.text = "Cena: %d zł" % item.price
+	detail_item_price_label.text = "Cena: %d zł · Na stanie: %d szt." % [item.price, entry.quantity]
 	detail_item_description_label.text = item.description
 	buy_button.text = "Kup za %d zł" % item.price
 
 	_refresh_hero_target(item)
-	_refresh_buy_availability(item)
+	_refresh_buy_availability(item, entry.quantity)
 	_refresh_slot_highlight()
 
 
@@ -250,12 +345,15 @@ func _refresh_hero_target(item: ItemConfig) -> void:
 		_update_hero_target_button_styles()
 
 
-func _refresh_buy_availability(item: ItemConfig) -> void:
+func _refresh_buy_availability(item: ItemConfig, stock_quantity: int = 1) -> void:
 	var team: Team = GameState.player_team
 	var can_buy := true
 	var reason := ""
 
-	if team == null:
+	if stock_quantity <= 0:
+		can_buy = false
+		reason = "Wyprzedane."
+	elif team == null:
 		can_buy = false
 		reason = "Brak drużyny."
 	elif team.money < item.price:
@@ -302,8 +400,9 @@ func _create_hero_target_button(hero: Player, index: int) -> Button:
 	button.pressed.connect(func() -> void:
 		selected_hero_target_index = index
 		_update_hero_target_button_styles()
-		if selected_item_index >= 0 and selected_item_index < shop_items.size():
-			_refresh_buy_availability(shop_items[selected_item_index])
+		if _slot_has_stock(selected_item_index):
+			var entry := _get_stock_entry(selected_item_index)
+			_refresh_buy_availability(entry.item, entry.quantity)
 	)
 	return button
 
@@ -348,11 +447,16 @@ func _get_short_polish_hero_label(hero: Player) -> String:
 func _refresh_slot_highlight() -> void:
 	for i in range(slot_buttons.size()):
 		var slot_button: Button = slot_buttons[i]
-		var is_selected := i == selected_item_index
+		var has_stock := _slot_has_stock(i)
+		var is_selected := has_stock and i == selected_item_index
 		var style_key := slot_button.get_instance_id()
 		var selected_style: StyleBox = slot_hover_styles.get(style_key, null)
 		var default_style: StyleBox = slot_normal_styles.get(style_key, null)
-		if is_selected and selected_style != null:
+		if not has_stock:
+			if default_style != null:
+				slot_button.add_theme_stylebox_override("normal", default_style)
+			slot_button.modulate = Color(1.0, 1.0, 1.0, 0.58)
+		elif is_selected and selected_style != null:
 			slot_button.add_theme_stylebox_override("normal", selected_style)
 			slot_button.modulate = Color(1.0, 1.0, 1.0, 1.0)
 		elif default_style != null:
