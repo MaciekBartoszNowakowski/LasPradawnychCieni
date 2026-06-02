@@ -20,6 +20,7 @@ var color: Color = Color.DODGER_BLUE
 
 var move_points_max: int = 6
 var move_points_left: int = 6
+var equipped_item_ids: Array[String] = []
 
 var _path: Array[Vector2i] = []
 var _moving: bool = false
@@ -138,3 +139,10 @@ func heal_missing_percent(percent: float) -> int:
 
 	var heal_amount: int = max(1, int(ceil(float(missing_life) * percent)))
 	return heal(heal_amount)
+
+
+func add_equipment_item(item_id: String) -> void:
+	if item_id.is_empty():
+		return
+
+	equipped_item_ids.append(item_id)

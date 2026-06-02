@@ -29,14 +29,17 @@ miniboss_chance = 0.45
 script = ExtResource("2_mar")
 act_id = 2
 combat_density = 1.25
-rest_density = 0.7
-shop_density = 0.85
+rest_density = 0.85
+shop_density = 0.95
 optional_event_density = 0.7
 miniboss_chance = 0.2
 
 [resource]
 script = ExtResource("1_mgc")
 base_decision_length = 20
+pre_boss_zone_start_progress = 0.7
+pre_boss_recovery_min_layer_spacing = 1
+pre_boss_recovery_use_separate_quota = true
 mandatory_story_event_count = 4
 mandatory_story_spacing_min = 5
 mandatory_story_spacing_max = 9

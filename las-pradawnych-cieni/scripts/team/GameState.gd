@@ -54,3 +54,65 @@ func damage_team(amount: int) -> int:
 func heal_team_missing_percent(percent: float) -> int:
 	ensure_team_exists()
 	return player_team.heal_all_missing_percent(percent)
+
+
+func buy_shop_item(item: ItemConfig, target_hero_index: int = -1) -> Dictionary:
+	var result := {
+		"success": false,
+		"message": "Nie udało się kupić przedmiotu.",
+		"spent": 0,
+		"healed": 0
+	}
+
+	if item == null:
+		result.message = "Nie znaleziono przedmiotu."
+		return result
+
+	ensure_team_exists()
+
+	if item.price < 0:
+		result.message = "Nieprawidłowa cena przedmiotu."
+		return result
+
+	if not spend_money(item.price):
+		result.message = "Brak wystarczającej ilości złota."
+		return result
+
+	result.spent = item.price
+	result.success = true
+
+	match item.item_kind:
+		ItemConfig.ItemKind.HEAL_TEAM:
+			var healed_team: int = player_team.heal_all(item.effect_value)
+			if healed_team <= 0:
+				add_money(item.price)
+				result.success = false
+				result.spent = 0
+				result.message = "Drużyna ma pełne HP."
+				return result
+			result.healed = healed_team
+			result.message = "Drużyna odzyskała %d HP." % healed_team
+		ItemConfig.ItemKind.HEAL_SINGLE:
+			if target_hero_index < 0 or target_hero_index >= player_team.characters.size():
+				add_money(item.price)
+				result.success = false
+				result.spent = 0
+				result.message = "Wybierz bohatera do leczenia."
+				return result
+
+			var healed_single: int = player_team.heal_character(target_hero_index, item.effect_value)
+			if healed_single <= 0:
+				add_money(item.price)
+				result.success = false
+				result.spent = 0
+				result.message = "Bohater ma pełne HP."
+				return result
+			result.healed = healed_single
+			result.message = "Bohater odzyskał %d HP." % healed_single
+		ItemConfig.ItemKind.FUTURE_EQUIPMENT:
+			player_team.add_item_to_inventory(item.item_id)
+			result.message = "Kupiono: %s (bez wpływu na walkę w tej wersji)." % item.display_name
+		_:
+			result.message = "Kupiono przedmiot."
+
+	return result

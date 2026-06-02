@@ -85,6 +85,12 @@ enum MinibossMode {
 @export var allow_rest_before_boss: bool = false
 @export var allow_shop_before_boss: bool = false
 
+@export_group("Pre-Boss Recovery")
+## Ostatnia część mapy (od tego postępu): dokładnie 1 sklep i 1 odpoczynek na losowych warstwach.
+@export_range(0.0, 0.95, 0.01) var pre_boss_zone_start_progress: float = 0.70
+@export var pre_boss_recovery_min_layer_spacing: int = 1
+@export var pre_boss_recovery_use_separate_quota: bool = true
+
 @export_group("Visibility Rules")
 #@export var generate_full_map_upfront: bool = true
 @export var show_start_always: bool = true
@@ -192,6 +198,14 @@ func get_short_branch_length_min() -> int:
 
 func get_short_branch_length_max() -> int:
 	return max(get_short_branch_length_min(), short_branch_length_max)
+
+
+func get_pre_boss_zone_start_progress() -> float:
+	return clampf(pre_boss_zone_start_progress, 0.0, 0.95)
+
+
+func get_pre_boss_recovery_min_layer_spacing() -> int:
+	return max(1, pre_boss_recovery_min_layer_spacing)
 
 
 func get_act_rule(act_index: int) -> MapActRuleConfig:

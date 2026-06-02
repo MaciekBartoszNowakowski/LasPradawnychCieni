@@ -1,8 +1,9 @@
 class_name Team
 
 signal money_changed(new_money: int)
+signal inventory_changed(items: Array[String])
 
-var _money: int = 0
+var _money: int = 1000
 
 var money: int:
 	get:
@@ -12,6 +13,7 @@ var money: int:
 		money_changed.emit(_money)
 
 var characters: Array[Player] = []
+var inventory_item_ids: Array[String] = []
 
 
 func _init() -> void:
@@ -66,3 +68,25 @@ func heal_all_missing_percent(percent: float) -> int:
 		total_healed += character.heal_missing_percent(percent)
 
 	return total_healed
+
+
+func heal_character(hero_index: int, amount: int) -> int:
+	if amount <= 0:
+		return 0
+
+	if hero_index < 0 or hero_index >= characters.size():
+		return 0
+
+	var hero: Player = characters[hero_index]
+	if hero == null:
+		return 0
+
+	return hero.heal(amount)
+
+
+func add_item_to_inventory(item_id: String) -> void:
+	if item_id.is_empty():
+		return
+
+	inventory_item_ids.append(item_id)
+	inventory_changed.emit(inventory_item_ids.duplicate())

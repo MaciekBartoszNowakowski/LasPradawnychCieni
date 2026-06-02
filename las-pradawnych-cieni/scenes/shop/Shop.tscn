@@ -1,0 +1,353 @@
+[gd_scene format=3 uid="uid://q06kl201v6s1"]
+
+[ext_resource type="PackedScene" uid="uid://wi4nh4xst7w6" path="res://scenes/ui/TopBar.tscn" id="1_topbar"]
+[ext_resource type="Script" uid="uid://jkgncf4580us" path="res://scripts/shop/Shop.gd" id="2_shop_script"]
+[ext_resource type="Texture2D" uid="uid://cj87at3easwk5" path="res://assets/ui/menu/vignette_v0.0.1.png" id="3_vignette"]
+[ext_resource type="Texture2D" uid="uid://dmtdgh1dhg0ta" path="res://assets/ui/shop/backgrounds/lesny_sklep_tlo.png" id="4_shop_bg"]
+
+[node name="Shop" type="Control" unique_id=604228352]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("2_shop_script")
+
+[node name="BackgroundLayer" type="Control" parent="." unique_id=1194146328]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="BaseTint" type="ColorRect" parent="BackgroundLayer" unique_id=1088087131]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.013, 0.012, 0.01, 1)
+
+[node name="ShopBackground" type="TextureRect" parent="BackgroundLayer" unique_id=593618802]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("4_shop_bg")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="Vignette" type="TextureRect" parent="BackgroundLayer" unique_id=1889027160]
+modulate = Color(1, 1, 1, 0.35)
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("3_vignette")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="UILayer" type="CanvasLayer" parent="." unique_id=1852271699]
+
+[node name="UIRoot" type="Control" parent="UILayer" unique_id=1731899208]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="TopBar" parent="UILayer/UIRoot" unique_id=1759020517 instance=ExtResource("1_topbar")]
+layout_mode = 1
+
+[node name="ContentMargin" type="MarginContainer" parent="UILayer/UIRoot" unique_id=1005126663]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 32
+theme_override_constants/margin_top = 76
+theme_override_constants/margin_right = 32
+theme_override_constants/margin_bottom = 28
+
+[node name="MainRoot" type="Control" parent="UILayer/UIRoot/ContentMargin" unique_id=1361070382]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="LeftPanelRoot" type="VBoxContainer" parent="UILayer/UIRoot/ContentMargin/MainRoot" unique_id=2144839827]
+custom_minimum_size = Vector2(500, 0)
+layout_mode = 0
+anchor_bottom = 1.0
+offset_right = 500.0
+grow_vertical = 2
+theme_override_constants/separation = 12
+
+[node name="MerchantPanel" type="PanelContainer" parent="UILayer/UIRoot/ContentMargin/MainRoot/LeftPanelRoot" unique_id=2010090811]
+custom_minimum_size = Vector2(0, 186)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 0
+
+[node name="MarginContainer" type="MarginContainer" parent="UILayer/UIRoot/ContentMargin/MainRoot/LeftPanelRoot/MerchantPanel" unique_id=1787255238]
+layout_mode = 2
+theme_override_constants/margin_left = 18
+theme_override_constants/margin_top = 18
+theme_override_constants/margin_right = 18
+theme_override_constants/margin_bottom = 18
+
+[node name="MerchantVBox" type="VBoxContainer" parent="UILayer/UIRoot/ContentMargin/MainRoot/LeftPanelRoot/MerchantPanel/MarginContainer" unique_id=1527245316]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="TitleLabel" type="Label" parent="UILayer/UIRoot/ContentMargin/MainRoot/LeftPanelRoot/MerchantPanel/MarginContainer/MerchantVBox" unique_id=1467501240]
+layout_mode = 2
+text = "Leśny handlarz"
+
+[node name="HintLabel" type="Label" parent="UILayer/UIRoot/ContentMargin/MainRoot/LeftPanelRoot/MerchantPanel/MarginContainer/MerchantVBox" unique_id=1119658993]
+layout_mode = 2
+text = "Nocny kupiec rozkłada towar przy dogasającym palenisku."
+autowrap_mode = 3
+
+[node name="FlavorText" type="Label" parent="UILayer/UIRoot/ContentMargin/MainRoot/LeftPanelRoot/MerchantPanel/MarginContainer/MerchantVBox" unique_id=1722153686]
+layout_mode = 2
+text = "Wybierz towary i przygotuj drużynę."
+autowrap_mode = 3
+
+[node name="StatusPanel" type="PanelContainer" parent="UILayer/UIRoot/ContentMargin/MainRoot/LeftPanelRoot" unique_id=1320713424]
+custom_minimum_size = Vector2(0, 112)
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="MarginContainer" type="MarginContainer" parent="UILayer/UIRoot/ContentMargin/MainRoot/LeftPanelRoot/StatusPanel" unique_id=377803949]
+layout_mode = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 16
+
+[node name="StatusVBox" type="VBoxContainer" parent="UILayer/UIRoot/ContentMargin/MainRoot/LeftPanelRoot/StatusPanel/MarginContainer" unique_id=1932656243]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="StatusTitleLabel" type="Label" parent="UILayer/UIRoot/ContentMargin/MainRoot/LeftPanelRoot/StatusPanel/MarginContainer/StatusVBox" unique_id=1318024429]
+layout_mode = 2
+text = "Wieści od kupca"
+
+[node name="StatusLabel" type="Label" parent="UILayer/UIRoot/ContentMargin/MainRoot/LeftPanelRoot/StatusPanel/MarginContainer/StatusVBox" unique_id=1147135605]
+layout_mode = 2
+text = "Witaj w sklepie."
+autowrap_mode = 3
+
+[node name="PartyPanel" type="PanelContainer" parent="UILayer/UIRoot/ContentMargin/MainRoot/LeftPanelRoot" unique_id=453937835]
+custom_minimum_size = Vector2(0, 150)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 0
+
+[node name="MarginContainer" type="MarginContainer" parent="UILayer/UIRoot/ContentMargin/MainRoot/LeftPanelRoot/PartyPanel" unique_id=289316508]
+layout_mode = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 16
+
+[node name="PartyVBox" type="VBoxContainer" parent="UILayer/UIRoot/ContentMargin/MainRoot/LeftPanelRoot/PartyPanel/MarginContainer" unique_id=385379617]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 8
+
+[node name="PartyTitleLabel" type="Label" parent="UILayer/UIRoot/ContentMargin/MainRoot/LeftPanelRoot/PartyPanel/MarginContainer/PartyVBox" unique_id=261788128]
+layout_mode = 2
+text = "Stan drużyny"
+
+[node name="PartyInfoLabel" type="Label" parent="UILayer/UIRoot/ContentMargin/MainRoot/LeftPanelRoot/PartyPanel/MarginContainer/PartyVBox" unique_id=889768685]
+layout_mode = 2
+size_flags_vertical = 3
+text = "Brak danych."
+autowrap_mode = 3
+
+[node name="BottomActionRoot" type="PanelContainer" parent="UILayer/UIRoot/ContentMargin/MainRoot" unique_id=77590702]
+layout_mode = 1
+anchors_preset = 12
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -74.0
+grow_horizontal = 2
+grow_vertical = 0
+
+[node name="MarginContainer" type="MarginContainer" parent="UILayer/UIRoot/ContentMargin/MainRoot/BottomActionRoot" unique_id=1960061897]
+layout_mode = 2
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_bottom = 10
+
+[node name="ActionsRow" type="HBoxContainer" parent="UILayer/UIRoot/ContentMargin/MainRoot/BottomActionRoot/MarginContainer" unique_id=1601249814]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="OpenSlotsButton" type="Button" parent="UILayer/UIRoot/ContentMargin/MainRoot/BottomActionRoot/MarginContainer/ActionsRow" unique_id=981917892]
+custom_minimum_size = Vector2(0, 56)
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Otwórz towary"
+
+[node name="LeaveButton" type="Button" parent="UILayer/UIRoot/ContentMargin/MainRoot/BottomActionRoot/MarginContainer/ActionsRow" unique_id=549624720]
+custom_minimum_size = Vector2(0, 52)
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Wróć na mapę"
+
+[node name="OverlayLayer" type="CanvasLayer" parent="." unique_id=74552519]
+
+[node name="SlotsOverlayRoot" type="Control" parent="OverlayLayer" unique_id=723417290]
+visible = false
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="Dimmer" type="ColorRect" parent="OverlayLayer/SlotsOverlayRoot" unique_id=1316399354]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.68)
+
+[node name="OverlayCenter" type="CenterContainer" parent="OverlayLayer/SlotsOverlayRoot" unique_id=572496419]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = 36.0
+offset_bottom = -20.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="OverlayPanel" type="PanelContainer" parent="OverlayLayer/SlotsOverlayRoot/OverlayCenter" unique_id=2112317974]
+custom_minimum_size = Vector2(960, 600)
+layout_mode = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="OverlayLayer/SlotsOverlayRoot/OverlayCenter/OverlayPanel" unique_id=1504456247]
+layout_mode = 2
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 18
+theme_override_constants/margin_right = 20
+theme_override_constants/margin_bottom = 20
+
+[node name="OverlayVBox" type="VBoxContainer" parent="OverlayLayer/SlotsOverlayRoot/OverlayCenter/OverlayPanel/MarginContainer" unique_id=1670749754]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="HeaderRow" type="HBoxContainer" parent="OverlayLayer/SlotsOverlayRoot/OverlayCenter/OverlayPanel/MarginContainer/OverlayVBox" unique_id=1559913049]
+layout_mode = 2
+
+[node name="OverlayTitleLabel" type="Label" parent="OverlayLayer/SlotsOverlayRoot/OverlayCenter/OverlayPanel/MarginContainer/OverlayVBox/HeaderRow" unique_id=1330847967]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Towary kupca"
+
+[node name="CloseSlotsButton" type="Button" parent="OverlayLayer/SlotsOverlayRoot/OverlayCenter/OverlayPanel/MarginContainer/OverlayVBox/HeaderRow" unique_id=318811059]
+layout_mode = 2
+text = "X"
+
+[node name="OverlayBody" type="HBoxContainer" parent="OverlayLayer/SlotsOverlayRoot/OverlayCenter/OverlayPanel/MarginContainer/OverlayVBox" unique_id=443159131]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 14
+
+[node name="SlotsGridPanel" type="PanelContainer" parent="OverlayLayer/SlotsOverlayRoot/OverlayCenter/OverlayPanel/MarginContainer/OverlayVBox/OverlayBody" unique_id=2055835047]
+custom_minimum_size = Vector2(620, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="MarginContainer" type="MarginContainer" parent="OverlayLayer/SlotsOverlayRoot/OverlayCenter/OverlayPanel/MarginContainer/OverlayVBox/OverlayBody/SlotsGridPanel" unique_id=1405974352]
+layout_mode = 2
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 14
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_bottom = 14
+
+[node name="SlotsGrid" type="GridContainer" parent="OverlayLayer/SlotsOverlayRoot/OverlayCenter/OverlayPanel/MarginContainer/OverlayVBox/OverlayBody/SlotsGridPanel/MarginContainer" unique_id=1976140042]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/h_separation = 10
+theme_override_constants/v_separation = 10
+columns = 4
+
+[node name="DetailsPanel" type="PanelContainer" parent="OverlayLayer/SlotsOverlayRoot/OverlayCenter/OverlayPanel/MarginContainer/OverlayVBox/OverlayBody" unique_id=484092321]
+custom_minimum_size = Vector2(380, 0)
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="MarginContainer" type="MarginContainer" parent="OverlayLayer/SlotsOverlayRoot/OverlayCenter/OverlayPanel/MarginContainer/OverlayVBox/OverlayBody/DetailsPanel" unique_id=995977216]
+layout_mode = 2
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 14
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_bottom = 14
+
+[node name="DetailsVBox" type="VBoxContainer" parent="OverlayLayer/SlotsOverlayRoot/OverlayCenter/OverlayPanel/MarginContainer/OverlayVBox/OverlayBody/DetailsPanel/MarginContainer" unique_id=190281512]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 8
+
+[node name="DetailItemIcon" type="TextureRect" parent="OverlayLayer/SlotsOverlayRoot/OverlayCenter/OverlayPanel/MarginContainer/OverlayVBox/OverlayBody/DetailsPanel/MarginContainer/DetailsVBox" unique_id=1117382381]
+custom_minimum_size = Vector2(96, 96)
+layout_mode = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="DetailItemNameLabel" type="Label" parent="OverlayLayer/SlotsOverlayRoot/OverlayCenter/OverlayPanel/MarginContainer/OverlayVBox/OverlayBody/DetailsPanel/MarginContainer/DetailsVBox" unique_id=808564432]
+layout_mode = 2
+text = "Wybierz przedmiot"
+
+[node name="DetailItemTypeLabel" type="Label" parent="OverlayLayer/SlotsOverlayRoot/OverlayCenter/OverlayPanel/MarginContainer/OverlayVBox/OverlayBody/DetailsPanel/MarginContainer/DetailsVBox" unique_id=1042097987]
+layout_mode = 2
+text = "-"
+
+[node name="DetailItemPriceLabel" type="Label" parent="OverlayLayer/SlotsOverlayRoot/OverlayCenter/OverlayPanel/MarginContainer/OverlayVBox/OverlayBody/DetailsPanel/MarginContainer/DetailsVBox" unique_id=1608731010]
+layout_mode = 2
+text = "Cena: -"
+
+[node name="DetailItemDescriptionLabel" type="Label" parent="OverlayLayer/SlotsOverlayRoot/OverlayCenter/OverlayPanel/MarginContainer/OverlayVBox/OverlayBody/DetailsPanel/MarginContainer/DetailsVBox" unique_id=1356042292]
+layout_mode = 2
+size_flags_vertical = 3
+text = "Opis przedmiotu."
+autowrap_mode = 3
+
+[node name="TargetLabel" type="Label" parent="OverlayLayer/SlotsOverlayRoot/OverlayCenter/OverlayPanel/MarginContainer/OverlayVBox/OverlayBody/DetailsPanel/MarginContainer/DetailsVBox" unique_id=790031798]
+custom_minimum_size = Vector2(0, 26)
+layout_mode = 2
+text = "Cel leczenia"
+
+[node name="HeroTargetButtons" type="HBoxContainer" parent="OverlayLayer/SlotsOverlayRoot/OverlayCenter/OverlayPanel/MarginContainer/OverlayVBox/OverlayBody/DetailsPanel/MarginContainer/DetailsVBox" unique_id=1602633988]
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="BuyButton" type="Button" parent="OverlayLayer/SlotsOverlayRoot/OverlayCenter/OverlayPanel/MarginContainer/OverlayVBox/OverlayBody/DetailsPanel/MarginContainer/DetailsVBox" unique_id=197079077]
+custom_minimum_size = Vector2(0, 52)
+layout_mode = 2
+text = "Kup za - zł"
