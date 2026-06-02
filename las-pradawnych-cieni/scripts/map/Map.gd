@@ -16,6 +16,7 @@ const BATTLE_SCENE_PATH: String = "res://scenes/battle/BattleMap.tscn"
 const REST_SCENE_PATH: String = "res://scenes/rest/Rest.tscn"
 const SIDE_QUEST_SCENE_PATH: String = "res://scenes/quests/SideQuest.tscn"
 const CHECKPOINT_SCENE_PATH: String = "res://scenes/checkpoints/Checkpoint.tscn"
+const SHOP_SCENE_PATH: String = "res://scenes/shop/Shop.tscn"
 const ROOM_MOCK_SCENE_PATH: String = "res://scenes/RoomMock.tscn"
 
 @onready var map_world: Node2D = $MapWorld
@@ -378,6 +379,8 @@ func _get_scene_path_for_node(node: MapNode) -> String:
 			return REST_SCENE_PATH
 		MapEnums.NodeType.CHECKPOINT:
 			return CHECKPOINT_SCENE_PATH
+		MapEnums.NodeType.SHOP:
+			return SHOP_SCENE_PATH
 		_:
 			return ROOM_MOCK_SCENE_PATH
 
@@ -402,7 +405,7 @@ func _get_scene_path_for_selected_node() -> String:
 		MapEnums.NodeType.CHECKPOINT:
 			return "res://scenes/checkpoints/Checkpoint.tscn"
 		MapEnums.NodeType.SHOP:
-			return "res://scenes/RoomMock.tscn"
+			return SHOP_SCENE_PATH
 		MapEnums.NodeType.ELITE:
 			return "res://scenes/RoomMock.tscn"
 		MapEnums.NodeType.BOSS:
