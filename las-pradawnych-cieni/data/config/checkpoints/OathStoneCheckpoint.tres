@@ -1,0 +1,32 @@
+[gd_resource type="Resource" script_class="CheckpointConfig" format=3]
+
+[ext_resource type="Script" path="res://scripts/checkpoints/CheckpointConfig.gd" id="1_checkpoint_config"]
+[ext_resource type="Script" path="res://scripts/checkpoints/CheckpointChoiceConfig.gd" id="2_checkpoint_choice"]
+[ext_resource type="Texture2D" path="res://assets/ui/checkpoints/oath_stone/cp_005_intro.png" id="3_intro"]
+[ext_resource type="Texture2D" path="res://assets/ui/checkpoints/oath_stone/cp_005_result_a.png" id="4_result_a"]
+[ext_resource type="Texture2D" path="res://assets/ui/checkpoints/oath_stone/cp_005_result_b.png" id="5_result_b"]
+
+[sub_resource type="Resource" id="CheckpointChoice_1"]
+script = ExtResource("2_checkpoint_choice")
+text = "Przysięgnij ochronę ludzi za wszelką cenę"
+result_text = "Kamień odpowiada cichym drżeniem. Czujesz, że przyjmujesz ciężar decyzji sołtysa: ocalić osadę nawet kosztem prawdy i krzywdy tych, których poświęcono."
+lore_tag = &"oath_people"
+continue_button_text = "Niech to się skończy"
+result_background = ExtResource("4_result_a")
+
+[sub_resource type="Resource" id="CheckpointChoice_2"]
+script = ExtResource("2_checkpoint_choice")
+text = "Przysięgnij przywrócenie dawnego paktu"
+result_text = "Szepty układają się w słowa dawnych strażników. Rozumiesz, że finał nie musi oznaczać wyłącznie zabicia źródła zła, ale też naprawienie zerwanej umowy."
+lore_tag = &"oath_forest"
+continue_button_text = "Ruszaj do finału"
+result_background = ExtResource("5_result_b")
+
+[resource]
+script = ExtResource("1_checkpoint_config")
+checkpoint_id = &"oath_stone"
+title = "Kamień Przysięgi"
+description = "Tuż przed sercem lasu stoi kamienny krąg pokryty runami osady i dawnych strażników. To ostatnie miejsce, gdzie można wybrać, komu zaufać."
+lore_tag = &"final_alignment"
+background = ExtResource("3_intro")
+choices = Array[Resource]([SubResource("CheckpointChoice_1"), SubResource("CheckpointChoice_2")])

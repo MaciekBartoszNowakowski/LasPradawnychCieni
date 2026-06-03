@@ -88,9 +88,9 @@ func _draw() -> void:
 func _find_closest_player(player_characters: Array[Player]) -> Player:
 	var closest: Player = null
 	var min_dist := INF
-	for char: Player in player_characters:
-		var d: float = float(grid_pos.distance_squared_to(char.grid_pos))
+	for character: Player in player_characters:
+		var d: float = float(grid_pos.distance_squared_to(character.grid_pos))
 		if d < min_dist:
 			min_dist = d
-			closest = char
+			closest = character
 	return closest

@@ -5,11 +5,15 @@ var id: int
 var type: int
 var position: Vector2
 var layer_index: int
+var act: int = 0
 
 var connections: Array[int] = []
 
 var available: bool = false
 var visited: bool = false
+
+var side_quest_config: SideQuestConfig = null
+var checkpoint_config: CheckpointConfig = null
 
 func _init(_id: int, _type: int, _position: Vector2, _layer_index: int) -> void:
 	id = _id

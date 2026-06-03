@@ -12,6 +12,12 @@ const SCROLL_SNAP_EPSILON: float = 0.5
 
 const BOTTOM_BAR_HEIGHT: float = 96.0
 
+const BATTLE_SCENE_PATH: String = "res://scenes/battle/BattleMap.tscn"
+const REST_SCENE_PATH: String = "res://scenes/rest/Rest.tscn"
+const SIDE_QUEST_SCENE_PATH: String = "res://scenes/quests/SideQuest.tscn"
+const CHECKPOINT_SCENE_PATH: String = "res://scenes/checkpoints/Checkpoint.tscn"
+const ROOM_MOCK_SCENE_PATH: String = "res://scenes/RoomMock.tscn"
+
 @onready var map_world: Node2D = $MapWorld
 @onready var backdrop_layer: BackdropLayer = $MapWorld/BackdropLayer
 @onready var paths_layer: PathsLayer = $MapWorld/PathsLayer
@@ -45,8 +51,7 @@ func _ready() -> void:
 		
 	top_bar.setup(
 		"Mapa świata",
-		"Wybierz następną lokację",
-		0
+		"Wybierz następną lokację"
 	)
 
 
@@ -343,26 +348,68 @@ func _select_node(node: MapNode) -> void:
 			next_node.available = true
 
 	MapState.selected_node_id = node.id
+	MapState.selected_node_type = node.type
+	MapState.selected_node_act = node.act
+	MapState.clear_selected_side_quest()
+	MapState.clear_selected_checkpoint()
 
-	var room_type: int = node.type
-	if room_type == MapEnums.NodeType.CHECKPOINT:
-		room_type = MapEnums.NodeType.EVENT
-
-	MapState.selected_node_type = room_type
+	if node.type == MapEnums.NodeType.EVENT and node.side_quest_config != null:
+		MapState.set_selected_side_quest(node.side_quest_config)
+	elif node.type == MapEnums.NodeType.CHECKPOINT and node.checkpoint_config != null:
+		MapState.set_selected_checkpoint(node.checkpoint_config)
 
 	_refresh_visual_layers()
 	_update_bottom_bar()
 	
 	UiAudio.play_click()
 	await get_tree().create_timer(0.08).timeout
-	
+
+	var target_scene_path: String = _get_scene_path_for_node(node)
+	_change_scene_with_transition(target_scene_path)
+
+
+func _get_scene_path_for_node(node: MapNode) -> String:
+	if node.type == MapEnums.NodeType.EVENT and node.side_quest_config != null:
+		return SIDE_QUEST_SCENE_PATH
+
+	match node.type:
+		MapEnums.NodeType.BATTLE:
+			return BATTLE_SCENE_PATH
+		MapEnums.NodeType.REST:
+			return REST_SCENE_PATH
+		MapEnums.NodeType.CHECKPOINT:
+			return CHECKPOINT_SCENE_PATH
+		_:
+			return ROOM_MOCK_SCENE_PATH
+
+
+func _change_scene_with_transition(scene_path: String) -> void:
+	var transition := get_node_or_null("/root/SceneTransition")
+
+	if transition != null and transition.has_method("change_scene"):
+		transition.change_scene(scene_path)
+	else:
+		get_tree().change_scene_to_file(scene_path)
+
+
+func _get_scene_path_for_selected_node() -> String:
 	match MapState.selected_node_type:
 		MapEnums.NodeType.BATTLE:
-			get_tree().change_scene_to_file("res://scenes/battle/BattleMap.tscn")
+			return "res://scenes/battle/BattleMap.tscn"
 		MapEnums.NodeType.REST:
-			get_tree().change_scene_to_file("res://scenes/rest/Rest.tscn")
+			return "res://scenes/rest/Rest.tscn"
+		MapEnums.NodeType.EVENT:
+			return "res://scenes/RoomMock.tscn"
+		MapEnums.NodeType.CHECKPOINT:
+			return "res://scenes/checkpoints/Checkpoint.tscn"
+		MapEnums.NodeType.SHOP:
+			return "res://scenes/RoomMock.tscn"
+		MapEnums.NodeType.ELITE:
+			return "res://scenes/RoomMock.tscn"
+		MapEnums.NodeType.BOSS:
+			return "res://scenes/RoomMock.tscn"
 		_:
-			get_tree().change_scene_to_file("res://scenes/RoomMock.tscn")
+			return "res://scenes/RoomMock.tscn"
 
 
 func _get_max_scroll_x() -> float:

@@ -1,0 +1,187 @@
+[gd_scene load_steps=3 format=3 uid="uid://sidequest_scene_0001"]
+
+[ext_resource type="Script" path="res://scripts/quests/SideQuest.gd" id="1_sidequest_script"]
+[ext_resource type="Texture2D" path="res://assets/ui/menu/vignette_v0.0.1.png" id="2_vignette"]
+
+[node name="SideQuest" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_sidequest_script")
+fallback_vignette = ExtResource("2_vignette")
+fallback_dark_overlay_alpha = 0.34
+fallback_vignette_alpha = 0.45
+
+[node name="BackgroundLayer" type="Control" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="BaseTint" type="ColorRect" parent="BackgroundLayer"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.012, 0.014, 0.018, 1)
+
+[node name="Background" type="TextureRect" parent="BackgroundLayer"]
+modulate = Color(1, 1, 1, 0)
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 6
+
+[node name="DarkOverlay" type="ColorRect" parent="BackgroundLayer"]
+modulate = Color(1, 1, 1, 0)
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0, 0, 0, 0.34)
+
+[node name="Vignette" type="TextureRect" parent="BackgroundLayer"]
+modulate = Color(1, 1, 1, 0)
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("2_vignette")
+expand_mode = 1
+stretch_mode = 6
+
+[node name="Root" type="Control" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="QuestPanel" type="Panel" parent="Root"]
+modulate = Color(1, 1, 1, 0)
+custom_minimum_size = Vector2(680, 760)
+layout_mode = 1
+anchor_left = 1.0
+anchor_top = 0.0
+anchor_right = 1.0
+anchor_bottom = 0.0
+offset_left = -776.0
+offset_top = 110.0
+offset_right = -96.0
+offset_bottom = 870.0
+grow_horizontal = 0
+grow_vertical = 0
+mouse_filter = 0
+
+[node name="MarginContainer" type="MarginContainer" parent="Root/QuestPanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 34
+theme_override_constants/margin_top = 30
+theme_override_constants/margin_right = 34
+theme_override_constants/margin_bottom = 30
+
+[node name="VBox" type="VBoxContainer" parent="Root/QuestPanel/MarginContainer"]
+layout_mode = 2
+theme_override_constants/separation = 14
+
+[node name="TitleLabel" type="Label" parent="Root/QuestPanel/MarginContainer/VBox"]
+custom_minimum_size = Vector2(0, 46)
+layout_mode = 2
+text = "Side quest"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Divider" type="ColorRect" parent="Root/QuestPanel/MarginContainer/VBox"]
+custom_minimum_size = Vector2(0, 1)
+layout_mode = 2
+color = Color(0.84705883, 0.8, 0.68235296, 0.34)
+
+[node name="DescriptionText" type="RichTextLabel" parent="Root/QuestPanel/MarginContainer/VBox"]
+custom_minimum_size = Vector2(0, 190)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 0
+bbcode_enabled = false
+scroll_active = false
+fit_content = false
+autowrap_mode = 3
+text = "Opis wydarzenia"
+
+[node name="ChoicesTitleLabel" type="Label" parent="Root/QuestPanel/MarginContainer/VBox"]
+custom_minimum_size = Vector2(0, 26)
+layout_mode = 2
+text = "Wybierz działanie"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="ChoicesContainer" type="VBoxContainer" parent="Root/QuestPanel/MarginContainer/VBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 10
+
+[node name="ResultBox" type="VBoxContainer" parent="Root/QuestPanel/MarginContainer/VBox"]
+visible = false
+modulate = Color(1, 1, 1, 0)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 8
+
+[node name="ResultTitleLabel" type="Label" parent="Root/QuestPanel/MarginContainer/VBox/ResultBox"]
+custom_minimum_size = Vector2(0, 30)
+layout_mode = 2
+text = "Skutek decyzji"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="ResultText" type="RichTextLabel" parent="Root/QuestPanel/MarginContainer/VBox/ResultBox"]
+custom_minimum_size = Vector2(0, 120)
+layout_mode = 2
+size_flags_horizontal = 3
+bbcode_enabled = false
+scroll_active = false
+fit_content = false
+autowrap_mode = 3
+text = "Wynik"
+
+[node name="EffectLabel" type="Label" parent="Root/QuestPanel/MarginContainer/VBox/ResultBox"]
+custom_minimum_size = Vector2(0, 28)
+layout_mode = 2
+text = "Efekt"
+horizontal_alignment = 1
+autowrap_mode = 3
+
+[node name="ContinueButton" type="Button" parent="Root/QuestPanel/MarginContainer/VBox"]
+visible = false
+modulate = Color(1, 1, 1, 0)
+custom_minimum_size = Vector2(0, 56)
+layout_mode = 2
+size_flags_horizontal = 3
+focus_mode = 0
+text = "Wróć na mapę"

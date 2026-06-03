@@ -1,0 +1,37 @@
+[gd_resource type="Resource" script_class="SideQuestConfig" format=3 uid="uid://dw1gaume4o3me"]
+
+[ext_resource type="Script" uid="uid://2qvhujuh3vo8" path="res://scripts/quests/SideQuestConfig.gd" id="1_config"]
+[ext_resource type="Script" uid="uid://cgsvyyw6bj1w4" path="res://scripts/quests/SideQuestChoiceConfig.gd" id="2_choice"]
+
+[ext_resource type="Texture2D" path="res://assets/ui/side_quests/strange_roots_intro.png" id="3_bg"]
+[ext_resource type="Texture2D" path="res://assets/ui/side_quests/strange_roots_cut_result.png" id="4_cut"]
+[ext_resource type="Texture2D" path="res://assets/ui/side_quests/strange_roots_avoid_result.png" id="5_avoid"]
+[sub_resource type="Resource" id="Choice_1"]
+script = ExtResource("2_choice")
+text = "Przetnij pulsujące korzenie"
+result_text = "Korzenie syczą jak mokre drewno wrzucone do ognia. Ścieżka przed wami staje się spokojniejsza, ale ciernie rozcinają dłonie i zostawiają ciemne ślady na skórze."
+result_background = ExtResource("4_cut")
+result_background_note = "Przecięte, pulsujące korzenie na leśnej ścieżce; lekka poświata i ciemne ciernie."
+health_delta = -5
+continue_button_text = "Wróć na mapę"
+
+[sub_resource type="Resource" id="Choice_2"]
+script = ExtResource("2_choice")
+text = "Obejdź je szerokim łukiem"
+result_text = "Tracicie trochę czasu, ale unikacie ryzyka. Kiedy wracacie na ścieżkę, coś pod ziemią przesuwa się za waszymi plecami i cichnie dopiero po dłuższej chwili."
+result_background = ExtResource("5_avoid")
+result_background_note = "Drużyna omija poruszające się korzenie; mroczny las i ślady ruchu pod ziemią."
+continue_button_text = "Wróć na mapę"
+
+[resource]
+script = ExtResource("1_config")
+quest_id = &"strange_roots"
+title = "Dziwne korzenie"
+description = "Ścieżkę przecinają grube, ciemne korzenie. Poruszają się powoli, jakby oddychały razem z lasem. Co jakiś czas spod kory przebija słaba, chora poświata."
+background = ExtResource("3_bg")
+background_note = "Nocny las, droga przecięta grubymi, nienaturalnymi korzeniami; korzenie delikatnie świecą, dark fantasy."
+dark_overlay_alpha = 0.34
+vignette_alpha = 0.50
+panel_side = "right"
+choices = Array[Resource]([SubResource("Choice_1"), SubResource("Choice_2")])
+allowed_acts = PackedInt32Array()

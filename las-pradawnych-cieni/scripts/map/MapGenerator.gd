@@ -2,6 +2,13 @@ class_name MapGenerator
 extends RefCounted
 
 const TYPE_AUTO: int = -1
+const FINAL_OATH_CHECKPOINT_ID: String = "oath_stone"
+const REGULAR_CHECKPOINT_ORDER: Array[String] = [
+	"whispering_totem",
+	"broken_bridge",
+	"ancient_camp",
+	"soltys_ledger",
+]
 
 var rng: RandomNumberGenerator = RandomNumberGenerator.new()
 var next_id: int = 0
@@ -461,6 +468,8 @@ func _create_layers_from_specs(
 	var layers: Array = []
 	var generated_counts: Dictionary = {}
 	var layer_type_history: Array = []
+	var used_side_quests: Dictionary = {}
+	var checkpoint_order_index: int = 0
 
 	for layer_index in range(layer_specs.size()):
 		var layer: Array[MapNode] = []
@@ -485,7 +494,16 @@ func _create_layers_from_specs(
 
 			var position: Vector2 = _get_node_position(layer_index, index_in_layer, node_count, config)
 			var node: MapNode = MapNode.new(next_id, node_type, position, layer_index)
-
+			node.act = _get_act_index_for_layer(layer_index, act_decision_counts)
+			
+			_assign_side_quest_if_needed(node, config, used_side_quests)
+			checkpoint_order_index = _assign_checkpoint_if_needed(
+				node,
+				config,
+				checkpoint_order_index,
+				layer_specs.size()
+			)
+			
 			layer.append(node)
 			layer_types.append(node_type)
 			_increment_node_count(generated_counts, node_type)
@@ -495,6 +513,146 @@ func _create_layers_from_specs(
 		layer_type_history.append(layer_types)
 
 	return layers
+
+func _assign_side_quest_if_needed(
+	node: MapNode,
+	config: MapGenerationConfig,
+	used_side_quests: Dictionary
+) -> void:
+	if node == null:
+		return
+
+	if node.type != MapEnums.NodeType.EVENT:
+		return
+
+	# Nie przypinamy sidequesta do startowego eventu.
+	if node.layer_index == 0:
+		return
+
+	if config.side_quest_pool.is_empty():
+		return
+
+	var quest: SideQuestConfig = _pick_side_quest_config(config, used_side_quests)
+
+	if quest == null:
+		return
+
+	node.side_quest_config = quest
+
+	var quest_key: String = quest.resource_path
+	if quest_key.is_empty():
+		quest_key = str(quest.get_instance_id())
+
+	used_side_quests[quest_key] = true
+
+
+func _assign_checkpoint_if_needed(
+	node: MapNode,
+	config: MapGenerationConfig,
+	checkpoint_order_index: int,
+	total_layers: int
+) -> int:
+	if node == null:
+		return checkpoint_order_index
+
+	if node.type != MapEnums.NodeType.CHECKPOINT:
+		return checkpoint_order_index
+
+	if config.checkpoint_pool.is_empty():
+		return checkpoint_order_index
+
+	var pre_boss_layer_index: int = total_layers - 2
+	var is_pre_boss_checkpoint: bool = (
+		config.require_pre_boss_story_event
+		and node.layer_index == pre_boss_layer_index
+	)
+
+	if is_pre_boss_checkpoint:
+		var final_checkpoint: CheckpointConfig = _get_checkpoint_by_id(config, FINAL_OATH_CHECKPOINT_ID)
+		if final_checkpoint != null:
+			node.checkpoint_config = final_checkpoint
+			return checkpoint_order_index
+
+	# Regularne checkpointy zawsze idą w stałej, fabularnej kolejności.
+	# Jeśli generator stworzy więcej checkpointów niż długość listy,
+	# kolejność będzie się powtarzać.
+	var ordered_id: String = ""
+	if not REGULAR_CHECKPOINT_ORDER.is_empty():
+		ordered_id = REGULAR_CHECKPOINT_ORDER[checkpoint_order_index % REGULAR_CHECKPOINT_ORDER.size()]
+
+	if not ordered_id.is_empty():
+		var ordered_checkpoint: CheckpointConfig = _get_checkpoint_by_id(config, ordered_id)
+		if ordered_checkpoint != null:
+			node.checkpoint_config = ordered_checkpoint
+			return checkpoint_order_index + 1
+
+	# Fallback: jeżeli brakuje konkretnego zasobu w puli (np. usunięty .tres),
+	# dobierz cokolwiek sensownego z puli (bez oath_stone).
+	var regular_checkpoint_pool: Array[CheckpointConfig] = _get_checkpoint_pool_without_id(config, FINAL_OATH_CHECKPOINT_ID)
+	if regular_checkpoint_pool.is_empty():
+		regular_checkpoint_pool = _get_checkpoint_pool_without_id(config, "")
+	if regular_checkpoint_pool.is_empty():
+		return checkpoint_order_index
+
+	var checkpoint_index: int = checkpoint_order_index % regular_checkpoint_pool.size()
+	node.checkpoint_config = regular_checkpoint_pool[checkpoint_index]
+	return checkpoint_order_index + 1
+
+
+func _get_checkpoint_by_id(config: MapGenerationConfig, checkpoint_id: String) -> CheckpointConfig:
+	for raw_checkpoint in config.checkpoint_pool:
+		var checkpoint := raw_checkpoint as CheckpointConfig
+		if checkpoint == null:
+			continue
+
+		if str(checkpoint.checkpoint_id) == checkpoint_id:
+			return checkpoint
+
+	return null
+
+
+func _get_checkpoint_pool_without_id(config: MapGenerationConfig, excluded_id: String) -> Array[CheckpointConfig]:
+	var result: Array[CheckpointConfig] = []
+
+	for raw_checkpoint in config.checkpoint_pool:
+		var checkpoint := raw_checkpoint as CheckpointConfig
+		if checkpoint == null:
+			continue
+
+		if not excluded_id.is_empty() and str(checkpoint.checkpoint_id) == excluded_id:
+			continue
+
+		result.append(checkpoint)
+
+	return result
+
+
+func _pick_side_quest_config(
+	config: MapGenerationConfig,
+	used_side_quests: Dictionary
+) -> SideQuestConfig:
+	var available_quests: Array[SideQuestConfig] = []
+
+	for quest in config.side_quest_pool:
+		if quest == null:
+			continue
+
+		if not config.allow_repeating_side_quests:
+			var quest_key: String = quest.resource_path
+			if quest_key.is_empty():
+				quest_key = str(quest.get_instance_id())
+
+			if used_side_quests.has(quest_key):
+				continue
+
+		available_quests.append(quest)
+
+	if available_quests.is_empty():
+		return null
+
+	var index: int = rng.randi_range(0, available_quests.size() - 1)
+	return available_quests[index]
+
 
 func _pick_regular_node_type(
 	config: MapGenerationConfig,

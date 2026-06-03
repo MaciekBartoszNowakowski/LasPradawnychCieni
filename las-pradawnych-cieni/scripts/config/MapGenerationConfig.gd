@@ -63,6 +63,13 @@ enum MinibossMode {
 @export var optional_event_min_count: int = 1
 @export var optional_event_max_count: int = 5
 
+@export_group("Side Quests")
+@export var side_quest_pool: Array[SideQuestConfig] = []
+@export var allow_repeating_side_quests: bool = false
+
+@export_group("Checkpoints")
+@export var checkpoint_pool: Array[CheckpointConfig] = []
+
 @export var miniboss_mode: MinibossMode = MinibossMode.OPTIONAL
 @export var miniboss_target_count: int = 1
 @export var miniboss_allowed_acts: PackedInt32Array = PackedInt32Array([1])

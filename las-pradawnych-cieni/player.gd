@@ -6,6 +6,7 @@ const RADIUS := 18.0
 
 var grid_pos: Vector2i = Vector2i.ZERO
 var cell_size: int = 64
+var grid_offset: Vector2 = Vector2.ZERO
 
 var character_name: String = "Unknown"
 var initiative: int = 0
@@ -91,13 +92,55 @@ func grid_to_world(cell: Vector2i) -> Vector2:
 	return Vector2(
 		cell.x * cell_size + cell_size * 0.5,
 		cell.y * cell_size + cell_size * 0.5
-	)
+	) + grid_offset
 
 func world_to_grid(pos: Vector2) -> Vector2i:
+	var adjusted := pos - grid_offset
 	return Vector2i(
-		floori(pos.x / cell_size),
-		floori(pos.y / cell_size)
+		floori(adjusted.x / cell_size),
+		floori(adjusted.y / cell_size)
 	)
 
 func _draw() -> void:
 	draw_circle(Vector2.ZERO, RADIUS, color)
+
+
+func apply_life_delta(amount: int) -> int:
+	if amount == 0:
+		return 0
+
+	var previous_life: int = current_life
+
+	current_life = clampi(
+		current_life + amount,
+		0,
+		max_life
+	)
+
+	queue_redraw()
+
+	return current_life - previous_life
+
+
+func heal(amount: int) -> int:
+	if amount <= 0:
+		return 0
+
+	return apply_life_delta(amount)
+
+
+func damage(amount: int) -> int:
+	if amount <= 0:
+		return 0
+
+	return apply_life_delta(-amount)
+
+
+func heal_missing_percent(percent: float) -> int:
+	var missing_life: int = max_life - current_life
+
+	if missing_life <= 0:
+		return 0
+
+	var heal_amount: int = max(1, int(ceil(float(missing_life) * percent)))
+	return heal(heal_amount)

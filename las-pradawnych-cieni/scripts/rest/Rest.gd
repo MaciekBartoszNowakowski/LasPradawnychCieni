@@ -2,6 +2,13 @@ extends Control
 class_name Rest
 
 const MAP_SCENE_PATH := "res://scenes/map/Map.tscn"
+const NOTICE_FONT_PATH := "res://assets/ui/fonts/IMFellEnglishSC-Regular.ttf"
+
+const NOTICE_TEXT_COLOR := Color(0.8666667, 0.827451, 0.7372549, 1.0)
+const NOTICE_TEXT_HOVER_COLOR := Color(0.9411765, 0.90588236, 0.8156863, 1.0)
+const NOTICE_TEXT_PRESSED_COLOR := Color(0.7607843, 0.6901961, 0.52156866, 1.0)
+const NOTICE_TEXT_DISABLED_COLOR := Color(0.5529412, 0.52156866, 0.46666667, 1.0)
+const NOTICE_OUTLINE_COLOR := Color(0.09411765, 0.078431375, 0.07058824, 1.0)
 
 const ACTION_PANEL_WIDTH: float = 420.0
 const ACTION_PANEL_HEIGHT: float = 112.0
@@ -19,9 +26,6 @@ const CHARACTER_PANEL_TOP_MARGIN: float = 15.0
 const CHARACTER_PANEL_SIDE_MARGIN: float = 15.0
 
 const HERO_SLOT_SIZE := Vector2(160.0, 230.0)
-
-const APPLY_ENTRY_BONUS := true
-const ENTRY_HEAL_AMOUNT := 2
 
 var party: Array[Player] = []
 
@@ -97,8 +101,11 @@ var hero_slots: Array[Control] = []
 ])
 
 @onready var leave_button: Button = _get_first_button([
+	"UILayer/UIRoot/ActionPanel/MarginContainer/VBoxContainer/MainActionsRow/LeaveButton",
 	"UILayer/UIRoot/ActionPanel/MarginContainer/VBoxContainer/LeaveButton",
+	"UIRoot/ActionPanel/MarginContainer/VBoxContainer/MainActionsRow/LeaveButton",
 	"UIRoot/ActionPanel/MarginContainer/VBoxContainer/LeaveButton",
+	"ActionPanel/MarginContainer/VBoxContainer/MainActionsRow/LeaveButton",
 	"ActionPanel/MarginContainer/VBoxContainer/LeaveButton"
 ])
 
@@ -129,9 +136,6 @@ func _ready() -> void:
 
 	if character_panel != null:
 		character_panel.visible = false
-
-	if APPLY_ENTRY_BONUS:
-		_apply_entry_bonus()
 
 	_queue_redraw_hero_slots()
 
@@ -182,18 +186,12 @@ func _setup_top_bar() -> void:
 	if top_bar == null:
 		return
 
-	var gold: int = 0
-
-	if GameState.player_team != null:
-		gold = GameState.player_team.money
-
 	top_bar.mouse_filter = Control.MOUSE_FILTER_IGNORE
 
 	if top_bar.has_method("setup"):
 		top_bar.setup(
 			"Leśne Obozowisko",
-			"Odpocznij przed dalszą wyprawą",
-			gold
+			"Odpocznij przed dalszą wyprawą"
 		)
 
 
@@ -321,13 +319,21 @@ func _layout_action_panel() -> void:
 	if action_panel == null:
 		return
 
+	# ActionPanel ma być lustrzanym odpowiednikiem ControlsPanel:
+	# ta sama wysokość, szerokość i dolny margines, tylko po prawej stronie.
+	var min_size := action_panel.get_combined_minimum_size()
+	var panel_width: float = max(ACTION_PANEL_WIDTH, min_size.x)
+	var panel_height: float = max(ACTION_PANEL_HEIGHT, min_size.y)
+
+	action_panel.custom_minimum_size = Vector2(panel_width, panel_height)
+
 	action_panel.anchor_left = 1.0
 	action_panel.anchor_top = 1.0
 	action_panel.anchor_right = 1.0
 	action_panel.anchor_bottom = 1.0
 
-	action_panel.offset_left = -ACTION_PANEL_WIDTH - ACTION_PANEL_SIDE_MARGIN
-	action_panel.offset_top = -ACTION_PANEL_HEIGHT - ACTION_PANEL_BOTTOM_MARGIN
+	action_panel.offset_left = -panel_width - ACTION_PANEL_SIDE_MARGIN
+	action_panel.offset_top = -panel_height - ACTION_PANEL_BOTTOM_MARGIN
 	action_panel.offset_right = -ACTION_PANEL_SIDE_MARGIN
 	action_panel.offset_bottom = -ACTION_PANEL_BOTTOM_MARGIN
 
@@ -364,27 +370,34 @@ func _setup_panels() -> void:
 	if action_panel != null:
 		action_panel.mouse_filter = Control.MOUSE_FILTER_STOP
 		_apply_action_panel_style(action_panel)
+		_apply_panel_label_style(action_panel)
 
 	if controls_panel != null:
 		controls_panel.mouse_filter = Control.MOUSE_FILTER_STOP
 		_apply_controls_panel_style(controls_panel)
+		_apply_panel_label_style(controls_panel)
 
 	if character_panel != null:
 		character_panel.mouse_filter = Control.MOUSE_FILTER_STOP
 		_apply_character_panel_style(character_panel)
+		_apply_panel_label_style(character_panel)
 
 
 func _setup_buttons() -> void:
 	if rest_button != null:
 		rest_button.pressed.connect(_on_rest_button_pressed)
+		rest_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		_apply_button_style(rest_button)
 
 	if prepare_button != null:
 		prepare_button.visible = false
 		prepare_button.disabled = true
+		prepare_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		_apply_button_style(prepare_button)
 
 	if leave_button != null:
 		leave_button.pressed.connect(_on_leave_button_pressed)
+		leave_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		_apply_button_style(leave_button)
 
 	if close_button != null:
@@ -403,14 +416,14 @@ func _setup_controls_panel_text() -> void:
 
 	if title_label != null:
 		title_label.text = "Drużyna"
-		title_label.add_theme_color_override("font_color", Color("#F2DFC5"))
+		title_label.add_theme_color_override("font_color", NOTICE_TEXT_COLOR)
 
 	var hint_label := controls_panel.find_child("HintLabel", true, false) as Label
 
 	if hint_label != null:
 		hint_label.text = "Kliknij bohatera przy ognisku, aby zobaczyć jego statystyki."
 		hint_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-		hint_label.add_theme_color_override("font_color", Color("#BDA58A"))
+		hint_label.add_theme_color_override("font_color", Color(0.78, 0.69, 0.58, 1.0))
 
 
 func _setup_hero_slots() -> void:
@@ -579,20 +592,7 @@ func _on_rest_button_pressed() -> void:
 	
 	UiAudio.play_click()
 	
-	for character: Player in party:
-		var missing_hp: int = character.max_life - character.current_life
-
-		if missing_hp <= 0:
-			continue
-
-		var heal_amount: int = max(1, int(ceil(float(missing_hp) * 0.4)))
-
-		character.current_life = min(
-			character.max_life,
-			character.current_life + heal_amount
-		)
-
-		character.queue_redraw()
+	GameState.heal_team_missing_percent(0.4)
 
 	rest_used = true
 
@@ -614,21 +614,9 @@ func _on_leave_button_pressed() -> void:
 	UiAudio.play_click()
 	
 	if ResourceLoader.exists(MAP_SCENE_PATH):
-		get_tree().change_scene_to_file(MAP_SCENE_PATH)
+		SceneTransition.change_scene(MAP_SCENE_PATH)
 	else:
 		print("Brak sceny mapy pod ścieżką: ", MAP_SCENE_PATH)
-
-
-func _apply_entry_bonus() -> void:
-	for character: Player in party:
-		character.current_life = min(
-			character.max_life,
-			character.current_life + ENTRY_HEAL_AMOUNT
-		)
-
-		character.queue_redraw()
-
-	_queue_redraw_hero_slots()
 
 
 func _show_character_panel(index: int) -> void:
@@ -837,105 +825,113 @@ func _draw_hp_bar(canvas: Control, rect: Rect2, hp: int, max_hp: int) -> void:
 
 
 func _apply_action_panel_style(panel: PanelContainer) -> void:
-	var style := StyleBoxFlat.new()
-
-	style.bg_color = Color(0.09, 0.06, 0.04, 0.88)
-	style.border_color = Color("#8B5E34")
-
-	style.border_width_left = 2
-	style.border_width_top = 2
-	style.border_width_right = 2
-	style.border_width_bottom = 2
-
-	style.corner_radius_top_left = 14
-	style.corner_radius_top_right = 14
-	style.corner_radius_bottom_left = 14
-	style.corner_radius_bottom_right = 14
-
-	style.shadow_color = Color(0.0, 0.0, 0.0, 0.48)
-	style.shadow_size = 10
-
-	panel.add_theme_stylebox_override("panel", style)
+	panel.add_theme_stylebox_override("panel", _create_notice_panel_style())
 
 
 func _apply_controls_panel_style(panel: PanelContainer) -> void:
+	panel.add_theme_stylebox_override("panel", _create_notice_panel_style())
+
+
+func _apply_character_panel_style(panel: PanelContainer) -> void:
+	panel.add_theme_stylebox_override("panel", _create_notice_panel_style())
+
+
+func _create_notice_panel_style() -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
 
-	style.bg_color = Color(0.08, 0.055, 0.035, 0.82)
-	style.border_color = Color("#755331")
+	# Ten sam kierunek wizualny co NoticeBoardOverlay: bardzo ciemne,
+	# lekko przezroczyste tło i subtelna jasna ramka.
+	style.bg_color = Color(0.03529412, 0.02745098, 0.01960784, 0.70)
+	style.border_color = Color(0.84705883, 0.8, 0.68235296, 0.32)
 
-	style.border_width_left = 2
-	style.border_width_top = 2
-	style.border_width_right = 2
-	style.border_width_bottom = 2
+	style.border_width_left = 1
+	style.border_width_top = 1
+	style.border_width_right = 1
+	style.border_width_bottom = 1
 
-	style.corner_radius_top_left = 12
-	style.corner_radius_top_right = 12
-	style.corner_radius_bottom_left = 12
-	style.corner_radius_bottom_right = 12
+	style.corner_radius_top_left = 5
+	style.corner_radius_top_right = 5
+	style.corner_radius_bottom_right = 5
+	style.corner_radius_bottom_left = 5
 
 	style.shadow_color = Color(0.0, 0.0, 0.0, 0.45)
 	style.shadow_size = 8
 
-	panel.add_theme_stylebox_override("panel", style)
-
-
-func _apply_character_panel_style(panel: PanelContainer) -> void:
-	var style := StyleBoxFlat.new()
-
-	style.bg_color = Color(0.08, 0.055, 0.035, 0.88)
-	style.border_color = Color("#8B5E34")
-
-	style.border_width_left = 2
-	style.border_width_top = 2
-	style.border_width_right = 2
-	style.border_width_bottom = 2
-
-	style.corner_radius_top_left = 14
-	style.corner_radius_top_right = 14
-	style.corner_radius_bottom_left = 14
-	style.corner_radius_bottom_right = 14
-
-	style.shadow_color = Color(0.0, 0.0, 0.0, 0.48)
-	style.shadow_size = 10
-
-	panel.add_theme_stylebox_override("panel", style)
+	return style
 
 
 func _apply_button_style(button: Button) -> void:
 	var normal := StyleBoxFlat.new()
 
-	normal.bg_color = Color(0.18, 0.13, 0.09, 0.92)
-	normal.border_color = Color("#8A5E31")
-
+	normal.set_content_margin(SIDE_LEFT, 18.0)
+	normal.set_content_margin(SIDE_TOP, 10.0)
+	normal.set_content_margin(SIDE_RIGHT, 18.0)
+	normal.set_content_margin(SIDE_BOTTOM, 10.0)
+	normal.bg_color = Color(0.03529412, 0.02745098, 0.01960784, 0.58)
+	normal.border_color = Color(0.84705883, 0.8, 0.68235296, 0.32)
 	normal.border_width_left = 1
 	normal.border_width_top = 1
 	normal.border_width_right = 1
 	normal.border_width_bottom = 1
-
-	normal.corner_radius_top_left = 7
-	normal.corner_radius_top_right = 7
-	normal.corner_radius_bottom_left = 7
-	normal.corner_radius_bottom_right = 7
+	normal.corner_radius_top_left = 5
+	normal.corner_radius_top_right = 5
+	normal.corner_radius_bottom_right = 5
+	normal.corner_radius_bottom_left = 5
 
 	var hover := normal.duplicate() as StyleBoxFlat
-	hover.bg_color = Color(0.24, 0.17, 0.11, 0.96)
-	hover.border_color = Color("#D39A4A")
-
-	var pressed := normal.duplicate() as StyleBoxFlat
-	pressed.bg_color = Color(0.13, 0.09, 0.06, 0.96)
-	pressed.border_color = Color("#B76F2B")
+	hover.bg_color = Color(0.12, 0.085, 0.045, 0.72)
+	hover.border_color = Color(0.9019608, 0.8666667, 0.78431374, 0.55)
 
 	var disabled := normal.duplicate() as StyleBoxFlat
-	disabled.bg_color = Color(0.14, 0.12, 0.10, 0.55)
-	disabled.border_color = Color(0.35, 0.30, 0.24, 0.45)
+	disabled.bg_color = Color(0.03529412, 0.02745098, 0.01960784, 0.28)
+	disabled.border_color = Color(0.84705883, 0.8, 0.68235296, 0.16)
 
+	button.focus_mode = Control.FOCUS_NONE
 	button.add_theme_stylebox_override("normal", normal)
 	button.add_theme_stylebox_override("hover", hover)
-	button.add_theme_stylebox_override("pressed", pressed)
+	button.add_theme_stylebox_override("pressed", hover)
+	button.add_theme_stylebox_override("focus", normal)
 	button.add_theme_stylebox_override("disabled", disabled)
 
-	button.add_theme_color_override("font_color", Color("#F2DFC5"))
-	button.add_theme_color_override("font_hover_color", Color("#FFE2AB"))
-	button.add_theme_color_override("font_pressed_color", Color("#F8D18E"))
-	button.add_theme_color_override("font_disabled_color", Color("#7E6B59"))
+	button.add_theme_color_override("font_color", NOTICE_TEXT_COLOR)
+	button.add_theme_color_override("font_hover_color", NOTICE_TEXT_HOVER_COLOR)
+	button.add_theme_color_override("font_pressed_color", NOTICE_TEXT_PRESSED_COLOR)
+	button.add_theme_color_override("font_disabled_color", NOTICE_TEXT_DISABLED_COLOR)
+	button.add_theme_color_override("font_outline_color", NOTICE_OUTLINE_COLOR)
+	button.add_theme_constant_override("outline_size", 1)
+	button.add_theme_font_size_override("font_size", 24)
+
+	var notice_font := _get_notice_font()
+
+	if notice_font != null:
+		button.add_theme_font_override("font", notice_font)
+
+
+func _apply_panel_label_style(panel: Control) -> void:
+	var notice_font := _get_notice_font()
+	var labels := panel.find_children("*", "Label", true, false)
+
+	for node in labels:
+		var label := node as Label
+
+		if label == null:
+			continue
+
+		var is_title := str(label.name).contains("Title") or str(label.name).contains("Name")
+		var label_color := NOTICE_TEXT_COLOR if is_title else Color(0.78, 0.69, 0.58, 1.0)
+		var label_size := 24 if is_title else 18
+
+		label.add_theme_color_override("font_color", label_color)
+		label.add_theme_color_override("font_outline_color", NOTICE_OUTLINE_COLOR)
+		label.add_theme_constant_override("outline_size", 1)
+		label.add_theme_font_size_override("font_size", label_size)
+
+		if notice_font != null:
+			label.add_theme_font_override("font", notice_font)
+
+
+func _get_notice_font() -> Font:
+	if ResourceLoader.exists(NOTICE_FONT_PATH):
+		return load(NOTICE_FONT_PATH) as Font
+
+	return null

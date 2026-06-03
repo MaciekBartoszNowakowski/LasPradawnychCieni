@@ -1,0 +1,48 @@
+[gd_resource type="Resource" script_class="SideQuestConfig" format=3 uid="uid://cb6vpebipd85k"]
+
+[ext_resource type="Script" uid="uid://2qvhujuh3vo8" path="res://scripts/quests/SideQuestConfig.gd" id="1_config"]
+[ext_resource type="Script" uid="uid://cgsvyyw6bj1w4" path="res://scripts/quests/SideQuestChoiceConfig.gd" id="2_choice"]
+
+[ext_resource type="Texture2D" path="res://assets/ui/side_quests/lost_hunter_intro.png" id="3_bg"]
+[ext_resource type="Texture2D" path="res://assets/ui/side_quests/lost_hunter_help_path_result.png" id="4_help"]
+[ext_resource type="Texture2D" path="res://assets/ui/side_quests/lost_hunter_bandage_result.png" id="5_bandage"]
+[ext_resource type="Texture2D" path="res://assets/ui/side_quests/lost_hunter_leave_result.png" id="6_leave"]
+[sub_resource type="Resource" id="Choice_1"]
+script = ExtResource("2_choice")
+text = "Pomóż myśliwemu wrócić na szlak"
+result_text = "Myśliwy dziękuje cicho i wręcza wam kilka monet. Zanim odchodzi, ostrzega przed świeżymi śladami wilków, których — jak twierdzi — chwilę wcześniej wcale tam nie było."
+result_background = ExtResource("4_help")
+result_background_note = "Ranny myśliwy przy leśnej ścieżce, wskazuje kierunek; w oddali wilcze ślady i ciemny las."
+gold_delta = 10
+continue_button_text = "Wróć na mapę"
+
+[sub_resource type="Resource" id="Choice_2"]
+script = ExtResource("2_choice")
+text = "Opatrz jego rany"
+result_text = "Poświęcacie zapasy i czas. Myśliwy odzyskuje oddech, a drużyna czuje, że zrobiła coś słusznego. Na moment nawet las wydaje się mniej wrogi."
+result_background = ExtResource("5_bandage")
+result_background_note = "Ranny myśliwy opatrywany przy ognisku lub na poboczu ścieżki; spokojniejsze, ciepłe światło."
+health_delta = 6
+continue_button_text = "Wróć na mapę"
+
+[sub_resource type="Resource" id="Choice_3"]
+script = ExtResource("2_choice")
+text = "Zostaw go i ruszaj dalej"
+result_text = "Nie zatrzymujecie się. Las szybko pochłania jego wołanie. Przez długi czas za plecami słychać jeszcze łamane gałęzie, choć nikt nie ma odwagi się odwrócić."
+result_background = ExtResource("6_leave")
+result_background_note = "Drużyna odchodzi leśną ścieżką; myśliwy zostaje w cieniu, atmosfera winy i zagrożenia."
+health_delta = -2
+continue_button_text = "Wróć na mapę"
+
+[resource]
+script = ExtResource("1_config")
+quest_id = &"lost_hunter"
+title = "Zagubiony myśliwy"
+description = "Na poboczu ścieżki siedzi ranny myśliwy. Twierdzi, że od wielu godzin krąży w kółko, choć cały czas szedł prosto. Jego latarnia dogasa, a z lasu dochodzi ciche warczenie."
+background = ExtResource("3_bg")
+background_note = "Nocna leśna ścieżka, ranny myśliwy z dogasającą latarnią na poboczu, ciemny las i niepokojące oczy w oddali."
+dark_overlay_alpha = 0.33
+vignette_alpha = 0.48
+panel_side = "right"
+choices = Array[Resource]([SubResource("Choice_1"), SubResource("Choice_2"), SubResource("Choice_3")])
+allowed_acts = PackedInt32Array()
