@@ -11,7 +11,7 @@ config_version=5
 [application]
 
 config/name="LasPradawnych Cieni"
-run/main_scene="uid://b4652dvvicjqu"
+run/main_scene="uid://by0thtrjcijjo"
 config/features=PackedStringArray("4.6", "Forward Plus")
 config/icon="res://icon.svg"
 

@@ -5,6 +5,7 @@ var id: int
 var type: int
 var position: Vector2
 var layer_index: int
+var act: int = 0
 
 var connections: Array[int] = []
 

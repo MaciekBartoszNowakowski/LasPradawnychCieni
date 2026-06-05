@@ -350,6 +350,7 @@ func _select_node(node: MapNode) -> void:
 
 	MapState.selected_node_id = node.id
 	MapState.selected_node_type = node.type
+	MapState.selected_node_act = node.act
 	MapState.clear_selected_side_quest()
 	MapState.clear_selected_checkpoint()
 
