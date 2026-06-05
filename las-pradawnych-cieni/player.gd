@@ -22,6 +22,10 @@ var color: Color = Color.DODGER_BLUE
 var actions: Array[BattleAction] = []
 var has_acted: bool = false
 
+var defending: bool = false
+var stealthed: bool = false
+var halve_stats_rounds: int = 0
+
 var move_points_max: int = 6
 var move_points_left: int = 6
 

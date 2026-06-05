@@ -16,3 +16,19 @@ func _init() -> void:
 	a.damage = strength
 	a.range = 2
 	actions.append(a)
+
+	var b := BattleAction.new()
+	b.action_name = "Stab"
+	b.action_type = "armor_pierce"
+	b.damage = strength
+	b.range = 1
+	b.armor_piercing = true
+	actions.append(b)
+
+	var c := BattleAction.new()
+	c.action_name = "Hide"
+	c.action_type = "self_hide"
+	c.damage = 0
+	c.range = 0
+	c.cooldown_max = 2
+	actions.append(c)

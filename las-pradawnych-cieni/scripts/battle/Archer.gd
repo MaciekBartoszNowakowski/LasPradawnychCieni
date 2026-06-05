@@ -16,3 +16,11 @@ func _init() -> void:
 	a.damage = strength
 	a.range = 5
 	actions.append(a)
+
+	var b := BattleAction.new()
+	b.action_name = "Arrow to the Knee"
+	b.action_type = "arrow_knee"
+	b.damage = strength
+	b.damage_multiplier = 0.5
+	b.range = 5
+	actions.append(b)

@@ -58,11 +58,10 @@ func attack(player_characters: Array[Player]) -> Dictionary:
 		return {}
 	has_acted = true
 	var result := BattleAction.resolve(action, target)
-	if result["hit"]:
-		target.current_life = maxi(target.current_life - result["damage"], 0)
 	result["attacker"] = character_name
 	result["action"] = action.action_name
 	result["target"] = target.character_name
+	result["target_ref"] = target
 	return result
 
 func _find_closest_in_range(chars: Array[Player], r: int) -> Player:
@@ -70,6 +69,8 @@ func _find_closest_in_range(chars: Array[Player], r: int) -> Player:
 	var min_dist := INF
 	for c: Player in chars:
 		if c.current_life <= 0:
+			continue
+		if c.stealthed:
 			continue
 		var d: int = abs(grid_pos.x - c.grid_pos.x) + abs(grid_pos.y - c.grid_pos.y)
 		if d <= r and float(d) < min_dist:
@@ -89,6 +90,8 @@ func _find_closest_player(player_characters: Array[Player]) -> Player:
 	var closest: Player = null
 	var min_dist := INF
 	for character: Player in player_characters:
+		if character.stealthed:
+			continue
 		var d: float = float(grid_pos.distance_squared_to(character.grid_pos))
 		if d < min_dist:
 			min_dist = d

@@ -9,8 +9,14 @@ const COLOR_OBSTACLE := Color(0.45, 0.45, 0.45)
 const COLOR_GRID := Color.BLACK
 const COLOR_RANGE := Color(1.0, 0.0, 0.0, 0.25)
 
+const OBSTACLE_COLORS: Dictionary = {
+	"stone": Color(0.5, 0.5, 0.55),
+	"tree_log": Color(0.4, 0.25, 0.1),
+	"river": Color(0.2, 0.45, 0.9)
+}
+
 const TOP_BAR_HEIGHT: float = 64.0
-const BOTTOM_BAR_HEIGHT: float = 65.0
+const BOTTOM_BAR_HEIGHT: float = 80.0
 
 var cells: Dictionary = {}
 var astar: AStarGrid2D = AStarGrid2D.new()
@@ -24,11 +30,13 @@ var _enemy_acting: bool = false
 
 var _targeting_mode: bool = false
 var _pending_action: BattleAction = null
+var _background_texture: Texture2D = null
+var _obstacle_textures: Dictionary = {}
+var _cell_textures: Dictionary = {}
 
 var _initiative_container: HBoxContainer
 var _actions_container: HBoxContainer
 var _name_label: Label
-var _life_label: Label
 var _stats_label: Label
 var _end_turn_button: Button
 var _end_battle_button: Button
@@ -59,6 +67,12 @@ func _process(_delta: float) -> void:
 			if not current.has_acted and current is Enemy:
 				var attack_result := (current as Enemy).attack(player_characters)
 				if not attack_result.is_empty():
+					if attack_result["hit"]:
+						var intended: Player = attack_result["target_ref"]
+						var actual: Player = _find_defender_for(intended)
+						actual.current_life = maxi(actual.current_life - attack_result["damage"], 0)
+						if actual != intended:
+							attack_result["target"] = actual.character_name + " (defended for " + intended.character_name + ")"
 					_log_attack(attack_result)
 					_update_initiative_display()
 				for pc: Player in player_characters.duplicate():
@@ -91,12 +105,33 @@ func add_block(block: Block, coord: Vector2i) -> void:
 
 func _load_map_layout() -> void:
 	var layout := BattleMapLayouts.get_random_layout()
+
+	_background_texture = load("res://assets/ui/map/battle_maps/base_map.png")
+
+	var obs_tex_paths: Dictionary = layout.get("obstacle_textures", {})
+	for terrain: String in obs_tex_paths:
+		var path: String = obs_tex_paths[terrain]
+		if path != "":
+			_obstacle_textures[terrain] = load(path)
+
+	var cell_tex_paths: Dictionary = layout.get("cell_textures", {})
+	for coord: Vector2i in cell_tex_paths:
+		var path: String = cell_tex_paths[coord]
+		if path != "":
+			_cell_textures[coord] = load(path)
+
 	for coord: Vector2i in layout["stones"]:
-		add_block(StoneBlock.new(), coord)
+		var b := StoneBlock.new()
+		b.visible = false
+		add_block(b, coord)
 	for coord: Vector2i in layout["trees"]:
-		add_block(TreeLogBlock.new(), coord)
+		var b := TreeLogBlock.new()
+		b.visible = false
+		add_block(b, coord)
 	for coord: Vector2i in layout["rivers"]:
-		add_block(RiverBlock.new(), coord)
+		var b := RiverBlock.new()
+		b.visible = false
+		add_block(b, coord)
 
 func setup_astar() -> void:
 	astar = AStarGrid2D.new()
@@ -167,7 +202,20 @@ func start_first_turn() -> void:
 func _advance_turn() -> void:
 	current_turn_index = (current_turn_index + 1) % combatants.size()
 	var current: Player = combatants[current_turn_index]
+
+	if not (current is Enemy):
+		current.defending = false
+		current.stealthed = false
+		for action: BattleAction in current.actions:
+			if action.cooldown_remaining > 0:
+				action.cooldown_remaining -= 1
+
 	current.reset_turn()
+
+	if current.halve_stats_rounds > 0:
+		current.move_points_left = maxi(1, current.move_points_left / 2)
+		current.halve_stats_rounds -= 1
+
 	_update_initiative_display()
 	if current is Enemy:
 		_enemy_acting = true
@@ -231,13 +279,11 @@ func _setup_ui() -> void:
 	hbox.add_child(stats_vbox)
 
 	_name_label = Label.new()
-	_name_label.add_theme_font_size_override("font_size", 16)
+	_name_label.add_theme_font_size_override("font_size", 14)
 	stats_vbox.add_child(_name_label)
 
-	_life_label = Label.new()
-	stats_vbox.add_child(_life_label)
-
 	_stats_label = Label.new()
+	_stats_label.add_theme_font_size_override("font_size", 12)
 	stats_vbox.add_child(_stats_label)
 
 	# Actions panel
@@ -252,28 +298,32 @@ func _setup_ui() -> void:
 	_actions_container.alignment = BoxContainer.ALIGNMENT_CENTER
 	actions_panel.add_child(_actions_container)
 
-	# Buttons section
-	var btn_vbox := VBoxContainer.new()
-	btn_vbox.custom_minimum_size = Vector2(200, 0)
-	hbox.add_child(btn_vbox)
+	# Buttons section (horizontal so all three are always visible)
+	var btn_hbox := HBoxContainer.new()
+	btn_hbox.custom_minimum_size = Vector2(240, 0)
+	btn_hbox.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	hbox.add_child(btn_hbox)
 
 	_end_turn_button = Button.new()
 	_end_turn_button.text = "End Turn"
+	_end_turn_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_end_turn_button.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	_end_turn_button.pressed.connect(_on_end_turn_button_pressed)
-	btn_vbox.add_child(_end_turn_button)
+	btn_hbox.add_child(_end_turn_button)
 
 	_end_battle_button = Button.new()
 	_end_battle_button.text = "End Battle"
+	_end_battle_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_end_battle_button.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	_end_battle_button.pressed.connect(_on_end_battle_button_pressed)
-	btn_vbox.add_child(_end_battle_button)
+	btn_hbox.add_child(_end_battle_button)
 
 	var log_button := Button.new()
 	log_button.text = "Log"
+	log_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	log_button.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	log_button.pressed.connect(_toggle_log)
-	btn_vbox.add_child(log_button)
+	btn_hbox.add_child(log_button)
 
 	# Log panel — hidden by default, left side between the two bars
 	_log_panel = PanelContainer.new()
@@ -307,8 +357,11 @@ func _refresh_action_buttons() -> void:
 		return
 	for action: BattleAction in current.actions:
 		var btn := Button.new()
-		btn.text = action.action_name
-		btn.disabled = current.has_acted
+		if action.cooldown_remaining > 0:
+			btn.text = action.action_name + " (%d)" % action.cooldown_remaining
+		else:
+			btn.text = action.action_name
+		btn.disabled = current.has_acted or action.cooldown_remaining > 0
 		btn.custom_minimum_size = Vector2(120, 0)
 		btn.size_flags_vertical = Control.SIZE_EXPAND_FILL
 		btn.pressed.connect(_on_action_button_pressed.bind(action))
@@ -350,9 +403,68 @@ func _on_action_button_pressed(action: BattleAction) -> void:
 		_pending_action = null
 		queue_redraw()
 		return
+
+	match action.action_type:
+		"aoe_adjacent":
+			_execute_wide_slash(action)
+			return
+		"self_defend":
+			current.defending = true
+			current.has_acted = true
+			_log_attack({"attacker": current.character_name, "action": "Defend",
+				"target": "self", "hit": true, "roll": 0, "miss_chance": 0, "damage": 0})
+			_refresh_action_buttons()
+			_update_stats_panel()
+			return
+		"self_hide":
+			current.stealthed = true
+			action.cooldown_remaining = action.cooldown_max
+			current.has_acted = true
+			_log_attack({"attacker": current.character_name, "action": "Hide",
+				"target": "self", "hit": true, "roll": 0, "miss_chance": 0, "damage": 0})
+			_refresh_action_buttons()
+			return
+
 	_pending_action = action
 	_targeting_mode = true
 	queue_redraw()
+
+
+func _execute_wide_slash(action: BattleAction) -> void:
+	if combatants.is_empty():
+		return
+	var current: Player = combatants[current_turn_index]
+	current.has_acted = true
+	var hit_any: bool = false
+	for enemy: Player in enemies.duplicate():
+		var dist: int = abs(current.grid_pos.x - enemy.grid_pos.x) + abs(current.grid_pos.y - enemy.grid_pos.y)
+		if dist > 1:
+			continue
+		hit_any = true
+		var half_action := BattleAction.new()
+		half_action.action_name = action.action_name
+		half_action.damage = maxi(1, int(float(action.damage) * action.damage_multiplier))
+		half_action.range = action.range
+		var result := BattleAction.resolve(half_action, enemy)
+		if result["hit"]:
+			enemy.current_life = maxi(enemy.current_life - result["damage"], 0)
+		_log_attack({"attacker": current.character_name, "action": action.action_name,
+			"target": enemy.character_name, "hit": result["hit"],
+			"roll": result["roll"], "miss_chance": result["miss_chance"], "damage": result["damage"]})
+		_check_death_and_remove(enemy)
+	if not hit_any:
+		_log_attack({"attacker": current.character_name, "action": action.action_name,
+			"target": "no enemies in range", "hit": false, "roll": 0, "miss_chance": 0, "damage": 0})
+	_refresh_action_buttons()
+	_update_initiative_display()
+
+
+func _find_defender_for(target: Player) -> Player:
+	for c: Player in player_characters:
+		if c != target and c.defending:
+			if abs(c.grid_pos.x - target.grid_pos.x) + abs(c.grid_pos.y - target.grid_pos.y) == 1:
+				return c
+	return target
 
 func _update_initiative_display() -> void:
 	for child in _initiative_container.get_children():
@@ -402,9 +514,8 @@ func _update_stats_panel() -> void:
 	if last_player_character == null:
 		return
 	var c := last_player_character
-	_name_label.text = c.character_name
-	_life_label.text = "HP: %d / %d" % [c.current_life, c.max_life]
-	_stats_label.text = "SPD: %d  INI: %d  AGI: %d  STR: %d  ARM: %d" % [
+	_name_label.text = "%s   HP: %d / %d" % [c.character_name, c.current_life, c.max_life]
+	_stats_label.text = "SPD:%d INI:%d AGI:%d STR:%d ARM:%d" % [
 		c.speed, c.initiative, c.agility, c.strength, c.armour
 	]
 
@@ -441,9 +552,19 @@ func _unhandled_input(event: InputEvent) -> void:
 				_pending_action = null
 				return
 			current.has_acted = true
-			var result := BattleAction.resolve(_pending_action, target)
-			if result["hit"]:
-				target.current_life = maxi(target.current_life - result["damage"], 0)
+			var result: Dictionary
+			if _pending_action.action_type == "arrow_knee":
+				var half := BattleAction.new()
+				half.damage = maxi(1, _pending_action.damage / 2)
+				half.range = _pending_action.range
+				result = BattleAction.resolve(half, target)
+				if result["hit"]:
+					target.current_life = maxi(target.current_life - result["damage"], 0)
+					target.halve_stats_rounds = 2
+			else:
+				result = BattleAction.resolve(_pending_action, target)
+				if result["hit"]:
+					target.current_life = maxi(target.current_life - result["damage"], 0)
 			var log_info := {
 				"attacker": current.character_name,
 				"action": _pending_action.action_name,
@@ -534,15 +655,23 @@ func _draw() -> void:
 	_draw_action_range()
 
 func draw_cells() -> void:
+	var grid_rect := Rect2(Vector2(0.0, TOP_BAR_HEIGHT), Vector2(GRID_WIDTH * CELL_SIZE, GRID_HEIGHT * CELL_SIZE))
+	if _background_texture != null:
+		draw_texture_rect(_background_texture, grid_rect, false)
+
 	for x in range(GRID_WIDTH):
 		for y in range(GRID_HEIGHT):
-			var coord := Vector2i(x, y)
+			var cell: CellData = cells[Vector2i(x, y)]
+			if cell.walkable:
+				continue
 			var rect := Rect2(Vector2(x * CELL_SIZE, y * CELL_SIZE + TOP_BAR_HEIGHT), Vector2(CELL_SIZE, CELL_SIZE))
-			var cell: CellData = cells[coord]
-			var color := COLOR_GROUND
-			if not cell.walkable:
-				color = COLOR_OBSTACLE
-			draw_rect(rect, color, true)
+			var terrain := str(cell.terrain_type)
+			var tex: Texture2D = _cell_textures.get(Vector2i(x, y), _obstacle_textures.get(terrain, null))
+			if tex != null:
+				draw_texture_rect(tex, rect, false)
+			else:
+				var base_color: Color = OBSTACLE_COLORS.get(terrain, COLOR_OBSTACLE)
+				draw_rect(rect, Color(base_color.r, base_color.g, base_color.b, 0.4), true)
 
 func draw_grid_lines() -> void:
 	var total_width := GRID_WIDTH * CELL_SIZE
