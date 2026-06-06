@@ -6,6 +6,7 @@ const RADIUS := 18.0
 
 var grid_pos: Vector2i = Vector2i.ZERO
 var cell_size: int = 64
+var grid_offset: Vector2 = Vector2.ZERO
 
 var character_name: String = "Unknown"
 var initiative: int = 0
@@ -17,6 +18,13 @@ var max_life: int = 10
 var current_life: int = 10
 
 var color: Color = Color.DODGER_BLUE
+
+var actions: Array[BattleAction] = []
+var has_acted: bool = false
+
+var defending: bool = false
+var stealthed: bool = false
+var halve_stats_rounds: int = 0
 
 var move_points_max: int = 6
 var move_points_left: int = 6
@@ -79,6 +87,7 @@ func set_path(path: Array[Vector2i]) -> void:
 
 func reset_turn() -> void:
 	move_points_left = move_points_max
+	has_acted = false
 	queue_redraw()
 
 func is_moving() -> bool:
@@ -88,12 +97,13 @@ func grid_to_world(cell: Vector2i) -> Vector2:
 	return Vector2(
 		cell.x * cell_size + cell_size * 0.5,
 		cell.y * cell_size + cell_size * 0.5
-	)
+	) + grid_offset
 
 func world_to_grid(pos: Vector2) -> Vector2i:
+	var adjusted := pos - grid_offset
 	return Vector2i(
-		floori(pos.x / cell_size),
-		floori(pos.y / cell_size)
+		floori(adjusted.x / cell_size),
+		floori(adjusted.y / cell_size)
 	)
 
 func _draw() -> void:

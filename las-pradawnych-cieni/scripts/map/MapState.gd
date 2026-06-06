@@ -11,6 +11,7 @@ var map_generated: bool = false
 
 var selected_node_type: int = -1
 var selected_node_id: int = -1
+var selected_node_act: int = 0
 var selected_side_quest: SideQuestConfig = null
 var completed_side_quest_ids: Dictionary = {}
 var selected_checkpoint: CheckpointConfig = null
@@ -266,6 +267,7 @@ func reset_map() -> void:
 	map_generated = false
 	selected_node_type = -1
 	selected_node_id = -1
+	selected_node_act = 0
 	runtime_map_config = null
 	selected_side_quest = null
 	selected_checkpoint = null

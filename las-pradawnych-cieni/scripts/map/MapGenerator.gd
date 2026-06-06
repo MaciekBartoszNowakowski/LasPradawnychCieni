@@ -732,6 +732,7 @@ func _create_layers_from_specs(
 
 			var position: Vector2 = _get_node_position(layer_index, index_in_layer, node_count, config)
 			var node: MapNode = MapNode.new(next_id, node_type, position, layer_index)
+			node.act = _get_act_index_for_layer(layer_index, act_decision_counts)
 			
 			_assign_side_quest_if_needed(node, config, used_side_quests)
 			checkpoint_order_index = _assign_checkpoint_if_needed(
