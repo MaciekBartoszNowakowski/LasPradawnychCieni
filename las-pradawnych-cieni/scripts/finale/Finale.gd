@@ -1,6 +1,6 @@
 extends Control
 
-const BATTLE_SCENE_PATH := "res://scenes/battle/BattleMap.tscn"
+const BATTLE_SCENE_PATH := "res://scenes/battle/FinaleBattleMap.tscn"
 const EPILOGUE_SCENE_PATH := "res://scenes/finale/Epilogue.tscn"
 const NOTICE_FONT_PATH := "res://assets/ui/fonts/IMFellEnglishSC-Regular.ttf"
 

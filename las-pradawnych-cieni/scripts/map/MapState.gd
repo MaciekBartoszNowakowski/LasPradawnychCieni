@@ -343,6 +343,7 @@ func _node_to_dict(node: MapNode) -> Dictionary:
 		"type": node.type,
 		"position": {"x": node.position.x, "y": node.position.y},
 		"layer_index": node.layer_index,
+		"act": node.act,
 		"connections": node.connections.duplicate(),
 		"available": node.available,
 		"visited": node.visited,
@@ -360,6 +361,7 @@ func _node_from_dict(data: Dictionary) -> MapNode:
 		position,
 		int(data.get("layer_index", 0))
 	)
+	node.act = int(data.get("act", 0))
 
 	node.connections = []
 	for raw_id in data.get("connections", []) as Array:
