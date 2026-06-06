@@ -10,6 +10,8 @@
 [ext_resource type="PackedScene" uid="uid://b230vyie5n31c" path="res://scenes/prologue/NoticeBoardOverlay.tscn" id="8_mipys"]
 [ext_resource type="PackedScene" path="res://scenes/prologue/MayorHouseOverlay.tscn" id="9_8a8k8"]
 [ext_resource type="PackedScene" uid="uid://x81gjwrscmi5" path="res://scenes/prologue/MayorInteriorDialogOverlay.tscn" id="10_7la6k"]
+[ext_resource type="PackedScene" path="res://scenes/ui/SaveSlotsPanel.tscn" id="11_save_slots"]
+[ext_resource type="PackedScene" path="res://scenes/ui/SettingsPanel.tscn" id="12_settings"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ow34m"]
 content_margin_left = 16.0
@@ -299,7 +301,7 @@ theme_override_styles/hover = SubResource("StyleBoxFlat_ucygd")
 theme_override_styles/disabled = SubResource("StyleBoxFlat_mipys")
 theme_override_styles/focus = SubResource("StyleBoxFlat_8a8k8")
 disabled = true
-text = "Kontynuuj"
+text = "Wczytaj grę"
 
 [node name="BtnOptions" type="Button" parent="UIRoot/CenterBox/MenuColumn/BoardPanel/BoardVBox" unique_id=1331242438]
 custom_minimum_size = Vector2(0, 52)
@@ -317,7 +319,6 @@ theme_override_styles/pressed = SubResource("StyleBoxFlat_826wr")
 theme_override_styles/hover = SubResource("StyleBoxFlat_ucygd")
 theme_override_styles/disabled = SubResource("StyleBoxFlat_mipys")
 theme_override_styles/focus = SubResource("StyleBoxFlat_8a8k8")
-disabled = true
 text = "Opcje"
 
 [node name="BtnCredits" type="Button" parent="UIRoot/CenterBox/MenuColumn/BoardPanel/BoardVBox" unique_id=1376402265]
@@ -392,6 +393,7 @@ size_flags_horizontal = 3
 [node name="AudioMusic" type="AudioStreamPlayer" parent="." unique_id=214772373]
 stream = ExtResource("5_826wr")
 volume_db = -15.0
+bus = &"Music"
 
 [node name="AudioAmbience" type="AudioStreamPlayer" parent="." unique_id=171111922]
 
@@ -410,3 +412,21 @@ visible = true
 visible = true
 
 [node name="MayorInteriorDialogOverlay" parent="." unique_id=433480999 instance=ExtResource("10_7la6k")]
+
+[node name="SaveSlotsPanel" parent="." instance=ExtResource("11_save_slots")]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 0
+
+[node name="SettingsPanel" parent="." instance=ExtResource("12_settings")]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 0

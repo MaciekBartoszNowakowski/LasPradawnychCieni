@@ -220,6 +220,8 @@ func _on_choice_pressed(choice: CheckpointChoiceConfig) -> void:
 	if has_node("/root/UiAudio"):
 		UiAudio.play_click()
 
+	_record_choice_lore(choice)
+
 	for child in choices_container.get_children():
 		var button := child as Button
 		if button != null:
@@ -269,6 +271,19 @@ func _show_choice_result(choice: CheckpointChoiceConfig) -> void:
 
 	var button_tween := create_tween()
 	button_tween.tween_property(continue_button, "modulate:a", 1.0, 0.25)
+
+
+func _record_choice_lore(choice: CheckpointChoiceConfig) -> void:
+	if choice == null or not has_node("/root/MapState"):
+		return
+
+	MapState.record_lore_tag(choice.lore_tag)
+
+	if current_checkpoint != null and str(current_checkpoint.checkpoint_id) == MapState.OATH_CHECKPOINT_ID:
+		MapState.set_final_alignment_from_lore_tag(choice.lore_tag)
+
+	if not current_checkpoint.lore_tag.is_empty():
+		MapState.record_lore_tag(current_checkpoint.lore_tag)
 
 
 func _on_continue_pressed() -> void:

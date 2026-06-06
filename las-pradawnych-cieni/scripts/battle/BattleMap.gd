@@ -91,7 +91,17 @@ func spawn_characters() -> void:
 		spawn_character(player_characters[i], start_cells[i])
 
 func spawn_test_enemies() -> void:
-	var wolves: Array[Enemy] = [Wolf.new(), Wolf.new()]
+	var wolves: Array[Enemy] = []
+	var enemy_count := 2
+
+	if has_node("/root/MapState") and MapState.finale_battle_active:
+		enemy_count = 3
+
+	for _i in range(enemy_count):
+		var wolf := Wolf.new()
+		if has_node("/root/MapState") and MapState.finale_battle_active:
+			wolf.character_name = "Cień Lasu"
+		wolves.append(wolf)
 	var start_cells := [Vector2i(14, 7), Vector2i(16, 9)]
 	for i in range(wolves.size()):
 		spawn_character(wolves[i], start_cells[i])
@@ -226,7 +236,7 @@ func _setup_ui() -> void:
 	btn_vbox.add_child(_end_turn_button)
 
 	_end_battle_button = Button.new()
-	_end_battle_button.text = "End Battle"
+	_end_battle_button.text = "Zakończ finał" if has_node("/root/MapState") and MapState.finale_battle_active else "End Battle"
 	_end_battle_button.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	_end_battle_button.pressed.connect(_on_end_battle_button_pressed)
 	btn_vbox.add_child(_end_battle_button)
@@ -343,4 +353,15 @@ func _on_end_battle_button_pressed() -> void:
 			return
 	for char: Player in player_characters:
 		char.reparent(GameState)
-	get_tree().change_scene_to_file("res://scenes/map/Map.tscn")
+
+	var next_scene := "res://scenes/map/Map.tscn"
+	if has_node("/root/MapState") and MapState.finale_battle_active:
+		MapState.clear_finale_battle()
+		MapState.mark_run_completed()
+		next_scene = "res://scenes/finale/Epilogue.tscn"
+
+	var transition := get_node_or_null("/root/SceneTransition")
+	if transition != null and transition.has_method("change_scene"):
+		transition.change_scene(next_scene)
+	else:
+		get_tree().change_scene_to_file(next_scene)
