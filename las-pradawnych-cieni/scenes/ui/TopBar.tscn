@@ -66,6 +66,14 @@ vertical_alignment = 1
 layout_mode = 2
 size_flags_horizontal = 3
 alignment = 2
+theme_override_constants/separation = 16
+
+[node name="SaveButton" type="Button" parent="MarginContainer/HBoxContainer/RightBlock"]
+visible = false
+custom_minimum_size = Vector2(108, 30)
+layout_mode = 2
+focus_mode = 0
+text = "Zapisz"
 
 [node name="GoldLabel" type="Label" parent="MarginContainer/HBoxContainer/RightBlock" unique_id=1152421577]
 layout_mode = 2

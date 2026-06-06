@@ -8,25 +8,25 @@
 
 [sub_resource type="Resource" id="CheckpointChoice_1"]
 script = ExtResource("2_checkpoint_choice")
-text = "Otworz zapieczetowany rejestr"
-result_text = "W ksiedze sa wyplaty za \"patrole\", ktore nigdy nie wrocily. Kazda rubryka konczy sie nota: \"sprawe zamknieto decyzja soltysa\"."
+text = "Otwórz zapieczętowany rejestr"
+result_text = "W księdze są wypłaty za \"patrole\", które nigdy nie wróciły. Każda rubryka kończy się notą: \"sprawę zamknięto decyzją sołtysa\"."
 lore_tag = &"ledger_opened"
-continue_button_text = "Zamknij ksiege"
+continue_button_text = "Zamknij księgę"
 result_background = ExtResource("4_result_a")
 
 [sub_resource type="Resource" id="CheckpointChoice_2"]
 script = ExtResource("2_checkpoint_choice")
-text = "Porownaj pieczecie z dokumentami wypraw"
-result_text = "Pieczec soltysa pojawia sie takze na rozkazach wyciecia swietego gaju. To sugeruje, ze chaos zaczal sie po decyzjach ludzi, nie po przebudzeniu bestii."
+text = "Porównaj pieczęcie z dokumentami wypraw"
+result_text = "Pieczęć sołtysa pojawia się także na rozkazach wycięcia świętego gaju. To sugeruje, że chaos zaczął się po decyzjach ludzi, nie po przebudzeniu bestii."
 lore_tag = &"ledger_seals"
-continue_button_text = "Zapamietaj dowod"
+continue_button_text = "Zapamiętaj dowód"
 result_background = ExtResource("5_result_b")
 
 [resource]
 script = ExtResource("1_checkpoint_config")
 checkpoint_id = &"soltys_ledger"
 title = "Skrytka Pod Kaplica"
-description = "Pod zawalona kaplica odnajdujesz sucha skrytke z ksiega rachunkowa osady. Ktos probowal ja spalic, ale kartki ocalaly."
+description = "Pod zawaloną kaplicą odnajdujesz suchą skrytkę z księgą rachunkową osady. Ktoś próbował ją spalić, ale kartki ocalały."
 lore_tag = &"village_coverup"
 background = ExtResource("3_intro")
 choices = Array[Resource]([SubResource("CheckpointChoice_1"), SubResource("CheckpointChoice_2")])

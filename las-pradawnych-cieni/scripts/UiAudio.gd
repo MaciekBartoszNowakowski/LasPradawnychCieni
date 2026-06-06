@@ -8,9 +8,12 @@ var click_player: AudioStreamPlayer
 func _ready() -> void:
 	click_player = AudioStreamPlayer.new()
 	click_player.stream = CLICK_SOUND
-	click_player.bus = "SFX" # opcjonalnie, jeśli masz bus SFX
+	click_player.bus = "SFX"
 	click_player.volume_db = -10.0
 	add_child(click_player)
+
+	if has_node("/root/GameSettings"):
+		GameSettings.apply_settings()
 
 
 func play_click() -> void:

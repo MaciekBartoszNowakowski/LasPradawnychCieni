@@ -1,3 +1,4 @@
+class_name BattleMap
 extends Node2D
 
 const GRID_WIDTH := 20
@@ -46,19 +47,47 @@ var _log_panel: PanelContainer
 var _log_scroll: ScrollContainer
 var _log_container: VBoxContainer
 var _log_visible: bool = false
+var _floating_text_root: Control
 
 func _ready() -> void:
+	_configure_presentation()
 	create_grid()
 	_load_map_layout()
 	setup_astar()
-	spawn_characters()
-	_spawn_enemies_for_current_act()
+	_setup_battle()
 	build_combatants()
 	_setup_ui()
 	_update_initiative_display()
 	_update_stats_panel()
 	start_first_turn()
 	queue_redraw()
+
+
+func _configure_presentation() -> void:
+	pass
+
+
+func _setup_battle() -> void:
+	spawn_characters()
+	_spawn_enemies_for_current_act()
+
+
+func _should_show_end_battle_button() -> bool:
+	return true
+
+
+func _get_victory_scene_path() -> String:
+	return "res://scenes/map/Map.tscn"
+
+
+func _on_all_enemies_defeated() -> void:
+	_reparent_players_to_game_state()
+	_go_to_scene(_get_victory_scene_path())
+
+
+func _on_party_wiped() -> void:
+	_reparent_players_to_game_state()
+	_go_to_scene("res://scenes/map/Map.tscn")
 
 func _process(_delta: float) -> void:
 	if _enemy_acting:
@@ -73,6 +102,7 @@ func _process(_delta: float) -> void:
 						actual.current_life = maxi(actual.current_life - attack_result["damage"], 0)
 						if actual != intended:
 							attack_result["target"] = actual.character_name + " (defended for " + intended.character_name + ")"
+						attack_result["target_ref"] = actual
 					_log_attack(attack_result)
 					_update_initiative_display()
 				for pc: Player in player_characters.duplicate():
@@ -158,8 +188,13 @@ func _spawn_enemies_for_current_act() -> void:
 		Vector2i(13, 2), Vector2i(16, 6), Vector2i(18, 2), Vector2i(14, 6)
 	]
 	for i in range(set_enemies.size()):
-		spawn_character(set_enemies[i], positions[i])
-		enemies.append(set_enemies[i])
+		spawn_enemy(set_enemies[i], positions[i])
+
+
+func spawn_enemy(enemy: Enemy, start_cell: Vector2i) -> void:
+	spawn_character(enemy, start_cell)
+	enemies.append(enemy)
+
 
 func spawn_character(character: Player, start_cell: Vector2i) -> void:
 	character.cell_size = CELL_SIZE
@@ -313,6 +348,7 @@ func _setup_ui() -> void:
 
 	_end_battle_button = Button.new()
 	_end_battle_button.text = "End Battle"
+	_end_battle_button.visible = _should_show_end_battle_button()
 	_end_battle_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_end_battle_button.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	_end_battle_button.pressed.connect(_on_end_battle_button_pressed)
@@ -347,6 +383,17 @@ func _setup_ui() -> void:
 	_log_container.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_log_scroll.add_child(_log_container)
 
+	var feedback_layer := CanvasLayer.new()
+	feedback_layer.name = "CombatFeedbackLayer"
+	feedback_layer.layer = 20
+	add_child(feedback_layer)
+
+	_floating_text_root = Control.new()
+	_floating_text_root.name = "FloatingTextRoot"
+	_floating_text_root.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_floating_text_root.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	feedback_layer.add_child(_floating_text_root)
+
 func _refresh_action_buttons() -> void:
 	for child in _actions_container.get_children():
 		child.queue_free()
@@ -371,13 +418,43 @@ func _toggle_log() -> void:
 	_log_visible = not _log_visible
 	_log_panel.visible = _log_visible
 
+func _show_floating_feedback(info: Dictionary) -> void:
+	if _floating_text_root == null:
+		return
+
+	var target: Player = info.get("target_ref") as Player
+	if target == null:
+		return
+
+	var life_drain: int = int(info.get("life_drain", 0))
+	if life_drain > 0:
+		var attacker_ref: Player = info.get("attacker_ref") as Player
+		if attacker_ref != null:
+			var heal_pos := attacker_ref.global_position + Vector2(0.0, -Player.RADIUS - 10.0)
+			CombatFloatingText.show_at(_floating_text_root, heal_pos, "+%d" % life_drain, Color(0.3, 0.95, 0.4))
+
+	if info["hit"]:
+		var damage: int = int(info.get("damage", 0))
+		if damage <= 0:
+			return
+		var text := "-%d" % damage
+		var color := Color(1.0, 0.35, 0.35) if target in player_characters else Color(1.0, 0.85, 0.2)
+		var screen_pos := target.global_position + Vector2(0.0, -Player.RADIUS - 10.0)
+		CombatFloatingText.show_at(_floating_text_root, screen_pos, text, color)
+	else:
+		var screen_pos := target.global_position + Vector2(0.0, -Player.RADIUS - 10.0)
+		CombatFloatingText.show_at(_floating_text_root, screen_pos, "PUDŁO", Color(0.75, 0.75, 0.8))
+
 func _log_attack(info: Dictionary) -> void:
+	_show_floating_feedback(info)
 	var msg: String
 	if info["hit"]:
 		msg = "%s used %s on %s — rolled %d (dodge %d%%) → HIT for %d dmg" % [
 			info["attacker"], info["action"], info["target"],
 			info["roll"], info["miss_chance"], info["damage"]
 		]
+		if int(info.get("life_drain", 0)) > 0:
+			msg += " (+%d HP)" % int(info["life_drain"])
 	else:
 		msg = "%s used %s on %s — rolled %d (dodge %d%%) → MISS" % [
 			info["attacker"], info["action"], info["target"],
@@ -449,7 +526,7 @@ func _execute_wide_slash(action: BattleAction) -> void:
 		if result["hit"]:
 			enemy.current_life = maxi(enemy.current_life - result["damage"], 0)
 		_log_attack({"attacker": current.character_name, "action": action.action_name,
-			"target": enemy.character_name, "hit": result["hit"],
+			"target": enemy.character_name, "target_ref": enemy, "hit": result["hit"],
 			"roll": result["roll"], "miss_chance": result["miss_chance"], "damage": result["damage"]})
 		_check_death_and_remove(enemy)
 	if not hit_any:
@@ -569,6 +646,7 @@ func _unhandled_input(event: InputEvent) -> void:
 				"attacker": current.character_name,
 				"action": _pending_action.action_name,
 				"target": target.character_name,
+				"target_ref": target,
 				"hit": result["hit"],
 				"roll": result["roll"],
 				"miss_chance": result["miss_chance"],
@@ -629,16 +707,27 @@ func _remove_combatant(character: Player) -> void:
 		current_turn_index = current_turn_index % combatants.size()
 	character.queue_free()
 	_update_initiative_display()
-	if enemies.is_empty() or player_characters.is_empty():
-		_end_battle()
+	if player_characters.is_empty():
+		_on_party_wiped()
+		return
+	if enemies.is_empty():
+		_on_all_enemies_defeated()
 
-func _end_battle() -> void:
+
+func _reparent_players_to_game_state() -> void:
 	_targeting_mode = false
 	_pending_action = null
 	for char: Player in player_characters:
 		if is_instance_valid(char) and char.get_parent() != null:
 			char.reparent(GameState)
-	get_tree().change_scene_to_file("res://scenes/map/Map.tscn")
+
+
+func _go_to_scene(scene_path: String) -> void:
+	var transition := get_node_or_null("/root/SceneTransition")
+	if transition != null and transition.has_method("change_scene"):
+		transition.change_scene(scene_path)
+	else:
+		get_tree().change_scene_to_file(scene_path)
 
 func is_in_bounds(cell: Vector2i) -> bool:
 	return cell.x >= 0 and cell.x < GRID_WIDTH and cell.y >= 0 and cell.y < GRID_HEIGHT
@@ -714,6 +803,5 @@ func _on_end_battle_button_pressed() -> void:
 	for char: Player in player_characters:
 		if char.is_moving():
 			return
-	for char: Player in player_characters:
-		char.reparent(GameState)
-	get_tree().change_scene_to_file("res://scenes/map/Map.tscn")
+	_reparent_players_to_game_state()
+	_go_to_scene(_get_victory_scene_path())

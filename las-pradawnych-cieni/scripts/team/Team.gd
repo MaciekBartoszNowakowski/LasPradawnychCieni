@@ -3,7 +3,7 @@ class_name Team
 signal money_changed(new_money: int)
 signal inventory_changed(items: Array[String])
 
-var _money: int = 1000
+var _money: int = 20
 
 var money: int:
 	get:
@@ -90,3 +90,57 @@ func add_item_to_inventory(item_id: String) -> void:
 
 	inventory_item_ids.append(item_id)
 	inventory_changed.emit(inventory_item_ids.duplicate())
+
+
+static func create_hero(class_id: String) -> Player:
+	match class_id:
+		"Knight":
+			return Knight.new()
+		"Rogue":
+			return Rogue.new()
+		"Archer":
+			return Archer.new()
+		_:
+			return Knight.new()
+
+
+func to_dict() -> Dictionary:
+	var heroes: Array = []
+	for character: Player in characters:
+		if character == null:
+			continue
+		heroes.append({
+			"class_id": character.character_name,
+			"current_life": character.current_life,
+			"equipped_item_ids": character.equipped_item_ids.duplicate(),
+		})
+
+	return {
+		"money": money,
+		"inventory_item_ids": inventory_item_ids.duplicate(),
+		"heroes": heroes,
+	}
+
+
+static func from_dict(data: Dictionary) -> Team:
+	var team := Team.new()
+	team._money = int(data.get("money", 20))
+	team.inventory_item_ids = []
+	for raw_id in data.get("inventory_item_ids", []) as Array:
+		team.inventory_item_ids.append(str(raw_id))
+
+	team.characters.clear()
+	for raw_hero in data.get("heroes", []) as Array:
+		var hero_data: Dictionary = raw_hero as Dictionary
+		var hero: Player = create_hero(str(hero_data.get("class_id", "Knight")))
+		hero.current_life = int(hero_data.get("current_life", hero.max_life))
+		hero.equipped_item_ids = []
+		for raw_equip in hero_data.get("equipped_item_ids", []) as Array:
+			hero.equipped_item_ids.append(str(raw_equip))
+		team.characters.append(hero)
+
+	if team.characters.is_empty():
+		team.characters = [Knight.new(), Rogue.new(), Archer.new()]
+		team.characters.sort_custom(func(a: Player, b: Player) -> bool: return a.initiative > b.initiative)
+
+	return team

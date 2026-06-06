@@ -11,6 +11,15 @@ func reset_game() -> void:
 	player_team = Team.new()
 
 
+func export_state() -> Dictionary:
+	ensure_team_exists()
+	return player_team.to_dict()
+
+
+func import_state(data: Dictionary) -> void:
+	player_team = Team.from_dict(data)
+
+
 func ensure_team_exists() -> void:
 	if player_team == null:
 		player_team = Team.new()

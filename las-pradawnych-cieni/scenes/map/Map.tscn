@@ -9,6 +9,10 @@
 [ext_resource type="FontFile" uid="uid://ob2p0qtkh4im" path="res://assets/ui/fonts/IMFellEnglishSC-Regular.ttf" id="8_om3rv"]
 [ext_resource type="Script" uid="uid://csehhi8qbsxb3" path="res://scripts/map/MapBottomBar.gd" id="8_qfku7"]
 [ext_resource type="AudioStream" uid="uid://bmt8m27ixnwhy" path="res://assets/ui/map/map_ambient.mp3" id="9_0e3jb"]
+[ext_resource type="PackedScene" path="res://scenes/ui/SaveSlotsPanel.tscn" id="10_save_slots"]
+[ext_resource type="PackedScene" path="res://scenes/ui/PauseMenuPanel.tscn" id="11_pause_menu"]
+[ext_resource type="PackedScene" path="res://scenes/ui/SettingsPanel.tscn" id="12_settings"]
+[ext_resource type="PackedScene" path="res://scenes/ui/ConfirmExitPanel.tscn" id="13_confirm_exit"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_qfku7"]
 bg_color = Color(0.11372549, 0.09019608, 0.07058824, 1)
@@ -172,6 +176,52 @@ theme_override_font_sizes/font_size = 16
 text = "Kółko myszy: przewijanie"
 horizontal_alignment = 2
 
+[node name="ControlsTertiaryLabel" type="Label" parent="UILayer/UIRoot/BottomBar/MarginContainer/HBoxContainer/RightBlock"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.78039217, 0.7254902, 0.6, 1)
+theme_override_colors/font_outline_color = Color(0.10980392, 0.08235294, 0.05882353, 1)
+theme_override_constants/outline_size = 1
+theme_override_fonts/font = ExtResource("8_om3rv")
+theme_override_font_sizes/font_size = 16
+text = "ESC: menu"
+horizontal_alignment = 2
+
+[node name="PauseMenuPanel" parent="UILayer/UIRoot" instance=ExtResource("11_pause_menu")]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 0
+
+[node name="SaveSlotsPanel" parent="UILayer/UIRoot" instance=ExtResource("10_save_slots")]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 0
+
+[node name="SettingsPanel" parent="UILayer/UIRoot" instance=ExtResource("12_settings")]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 0
+
+[node name="ConfirmExitPanel" parent="UILayer/UIRoot" instance=ExtResource("13_confirm_exit")]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 0
+
 [node name="OverlayHints" type="Control" parent="UILayer/UIRoot" unique_id=287489535]
 visible = false
 anchors_preset = 0
@@ -199,3 +249,4 @@ offset_bottom = 40.0
 [node name="AudioAmbient" type="AudioStreamPlayer2D" parent="." unique_id=2092926755]
 stream = ExtResource("9_0e3jb")
 volume_db = -5.0
+bus = &"Music"

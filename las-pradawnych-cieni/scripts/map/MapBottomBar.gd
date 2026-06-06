@@ -17,6 +17,7 @@ const ELITE_ICON: Texture2D = preload("res://assets/ui/map/nodes/elite_base_256.
 @onready var right_block: VBoxContainer = $MarginContainer/HBoxContainer/RightBlock
 @onready var controls_primary_label: Label = $MarginContainer/HBoxContainer/RightBlock/ControlsPrimaryLabel
 @onready var controls_secondary_label: Label = $MarginContainer/HBoxContainer/RightBlock/ControlsSecondaryLabel
+@onready var controls_tertiary_label: Label = $MarginContainer/HBoxContainer/RightBlock/ControlsTertiaryLabel
 
 func _ready() -> void:
 	clip_contents = true
@@ -36,12 +37,15 @@ func _ready() -> void:
 
 	controls_primary_label.text = "LPM: wybór"
 	controls_secondary_label.text = "Kółko myszy: przewijanie"
+	controls_tertiary_label.text = "ESC: menu"
 
 	controls_primary_label.autowrap_mode = TextServer.AUTOWRAP_OFF
 	controls_secondary_label.autowrap_mode = TextServer.AUTOWRAP_OFF
+	controls_tertiary_label.autowrap_mode = TextServer.AUTOWRAP_OFF
 
 	controls_primary_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 	controls_secondary_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	controls_tertiary_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
 
 	show_default()
 
@@ -91,7 +95,7 @@ func _get_type_name(node_type: int) -> String:
 		MapEnums.NodeType.ELITE:
 			return "Elita"
 		MapEnums.NodeType.BOSS:
-			return "Boss"
+			return "Serce lasu"
 		MapEnums.NodeType.CHECKPOINT:
 			return "Punkt kontrolny"
 		_:
@@ -111,7 +115,7 @@ func _get_description(node_type: int) -> String:
 		MapEnums.NodeType.ELITE:
 			return "Trudniejsze starcie, ale większa nagroda."
 		MapEnums.NodeType.BOSS:
-			return "Główne starcie prowadzące do zakończenia etapu."
+			return "Serce lasu — finał wyprawy i rozstrzygnięcie losu wsi."
 		MapEnums.NodeType.CHECKPOINT:
 			return "Fabularny punkt kontrolny odsłaniający tajemnice lasu."
 		_:

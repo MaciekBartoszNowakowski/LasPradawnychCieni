@@ -17,7 +17,9 @@ const REST_SCENE_PATH: String = "res://scenes/rest/Rest.tscn"
 const SIDE_QUEST_SCENE_PATH: String = "res://scenes/quests/SideQuest.tscn"
 const CHECKPOINT_SCENE_PATH: String = "res://scenes/checkpoints/Checkpoint.tscn"
 const SHOP_SCENE_PATH: String = "res://scenes/shop/Shop.tscn"
+const FINALE_SCENE_PATH: String = "res://scenes/finale/Finale.tscn"
 const ROOM_MOCK_SCENE_PATH: String = "res://scenes/RoomMock.tscn"
+const MAIN_MENU_SCENE_PATH: String = "res://scenes/MainMenu.tscn"
 
 @onready var map_world: Node2D = $MapWorld
 @onready var backdrop_layer: BackdropLayer = $MapWorld/BackdropLayer
@@ -28,6 +30,10 @@ const ROOM_MOCK_SCENE_PATH: String = "res://scenes/RoomMock.tscn"
 @onready var top_bar: Control = $UILayer/UIRoot/TopBar
 @onready var bottom_bar = $UILayer/UIRoot/BottomBar
 @onready var top_bar_shadow: CanvasItem = get_node_or_null("UILayer/UIRoot/TopBarShadow")
+@onready var pause_menu_panel: PauseMenuPanel = $UILayer/UIRoot/PauseMenuPanel
+@onready var save_slots_panel: SaveSlotsPanel = $UILayer/UIRoot/SaveSlotsPanel
+@onready var settings_panel: SettingsPanel = $UILayer/UIRoot/SettingsPanel
+@onready var confirm_exit_panel: ConfirmExitPanel = $UILayer/UIRoot/ConfirmExitPanel
 
 @onready var audio_ambient: AudioStreamPlayer2D = $AudioAmbient
 
@@ -54,7 +60,16 @@ func _ready() -> void:
 		"Mapa świata",
 		"Wybierz następną lokację"
 	)
-
+	if top_bar is GameTopBar:
+		(top_bar as GameTopBar).set_save_button_visible(true)
+		if not top_bar.save_pressed.is_connected(_on_save_pressed):
+			top_bar.save_pressed.connect(_on_save_pressed)
+		top_bar.refresh_team_display()
+	save_slots_panel.slot_selected.connect(_on_save_slot_selected)
+	pause_menu_panel.save_requested.connect(_on_pause_save_requested)
+	pause_menu_panel.settings_requested.connect(_on_pause_settings_requested)
+	pause_menu_panel.exit_requested.connect(_on_pause_exit_requested)
+	confirm_exit_panel.confirmed.connect(_on_exit_to_main_menu_confirmed)
 
 	_reset_world_transforms()
 
@@ -69,6 +84,7 @@ func _ready() -> void:
 	_push_data_to_layers()
 	_recompute_world_offset()
 	_setup_initial_view()
+	_apply_pending_map_ui()
 	_apply_world_offset()
 	_update_hover()
 	_update_bottom_bar()
@@ -111,7 +127,23 @@ func _on_viewport_size_changed() -> void:
 	_update_bottom_bar()
 
 
+func _unhandled_input(event: InputEvent) -> void:
+	if not event.is_action_pressed("ui_cancel"):
+		return
+
+	if _try_close_top_overlay():
+		get_viewport().set_input_as_handled()
+		return
+
+	if not _is_ui_blocking():
+		pause_menu_panel.open()
+		get_viewport().set_input_as_handled()
+
+
 func _input(event: InputEvent) -> void:
+	if _is_ui_blocking():
+		return
+
 	if event is InputEventMouseMotion:
 		_update_hover()
 		return
@@ -382,6 +414,8 @@ func _get_scene_path_for_node(node: MapNode) -> String:
 			return CHECKPOINT_SCENE_PATH
 		MapEnums.NodeType.SHOP:
 			return SHOP_SCENE_PATH
+		MapEnums.NodeType.BOSS:
+			return FINALE_SCENE_PATH
 		_:
 			return ROOM_MOCK_SCENE_PATH
 
@@ -471,3 +505,80 @@ func _get_layer_count() -> int:
 		max_layer_index = max(max_layer_index, node.layer_index)
 
 	return max_layer_index + 1
+
+
+func _apply_pending_map_ui() -> void:
+	var map_ui: Dictionary = SaveGame.take_pending_map_ui()
+	if map_ui.is_empty():
+		return
+
+	scroll_x = float(map_ui.get("scroll_x", scroll_x))
+	target_scroll_x = float(map_ui.get("target_scroll_x", target_scroll_x))
+
+	var max_scroll: float = _get_max_scroll_x()
+	scroll_x = clamp(scroll_x, 0.0, max_scroll)
+	target_scroll_x = clamp(target_scroll_x, 0.0, max_scroll)
+
+
+func _on_save_pressed() -> void:
+	MenuPanelStyle.play_click()
+	save_slots_panel.open(SaveSlotsPanel.MODE_SAVE)
+
+
+func _on_pause_save_requested() -> void:
+	save_slots_panel.open(SaveSlotsPanel.MODE_SAVE)
+
+
+func _on_pause_settings_requested() -> void:
+	settings_panel.open()
+
+
+func _on_pause_exit_requested() -> void:
+	confirm_exit_panel.open()
+
+
+func _on_exit_to_main_menu_confirmed() -> void:
+	pause_menu_panel.close_panel()
+	_change_scene_with_transition(MAIN_MENU_SCENE_PATH)
+
+
+func _on_save_slot_selected(slot_index: int) -> void:
+	var map_ui := {
+		"scroll_x": scroll_x,
+		"target_scroll_x": target_scroll_x,
+	}
+
+	if not SaveGame.save_to_slot(slot_index, map_ui):
+		if top_bar is GameTopBar:
+			(top_bar as GameTopBar).show_temporary_objective("Nie udało się zapisać gry.")
+		return
+
+	save_slots_panel.refresh_slot_row(slot_index)
+
+
+func _is_ui_blocking() -> bool:
+	if pause_menu_panel.is_open():
+		return true
+	if save_slots_panel.is_open():
+		return true
+	if settings_panel.is_open():
+		return true
+	if confirm_exit_panel.is_open():
+		return true
+	return false
+
+
+func _try_close_top_overlay() -> bool:
+	if confirm_exit_panel.is_open():
+		confirm_exit_panel.close_panel()
+		return true
+	if settings_panel.is_open():
+		settings_panel.close_panel()
+		return true
+	if save_slots_panel.is_open():
+		save_slots_panel.close_panel()
+		return true
+	if pause_menu_panel.is_open():
+		pause_menu_panel.close_panel()
+		return true
+	return false
