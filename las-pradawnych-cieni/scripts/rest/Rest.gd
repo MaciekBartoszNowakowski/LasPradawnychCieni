@@ -727,64 +727,73 @@ func _draw_hero_slot(canvas: Control, rect: Rect2, index: int) -> void:
 	var is_selected := selected_hero_index == index
 	var is_hovered := hovered_hero_index == index
 
+	# Selection / hover ring behind the portrait
 	if is_selected:
-		canvas.draw_circle(
-			center + Vector2(0.0, 56.0),
-			58.0,
-			Color(1.0, 0.48, 0.14, 0.20)
+		canvas.draw_rect(
+			rect.grow(-4.0),
+			Color(1.0, 0.48, 0.14, 0.18),
+			true
 		)
-
-		canvas.draw_arc(
-			center + Vector2(0.0, 56.0),
-			58.0,
-			0.0,
-			TAU,
-			64,
+		canvas.draw_rect(
+			rect.grow(-4.0),
 			Color("#D48A32"),
+			false,
 			3.0
 		)
-
 	elif is_hovered:
-		canvas.draw_circle(
-			center + Vector2(0.0, 56.0),
-			52.0,
-			Color(1.0, 0.48, 0.14, 0.12)
+		canvas.draw_rect(
+			rect.grow(-4.0),
+			Color(1.0, 0.48, 0.14, 0.10),
+			true
 		)
 
+	# Portrait image — fills top portion of the slot
+	var portrait_height := rect.size.y - 58.0
+	var portrait_rect := Rect2(rect.position, Vector2(rect.size.x, portrait_height))
+	var portrait := character.get_portrait()
+	if portrait != null:
+		# Scale to fit while keeping aspect ratio, centered
+		var img_size := Vector2(portrait.get_width(), portrait.get_height())
+		var scale := minf(portrait_rect.size.x / img_size.x, portrait_rect.size.y / img_size.y)
+		var scaled_size := img_size * scale
+		var offset := (portrait_rect.size - scaled_size) * 0.5
+		canvas.draw_texture_rect(
+			portrait,
+			Rect2(portrait_rect.position + offset, scaled_size),
+			false
+		)
+	else:
+		# Fallback: draw colored body silhouette
+		var body_color := character.color.lerp(Color.BLACK, 0.30)
+		var light_color := character.color.lerp(Color.WHITE, 0.22)
+		var dark_color := character.color.lerp(Color.BLACK, 0.58)
+		var pc := center + Vector2(0.0, -20.0)
+		canvas.draw_line(pc + Vector2(-16.0, 44.0), pc + Vector2(-27.0, 84.0), dark_color, 8.0)
+		canvas.draw_line(pc + Vector2(16.0, 44.0), pc + Vector2(27.0, 84.0), dark_color, 8.0)
+		var body_points := PackedVector2Array([
+			pc + Vector2(-25.0, -18.0), pc + Vector2(25.0, -18.0),
+			pc + Vector2(32.0, 48.0), pc + Vector2(-32.0, 48.0)
+		])
+		canvas.draw_colored_polygon(body_points, body_color)
+		canvas.draw_line(pc + Vector2(-20.0, -5.0), pc + Vector2(-45.0, 31.0), dark_color, 7.0)
+		canvas.draw_line(pc + Vector2(20.0, -5.0), pc + Vector2(45.0, 31.0), dark_color, 7.0)
+		canvas.draw_circle(pc + Vector2(0.0, -45.0), 19.0, body_color)
+		canvas.draw_circle(pc + Vector2(7.0, -49.0), 5.8, light_color)
+
+	# Name + HP bar below the portrait
 	canvas.draw_rect(
-		Rect2(center + Vector2(-46.0, 78.0), Vector2(92.0, 22.0)),
-		Color(0.0, 0.0, 0.0, 0.22),
+		Rect2(rect.position.x, rect.position.y + portrait_height, rect.size.x, 58.0),
+		Color(0.0, 0.0, 0.0, 0.40),
 		true
 	)
 
-	var body_color := character.color.lerp(Color.BLACK, 0.30)
-	var light_color := character.color.lerp(Color.WHITE, 0.22)
-	var dark_color := character.color.lerp(Color.BLACK, 0.58)
-
-	canvas.draw_line(center + Vector2(-16.0, 44.0), center + Vector2(-27.0, 84.0), dark_color, 8.0)
-	canvas.draw_line(center + Vector2(16.0, 44.0), center + Vector2(27.0, 84.0), dark_color, 8.0)
-
-	var body_points := PackedVector2Array([
-		center + Vector2(-25.0, -18.0),
-		center + Vector2(25.0, -18.0),
-		center + Vector2(32.0, 48.0),
-		center + Vector2(-32.0, 48.0)
-	])
-
-	canvas.draw_colored_polygon(body_points, body_color)
-
-	canvas.draw_line(center + Vector2(-20.0, -5.0), center + Vector2(-45.0, 31.0), dark_color, 7.0)
-	canvas.draw_line(center + Vector2(20.0, -5.0), center + Vector2(45.0, 31.0), dark_color, 7.0)
-
-	canvas.draw_circle(center + Vector2(0.0, -45.0), 19.0, body_color)
-	canvas.draw_circle(center + Vector2(7.0, -49.0), 5.8, light_color)
-
 	var font := canvas.get_theme_default_font()
+	var text_y := rect.position.y + portrait_height
 
 	if font != null:
 		canvas.draw_string(
 			font,
-			Vector2(rect.position.x, rect.position.y + rect.size.y - 54.0),
+			Vector2(rect.position.x, text_y + 18.0),
 			_get_character_display_name(character),
 			HORIZONTAL_ALIGNMENT_CENTER,
 			rect.size.x,
@@ -793,22 +802,21 @@ func _draw_hero_slot(canvas: Control, rect: Rect2, index: int) -> void:
 		)
 
 	var hp_bar_rect := Rect2(
-		rect.position.x + rect.size.x * 0.16,
-		rect.position.y + rect.size.y - 38.0,
-		rect.size.x * 0.68,
+		rect.position.x + rect.size.x * 0.10,
+		text_y + 28.0,
+		rect.size.x * 0.80,
 		11.0
 	)
-
 	_draw_hp_bar(canvas, hp_bar_rect, character.current_life, character.max_life)
 
 	if font != null:
 		canvas.draw_string(
 			font,
-			Vector2(rect.position.x, rect.position.y + rect.size.y - 13.0),
+			Vector2(rect.position.x, text_y + 54.0),
 			"%d / %d HP" % [character.current_life, character.max_life],
 			HORIZONTAL_ALIGNMENT_CENTER,
 			rect.size.x,
-			14,
+			13,
 			Color("#D9C7AE")
 		)
 

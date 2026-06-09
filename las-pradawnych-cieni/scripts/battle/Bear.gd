@@ -11,6 +11,7 @@ func _init() -> void:
 	max_life = 22
 	current_life = 22
 	color = Color(0.35, 0.2, 0.05)
+	portrait_path = "res://assets/ui/enemies/bear.png"
 	var a := BattleAction.new()
 	a.action_name = "Maul"
 	a.damage = strength

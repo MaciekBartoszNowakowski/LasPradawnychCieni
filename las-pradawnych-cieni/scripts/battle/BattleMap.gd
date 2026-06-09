@@ -19,6 +19,14 @@ const OBSTACLE_COLORS: Dictionary = {
 const TOP_BAR_HEIGHT: float = 64.0
 const BOTTOM_BAR_HEIGHT: float = 80.0
 
+const BATTLE_GOLD_REWARD: int = 50
+const NOTICE_FONT_PATH := "res://assets/ui/fonts/IMFellEnglishSC-Regular.ttf"
+const NOTICE_TEXT_COLOR := Color(0.8666667, 0.827451, 0.7372549, 1.0)
+const NOTICE_TEXT_HOVER_COLOR := Color(0.9411765, 0.90588236, 0.8156863, 1.0)
+const NOTICE_TEXT_PRESSED_COLOR := Color(0.7607843, 0.6901961, 0.52156866, 1.0)
+const NOTICE_TEXT_DISABLED_COLOR := Color(0.5529412, 0.52156866, 0.46666667, 1.0)
+const NOTICE_OUTLINE_COLOR := Color(0.09411765, 0.078431375, 0.07058824, 1.0)
+
 var cells: Dictionary = {}
 var astar: AStarGrid2D = AStarGrid2D.new()
 
@@ -38,7 +46,7 @@ var _cell_textures: Dictionary = {}
 var _initiative_container: HBoxContainer
 var _actions_container: HBoxContainer
 var _name_label: Label
-var _stats_label: Label
+var _stat_value_labels: Array[Label] = []
 var _end_turn_button: Button
 var _end_battle_button: Button
 
@@ -81,6 +89,7 @@ func _get_victory_scene_path() -> String:
 
 
 func _on_all_enemies_defeated() -> void:
+	GameState.player_team.add_money(BATTLE_GOLD_REWARD)
 	_reparent_players_to_game_state()
 	_go_to_scene(_get_victory_scene_path())
 
@@ -276,7 +285,9 @@ func _setup_ui() -> void:
 	init_panel.offset_right = 0.0
 	init_panel.offset_top = 0.0
 	init_panel.offset_bottom = TOP_BAR_HEIGHT
+	init_panel.add_theme_stylebox_override("panel", _create_bar_style())
 	canvas.add_child(init_panel)
+	_add_bar_background(init_panel)
 
 	var init_scroll := ScrollContainer.new()
 	init_scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -300,7 +311,9 @@ func _setup_ui() -> void:
 	bottom_panel.offset_right = 0.0
 	bottom_panel.offset_top = -BOTTOM_BAR_HEIGHT
 	bottom_panel.offset_bottom = 0.0
+	bottom_panel.add_theme_stylebox_override("panel", _create_bar_style())
 	canvas.add_child(bottom_panel)
+	_add_bar_background(bottom_panel)
 
 	var hbox := HBoxContainer.new()
 	hbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -309,22 +322,49 @@ func _setup_ui() -> void:
 
 	# Stats section
 	var stats_vbox := VBoxContainer.new()
-	stats_vbox.custom_minimum_size = Vector2(300, 0)
+	stats_vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	stats_vbox.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	stats_vbox.add_theme_constant_override("separation", 4)
 	hbox.add_child(stats_vbox)
 
 	_name_label = Label.new()
-	_name_label.add_theme_font_size_override("font_size", 14)
+	_apply_label_style(_name_label, 17, Color(0.9098039, 0.8509804, 0.74509805, 1.0))
 	stats_vbox.add_child(_name_label)
 
-	_stats_label = Label.new()
-	_stats_label.add_theme_font_size_override("font_size", 12)
-	stats_vbox.add_child(_stats_label)
+	var stat_chips_hbox := HBoxContainer.new()
+	stat_chips_hbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	stat_chips_hbox.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	stat_chips_hbox.add_theme_constant_override("separation", 8)
+	stats_vbox.add_child(stat_chips_hbox)
 
-	# Actions panel
+	_stat_value_labels.clear()
+	for abbr: String in ["SPD", "INI", "AGI", "STR", "ARM"]:
+		var chip := VBoxContainer.new()
+		chip.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		chip.alignment = BoxContainer.ALIGNMENT_CENTER
+		chip.add_theme_constant_override("separation", 0)
+		stat_chips_hbox.add_child(chip)
+
+		var abbr_lbl := Label.new()
+		abbr_lbl.text = abbr
+		abbr_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		_apply_label_style(abbr_lbl, 11, Color(0.65, 0.58, 0.48, 1.0))
+		chip.add_child(abbr_lbl)
+
+		var val_lbl := Label.new()
+		val_lbl.text = "-"
+		val_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		_apply_label_style(val_lbl, 20, Color(0.9411765, 0.8666667, 0.54509804, 1.0))
+		chip.add_child(val_lbl)
+		_stat_value_labels.append(val_lbl)
+
+	# Actions panel — transparent so the bar background shows through
 	var actions_panel := PanelContainer.new()
 	actions_panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	actions_panel.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	var transparent_style := StyleBoxFlat.new()
+	transparent_style.bg_color = Color(0.0, 0.0, 0.0, 0.0)
+	actions_panel.add_theme_stylebox_override("panel", transparent_style)
 	hbox.add_child(actions_panel)
 
 	_actions_container = HBoxContainer.new()
@@ -344,6 +384,7 @@ func _setup_ui() -> void:
 	_end_turn_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_end_turn_button.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	_end_turn_button.pressed.connect(_on_end_turn_button_pressed)
+	_apply_button_style(_end_turn_button)
 	btn_hbox.add_child(_end_turn_button)
 
 	_end_battle_button = Button.new()
@@ -352,6 +393,7 @@ func _setup_ui() -> void:
 	_end_battle_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_end_battle_button.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	_end_battle_button.pressed.connect(_on_end_battle_button_pressed)
+	_apply_button_style(_end_battle_button)
 	btn_hbox.add_child(_end_battle_button)
 
 	var log_button := Button.new()
@@ -359,6 +401,7 @@ func _setup_ui() -> void:
 	log_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	log_button.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	log_button.pressed.connect(_toggle_log)
+	_apply_button_style(log_button)
 	btn_hbox.add_child(log_button)
 
 	# Log panel — hidden by default, left side between the two bars
@@ -394,6 +437,76 @@ func _setup_ui() -> void:
 	_floating_text_root.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	feedback_layer.add_child(_floating_text_root)
 
+func _get_notice_font() -> Font:
+	if ResourceLoader.exists(NOTICE_FONT_PATH):
+		return load(NOTICE_FONT_PATH) as Font
+	return null
+
+func _create_bar_style() -> StyleBoxFlat:
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(0.0, 0.0, 0.0, 1.0)
+	return style
+
+func _add_bar_background(panel: Control) -> void:
+	var bg := TextureRect.new()
+	bg.texture = load("res://assets/ui/map/topbar.png")
+	bg.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	bg.stretch_mode = TextureRect.STRETCH_SCALE
+	bg.modulate = Color(0.686, 0.686, 0.686, 1.0)
+	bg.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	panel.add_child(bg)
+
+func _apply_label_style(label: Label, size: int, color: Color) -> void:
+	label.add_theme_font_size_override("font_size", size)
+	label.add_theme_color_override("font_color", color)
+	label.add_theme_color_override("font_outline_color", Color(0.07, 0.05, 0.035, 1.0))
+	label.add_theme_constant_override("outline_size", 2)
+	var notice_font := _get_notice_font()
+	if notice_font != null:
+		label.add_theme_font_override("font", notice_font)
+
+func _apply_button_style(button: Button) -> void:
+	var normal := StyleBoxFlat.new()
+	normal.set_content_margin(SIDE_LEFT, 12.0)
+	normal.set_content_margin(SIDE_TOP, 6.0)
+	normal.set_content_margin(SIDE_RIGHT, 12.0)
+	normal.set_content_margin(SIDE_BOTTOM, 6.0)
+	normal.bg_color = Color(0.03529412, 0.02745098, 0.01960784, 0.58)
+	normal.border_color = Color(0.84705883, 0.8, 0.68235296, 0.32)
+	normal.border_width_left = 1
+	normal.border_width_top = 1
+	normal.border_width_right = 1
+	normal.border_width_bottom = 1
+	normal.corner_radius_top_left = 5
+	normal.corner_radius_top_right = 5
+	normal.corner_radius_bottom_right = 5
+	normal.corner_radius_bottom_left = 5
+
+	var hover := normal.duplicate() as StyleBoxFlat
+	hover.bg_color = Color(0.12, 0.085, 0.045, 0.72)
+	hover.border_color = Color(0.9019608, 0.8666667, 0.78431374, 0.55)
+
+	var disabled := normal.duplicate() as StyleBoxFlat
+	disabled.bg_color = Color(0.03529412, 0.02745098, 0.01960784, 0.28)
+	disabled.border_color = Color(0.84705883, 0.8, 0.68235296, 0.16)
+
+	button.focus_mode = Control.FOCUS_NONE
+	button.add_theme_stylebox_override("normal", normal)
+	button.add_theme_stylebox_override("hover", hover)
+	button.add_theme_stylebox_override("pressed", hover)
+	button.add_theme_stylebox_override("focus", normal)
+	button.add_theme_stylebox_override("disabled", disabled)
+	button.add_theme_color_override("font_color", NOTICE_TEXT_COLOR)
+	button.add_theme_color_override("font_hover_color", NOTICE_TEXT_HOVER_COLOR)
+	button.add_theme_color_override("font_pressed_color", NOTICE_TEXT_PRESSED_COLOR)
+	button.add_theme_color_override("font_disabled_color", NOTICE_TEXT_DISABLED_COLOR)
+	button.add_theme_color_override("font_outline_color", NOTICE_OUTLINE_COLOR)
+	button.add_theme_constant_override("outline_size", 1)
+	button.add_theme_font_size_override("font_size", 16)
+	var notice_font := _get_notice_font()
+	if notice_font != null:
+		button.add_theme_font_override("font", notice_font)
+
 func _refresh_action_buttons() -> void:
 	for child in _actions_container.get_children():
 		child.queue_free()
@@ -412,6 +525,7 @@ func _refresh_action_buttons() -> void:
 		btn.custom_minimum_size = Vector2(120, 0)
 		btn.size_flags_vertical = Control.SIZE_EXPAND_FILL
 		btn.pressed.connect(_on_action_button_pressed.bind(action))
+		_apply_button_style(btn)
 		_actions_container.add_child(btn)
 
 func _toggle_log() -> void:
@@ -557,10 +671,29 @@ func _update_initiative_display() -> void:
 		var slot := PanelContainer.new()
 		slot.custom_minimum_size = Vector2(110, 0)
 		slot.size_flags_vertical = Control.SIZE_EXPAND_FILL
+		var slot_style := StyleBoxFlat.new()
+		slot_style.bg_color = Color(0.0, 0.0, 0.0, 0.40)
+		slot_style.border_width_left = 1
+		slot_style.border_width_top = 1
+		slot_style.border_width_right = 1
+		slot_style.border_width_bottom = 1
+		slot_style.corner_radius_top_left = 4
+		slot_style.corner_radius_top_right = 4
+		slot_style.corner_radius_bottom_right = 4
+		slot_style.corner_radius_bottom_left = 4
+		if i == 0:
+			slot_style.border_color = Color(0.9411765, 0.8666667, 0.54509804, 0.9)
+			slot_style.bg_color = Color(0.06, 0.045, 0.02, 0.75)
+		elif c is Enemy:
+			slot_style.border_color = Color(0.85, 0.45, 0.4, 0.6)
+		else:
+			slot_style.border_color = Color(0.5, 0.72, 0.85, 0.6)
+		slot.add_theme_stylebox_override("panel", slot_style)
 
 		var vbox := VBoxContainer.new()
 		vbox.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		vbox.size_flags_vertical = Control.SIZE_EXPAND_FILL
+		vbox.alignment = BoxContainer.ALIGNMENT_CENTER
 		slot.add_child(vbox)
 
 		var name_lbl := Label.new()
@@ -571,17 +704,16 @@ func _update_initiative_display() -> void:
 
 		if i == 0:
 			name_lbl.text = "▶ " + c.character_name
-			name_lbl.add_theme_font_size_override("font_size", 14)
-			hp_lbl.add_theme_font_size_override("font_size", 12)
-			slot.modulate = Color.GOLD
+			_apply_label_style(name_lbl, 13, Color(0.9411765, 0.8666667, 0.54509804, 1.0))
+			_apply_label_style(hp_lbl, 11, Color(0.84705883, 0.69411767, 0.35686275, 1.0))
 		else:
 			name_lbl.text = c.character_name
-			name_lbl.add_theme_font_size_override("font_size", 11)
-			hp_lbl.add_theme_font_size_override("font_size", 10)
 			if c is Enemy:
-				slot.modulate = Color(1.0, 0.75, 0.75)
+				_apply_label_style(name_lbl, 11, Color(0.95, 0.72, 0.68, 1.0))
+				_apply_label_style(hp_lbl, 10, Color(0.85, 0.55, 0.5, 1.0))
 			else:
-				slot.modulate = Color(0.75, 0.9, 1.0)
+				_apply_label_style(name_lbl, 11, Color(0.72, 0.88, 0.96, 1.0))
+				_apply_label_style(hp_lbl, 10, Color(0.55, 0.75, 0.88, 1.0))
 
 		vbox.add_child(name_lbl)
 		vbox.add_child(hp_lbl)
@@ -592,9 +724,9 @@ func _update_stats_panel() -> void:
 		return
 	var c := last_player_character
 	_name_label.text = "%s   HP: %d / %d" % [c.character_name, c.current_life, c.max_life]
-	_stats_label.text = "SPD:%d INI:%d AGI:%d STR:%d ARM:%d" % [
-		c.speed, c.initiative, c.agility, c.strength, c.armour
-	]
+	var stat_values := [c.speed, c.initiative, c.agility, c.strength, c.armour]
+	for i in range(_stat_value_labels.size()):
+		_stat_value_labels[i].text = str(stat_values[i])
 
 func _unhandled_input(event: InputEvent) -> void:
 	if combatants.is_empty():

@@ -13,6 +13,7 @@ func _init() -> void:
 	max_life = 9
 	current_life = 9
 	color = Color(0.4, 0.2, 0.5)
+	portrait_path = "res://assets/ui/enemies/bandit_crossbow.png"
 	var a := BattleAction.new()
 	a.action_name = "Shoot"
 	a.damage = strength
