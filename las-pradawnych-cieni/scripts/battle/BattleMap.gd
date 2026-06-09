@@ -110,7 +110,7 @@ func _process(_delta: float) -> void:
 						var actual: Player = _find_defender_for(intended)
 						actual.current_life = maxi(actual.current_life - attack_result["damage"], 0)
 						if actual != intended:
-							attack_result["target"] = actual.character_name + " (defended for " + intended.character_name + ")"
+							attack_result["target"] = actual.character_name + " (osłonił " + intended.character_name + ")"
 						attack_result["target_ref"] = actual
 					_log_attack(attack_result)
 					_update_initiative_display()
@@ -338,7 +338,7 @@ func _setup_ui() -> void:
 	stats_vbox.add_child(stat_chips_hbox)
 
 	_stat_value_labels.clear()
-	for abbr: String in ["SPD", "INI", "AGI", "STR", "ARM"]:
+	for abbr: String in ["SZY", "INI", "ZRE", "SIŁ", "PAN"]:
 		var chip := VBoxContainer.new()
 		chip.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		chip.alignment = BoxContainer.ALIGNMENT_CENTER
@@ -380,7 +380,7 @@ func _setup_ui() -> void:
 	hbox.add_child(btn_hbox)
 
 	_end_turn_button = Button.new()
-	_end_turn_button.text = "End Turn"
+	_end_turn_button.text = "Koniec tury"
 	_end_turn_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_end_turn_button.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	_end_turn_button.pressed.connect(_on_end_turn_button_pressed)
@@ -388,7 +388,7 @@ func _setup_ui() -> void:
 	btn_hbox.add_child(_end_turn_button)
 
 	_end_battle_button = Button.new()
-	_end_battle_button.text = "End Battle"
+	_end_battle_button.text = "Zakończ bitwę"
 	_end_battle_button.visible = _should_show_end_battle_button()
 	_end_battle_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	_end_battle_button.size_flags_vertical = Control.SIZE_EXPAND_FILL
@@ -397,7 +397,7 @@ func _setup_ui() -> void:
 	btn_hbox.add_child(_end_battle_button)
 
 	var log_button := Button.new()
-	log_button.text = "Log"
+	log_button.text = "Dziennik"
 	log_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	log_button.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	log_button.pressed.connect(_toggle_log)
@@ -563,14 +563,14 @@ func _log_attack(info: Dictionary) -> void:
 	_show_floating_feedback(info)
 	var msg: String
 	if info["hit"]:
-		msg = "%s used %s on %s — rolled %d (dodge %d%%) → HIT for %d dmg" % [
+		msg = "%s wykonuje %s na %s — rzut %d (unik %d%%) → TRAFIENIE za %d pkt" % [
 			info["attacker"], info["action"], info["target"],
 			info["roll"], info["miss_chance"], info["damage"]
 		]
 		if int(info.get("life_drain", 0)) > 0:
 			msg += " (+%d HP)" % int(info["life_drain"])
 	else:
-		msg = "%s used %s on %s — rolled %d (dodge %d%%) → MISS" % [
+		msg = "%s wykonuje %s na %s — rzut %d (unik %d%%) → PUDŁO" % [
 			info["attacker"], info["action"], info["target"],
 			info["roll"], info["miss_chance"]
 		]
@@ -602,8 +602,8 @@ func _on_action_button_pressed(action: BattleAction) -> void:
 		"self_defend":
 			current.defending = true
 			current.has_acted = true
-			_log_attack({"attacker": current.character_name, "action": "Defend",
-				"target": "self", "hit": true, "roll": 0, "miss_chance": 0, "damage": 0})
+			_log_attack({"attacker": current.character_name, "action": "Obrona",
+				"target": "siebie", "hit": true, "roll": 0, "miss_chance": 0, "damage": 0})
 			_refresh_action_buttons()
 			_update_stats_panel()
 			return
@@ -611,8 +611,8 @@ func _on_action_button_pressed(action: BattleAction) -> void:
 			current.stealthed = true
 			action.cooldown_remaining = action.cooldown_max
 			current.has_acted = true
-			_log_attack({"attacker": current.character_name, "action": "Hide",
-				"target": "self", "hit": true, "roll": 0, "miss_chance": 0, "damage": 0})
+			_log_attack({"attacker": current.character_name, "action": "Ukrycie",
+				"target": "siebie", "hit": true, "roll": 0, "miss_chance": 0, "damage": 0})
 			_refresh_action_buttons()
 			return
 
@@ -645,7 +645,7 @@ func _execute_wide_slash(action: BattleAction) -> void:
 		_check_death_and_remove(enemy)
 	if not hit_any:
 		_log_attack({"attacker": current.character_name, "action": action.action_name,
-			"target": "no enemies in range", "hit": false, "roll": 0, "miss_chance": 0, "damage": 0})
+			"target": "brak wrogów w zasięgu", "hit": false, "roll": 0, "miss_chance": 0, "damage": 0})
 	_refresh_action_buttons()
 	_update_initiative_display()
 

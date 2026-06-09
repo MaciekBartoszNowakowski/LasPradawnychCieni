@@ -2,7 +2,7 @@ class_name Archer
 extends Player
 
 func _init() -> void:
-	character_name = "Archer"
+	character_name = "Łucznik"
 	initiative = 2
 	speed = 5
 	agility = 4
@@ -13,13 +13,13 @@ func _init() -> void:
 	color = Color.FOREST_GREEN
 	portrait_path = "res://assets/ui/heroes/archer.png"
 	var a := BattleAction.new()
-	a.action_name = "Shoot"
+	a.action_name = "Strzał"
 	a.damage = strength
 	a.range = 5
 	actions.append(a)
 
 	var b := BattleAction.new()
-	b.action_name = "Arrow to the Knee"
+	b.action_name = "Strzała w kolano"
 	b.action_type = "arrow_knee"
 	b.damage = strength
 	b.damage_multiplier = 0.5

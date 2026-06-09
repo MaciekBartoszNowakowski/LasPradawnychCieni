@@ -3,7 +3,7 @@ class_name Enemy
 extends Player
 
 func _init() -> void:
-	character_name = "Enemy"
+	character_name = "Wróg"
 	color = Color(0.8, 0.2, 0.2)
 
 # Moves toward the closest player character using A*.

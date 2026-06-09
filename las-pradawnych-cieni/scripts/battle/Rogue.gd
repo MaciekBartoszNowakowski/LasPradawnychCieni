@@ -2,7 +2,7 @@ class_name Rogue
 extends Player
 
 func _init() -> void:
-	character_name = "Rogue"
+	character_name = "Łotrzyk"
 	initiative = 3
 	speed = 7
 	agility = 5
@@ -13,13 +13,13 @@ func _init() -> void:
 	color = Color.DARK_VIOLET
 	portrait_path = "res://assets/ui/heroes/rogue.png"
 	var a := BattleAction.new()
-	a.action_name = "Throw Knife"
+	a.action_name = "Rzut nożem"
 	a.damage = strength
 	a.range = 2
 	actions.append(a)
 
 	var b := BattleAction.new()
-	b.action_name = "Stab"
+	b.action_name = "Pchnięcie"
 	b.action_type = "armor_pierce"
 	b.damage = strength
 	b.range = 1
@@ -27,7 +27,7 @@ func _init() -> void:
 	actions.append(b)
 
 	var c := BattleAction.new()
-	c.action_name = "Hide"
+	c.action_name = "Ukrycie"
 	c.action_type = "self_hide"
 	c.damage = 0
 	c.range = 0

@@ -2,7 +2,7 @@ class_name Bear
 extends Enemy
 
 func _init() -> void:
-	character_name = "Bear"
+	character_name = "Niedźwiedź"
 	initiative = 1
 	speed = 2
 	agility = 1
@@ -13,7 +13,7 @@ func _init() -> void:
 	color = Color(0.35, 0.2, 0.05)
 	portrait_path = "res://assets/ui/enemies/bear.png"
 	var a := BattleAction.new()
-	a.action_name = "Maul"
+	a.action_name = "Rozszarpanie"
 	a.damage = strength
 	a.range = 1
 	actions.append(a)
