@@ -2,7 +2,7 @@ class_name Wolf
 extends Enemy
 
 func _init() -> void:
-	character_name = "Wolf"
+	character_name = "Wilk"
 	initiative = 2
 	speed = 4
 	agility = 3
@@ -13,7 +13,7 @@ func _init() -> void:
 	color = Color(0.9, 0.1, 0.1)
 	portrait_path = "res://assets/ui/enemies/wolf.png"
 	var a := BattleAction.new()
-	a.action_name = "Bite"
+	a.action_name = "Ugryzienie"
 	a.damage = strength
 	a.range = 1
 	actions.append(a)

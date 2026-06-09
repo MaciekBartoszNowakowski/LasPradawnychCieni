@@ -116,7 +116,7 @@ func _draw() -> void:
 		draw_circle(Vector2.ZERO, RADIUS, color)
 
 func _draw_portrait_token(portrait: Texture2D) -> void:
-	var half := RADIUS + 8.0
+	var half := (RADIUS + 8.0) * 1.3
 	draw_texture_rect(portrait, Rect2(Vector2(-half, -half), Vector2(half * 2, half * 2)), false)
 
 

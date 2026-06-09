@@ -641,7 +641,7 @@ func _show_character_panel(index: int) -> void:
 
 	_set_character_label(
 		"StatusListLabel",
-		"SPD: %d\nINI: %d\nAGI: %d\nSTR: %d\nARM: %d" % [
+		"SZY: %d\nINI: %d\nZRE: %d\nSIŁ: %d\nPAN: %d" % [
 			character.speed,
 			character.initiative,
 			character.agility,
@@ -684,11 +684,11 @@ func _set_character_label(label_name: String, value: String) -> void:
 
 func _get_character_display_name(character: Player) -> String:
 	match character.character_name:
-		"Knight":
+		"Rycerz":
 			return "Wojownik"
-		"Rogue":
+		"Łotrzyk":
 			return "Łotrzyk"
-		"Archer":
+		"Łucznik":
 			return "Łowca"
 		_:
 			return character.character_name
@@ -696,12 +696,12 @@ func _get_character_display_name(character: Player) -> String:
 
 func _get_character_class_name(character: Player) -> String:
 	match character.character_name:
-		"Knight":
+		"Rycerz":
 			return "Rycerz"
-		"Rogue":
+		"Łotrzyk":
 			return "Łotrzyk"
-		"Archer":
-			return "Łowca"
+		"Łucznik":
+			return "Łucznik"
 		_:
 			return "Postać"
 

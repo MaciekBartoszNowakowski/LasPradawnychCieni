@@ -4,7 +4,7 @@ extends Enemy
 const PREFERRED_RANGE: int = 5
 
 func _init() -> void:
-	character_name = "Crossbowman"
+	character_name = "Kusznik"
 	initiative = 3
 	speed = 2
 	agility = 4
@@ -15,7 +15,7 @@ func _init() -> void:
 	color = Color(0.4, 0.2, 0.5)
 	portrait_path = "res://assets/ui/enemies/bandit_crossbow.png"
 	var a := BattleAction.new()
-	a.action_name = "Shoot"
+	a.action_name = "Strzał"
 	a.damage = strength
 	a.range = PREFERRED_RANGE
 	actions.append(a)

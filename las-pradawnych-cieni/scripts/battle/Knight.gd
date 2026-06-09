@@ -2,7 +2,7 @@ class_name Knight
 extends Player
 
 func _init() -> void:
-	character_name = "Knight"
+	character_name = "Rycerz"
 	initiative = 1
 	speed = 4
 	agility = 2
@@ -13,13 +13,13 @@ func _init() -> void:
 	color = Color.STEEL_BLUE
 	portrait_path = "res://assets/ui/heroes/knight.png"
 	var a := BattleAction.new()
-	a.action_name = "Attack"
+	a.action_name = "Atak"
 	a.damage = strength
 	a.range = 1
 	actions.append(a)
 
 	var b := BattleAction.new()
-	b.action_name = "Wide Slash"
+	b.action_name = "Szeroki zamach"
 	b.action_type = "aoe_adjacent"
 	b.damage = strength
 	b.damage_multiplier = 0.5
@@ -27,7 +27,7 @@ func _init() -> void:
 	actions.append(b)
 
 	var c := BattleAction.new()
-	c.action_name = "Defend"
+	c.action_name = "Obrona"
 	c.action_type = "self_defend"
 	c.damage = 0
 	c.range = 0

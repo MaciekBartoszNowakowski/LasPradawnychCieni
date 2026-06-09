@@ -2,7 +2,7 @@ class_name Bandit
 extends Enemy
 
 func _init() -> void:
-	character_name = "Bandit"
+	character_name = "Bandyta"
 	initiative = 2
 	speed = 3
 	agility = 3
@@ -13,7 +13,7 @@ func _init() -> void:
 	color = Color(0.3, 0.3, 0.4)
 	portrait_path = "res://assets/ui/enemies/bandit.png"
 	var a := BattleAction.new()
-	a.action_name = "Strike"
+	a.action_name = "Uderzenie"
 	a.damage = strength
 	a.range = 1
 	actions.append(a)

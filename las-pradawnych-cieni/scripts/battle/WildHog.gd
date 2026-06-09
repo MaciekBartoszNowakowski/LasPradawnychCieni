@@ -2,7 +2,7 @@ class_name WildHog
 extends Enemy
 
 func _init() -> void:
-	character_name = "Wild Hog"
+	character_name = "Dzik"
 	initiative = 3
 	speed = 3
 	agility = 2
@@ -13,7 +13,7 @@ func _init() -> void:
 	color = Color(0.7, 0.35, 0.05)
 	portrait_path = "res://assets/ui/enemies/boar.png"
 	var a := BattleAction.new()
-	a.action_name = "Charge"
+	a.action_name = "Szarża"
 	a.damage = strength
 	a.range = 1
 	actions.append(a)
