@@ -79,12 +79,16 @@ func _find_closest_in_range(chars: Array[Player], r: int) -> Player:
 	return best
 
 func _draw() -> void:
-	var points := PackedVector2Array([
-		Vector2(0.0, -RADIUS),
-		Vector2(RADIUS, RADIUS),
-		Vector2(-RADIUS, RADIUS)
-	])
-	draw_colored_polygon(points, color)
+	var portrait := get_portrait()
+	if portrait != null:
+		_draw_portrait_token(portrait)
+	else:
+		var points := PackedVector2Array([
+			Vector2(0.0, -RADIUS),
+			Vector2(RADIUS, RADIUS),
+			Vector2(-RADIUS, RADIUS)
+		])
+		draw_colored_polygon(points, color)
 
 func _find_closest_player(player_characters: Array[Player]) -> Player:
 	var closest: Player = null

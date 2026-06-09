@@ -18,6 +18,8 @@ var max_life: int = 10
 var current_life: int = 10
 
 var color: Color = Color.DODGER_BLUE
+var portrait_path: String = ""
+var _portrait_cache: Texture2D = null
 
 var actions: Array[BattleAction] = []
 var has_acted: bool = false
@@ -107,7 +109,15 @@ func world_to_grid(pos: Vector2) -> Vector2i:
 	)
 
 func _draw() -> void:
-	draw_circle(Vector2.ZERO, RADIUS, color)
+	var portrait := get_portrait()
+	if portrait != null:
+		_draw_portrait_token(portrait)
+	else:
+		draw_circle(Vector2.ZERO, RADIUS, color)
+
+func _draw_portrait_token(portrait: Texture2D) -> void:
+	var half := RADIUS + 8.0
+	draw_texture_rect(portrait, Rect2(Vector2(-half, -half), Vector2(half * 2, half * 2)), false)
 
 
 func apply_life_delta(amount: int) -> int:
@@ -149,6 +159,12 @@ func heal_missing_percent(percent: float) -> int:
 
 	var heal_amount: int = max(1, int(ceil(float(missing_life) * percent)))
 	return heal(heal_amount)
+
+
+func get_portrait() -> Texture2D:
+	if _portrait_cache == null and portrait_path != "":
+		_portrait_cache = load(portrait_path)
+	return _portrait_cache
 
 
 func add_equipment_item(item_id: String) -> void:

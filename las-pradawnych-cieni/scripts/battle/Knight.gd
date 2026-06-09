@@ -11,6 +11,7 @@ func _init() -> void:
 	max_life = 12
 	current_life = 12
 	color = Color.STEEL_BLUE
+	portrait_path = "res://assets/ui/heroes/knight.png"
 	var a := BattleAction.new()
 	a.action_name = "Attack"
 	a.damage = strength
