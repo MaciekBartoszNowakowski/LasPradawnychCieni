@@ -3,12 +3,6 @@ extends Resource
 
 const MIN_ACT_COUNT: int = 1
 
-enum MinibossMode {
-	OPTIONAL,
-	SEMI_REQUIRED,
-	REQUIRED
-}
-
 @export_group("Run Structure")
 @export var act_count: int = 3
 @export var base_decision_length: int = 12
@@ -69,12 +63,6 @@ enum MinibossMode {
 
 @export_group("Checkpoints")
 @export var checkpoint_pool: Array[CheckpointConfig] = []
-
-@export var miniboss_mode: MinibossMode = MinibossMode.OPTIONAL
-@export var miniboss_target_count: int = 1
-@export var miniboss_allowed_acts: PackedInt32Array = PackedInt32Array([1])
-#@export var miniboss_can_be_side_branch_only: bool = false
-#@export var miniboss_can_be_main_path: bool = true
 
 @export_group("Act Rules")
 @export var act_rules: Array[MapActRuleConfig] = []
@@ -227,10 +215,6 @@ func get_or_create_default_act_rule(act_index: int) -> MapActRuleConfig:
 	fallback_rule.relative_length_weight = get_act_length_weight(act_index)
 	fallback_rule.preferred_path_count = clamp(2, 1, max(1, max_active_paths))
 	return fallback_rule
-
-
-func is_act_allowed_for_miniboss(act_index: int) -> bool:
-	return miniboss_allowed_acts.has(act_index)
 
 
 #func get_target_count_for_node_type(node_type: int) -> int:

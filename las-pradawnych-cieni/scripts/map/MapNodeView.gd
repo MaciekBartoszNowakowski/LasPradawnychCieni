@@ -83,9 +83,6 @@ func _get_target_diameter() -> float:
 		MapEnums.NodeType.BOSS:
 			return 80.0
 
-		MapEnums.NodeType.ELITE:
-			return 70.0
-
 		MapEnums.NodeType.CHECKPOINT:
 			return 70.0
 

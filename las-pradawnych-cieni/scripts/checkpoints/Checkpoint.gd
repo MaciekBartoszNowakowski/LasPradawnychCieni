@@ -298,6 +298,8 @@ func _on_continue_pressed() -> void:
 
 	if has_node("/root/MapState") and MapState.has_method("complete_selected_checkpoint"):
 		MapState.complete_selected_checkpoint()
+	if has_node("/root/MapState") and MapState.has_method("complete_selected_map_node"):
+		MapState.complete_selected_map_node()
 
 	var out_tween := create_tween()
 	if checkpoint_panel != null:

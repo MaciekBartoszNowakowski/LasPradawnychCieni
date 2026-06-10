@@ -612,6 +612,7 @@ func _on_prepare_button_pressed() -> void:
 
 func _on_leave_button_pressed() -> void:
 	UiAudio.play_click()
+	MapState.complete_selected_map_node()
 	
 	if ResourceLoader.exists(MAP_SCENE_PATH):
 		SceneTransition.change_scene(MAP_SCENE_PATH)
@@ -641,18 +642,13 @@ func _show_character_panel(index: int) -> void:
 
 	_set_character_label(
 		"StatusListLabel",
-		"SZY: %d\nINI: %d\nZRE: %d\nSIŁ: %d\nPAN: %d" % [
+		"Szybkość: %d\nInicjatywa: %d\nZręczność: %d\nSiła: %d\nPancerz: %d" % [
 			character.speed,
 			character.initiative,
 			character.agility,
 			character.strength,
 			character.armour
 		]
-	)
-
-	_set_character_label(
-		"InventoryListLabel",
-		"Ekwipunek zostanie dodany później."
 	)
 
 	var hp_bar := character_panel.find_child("HPBar", true, false) as ProgressBar

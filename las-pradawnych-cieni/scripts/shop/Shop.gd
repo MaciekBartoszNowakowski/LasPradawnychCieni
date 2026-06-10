@@ -230,7 +230,7 @@ func _on_buy_button_pressed() -> void:
 	var selected_item: ItemConfig = entry.item
 	var target_index: int = -1
 
-	if selected_item.item_kind == ItemConfig.ItemKind.HEAL_SINGLE:
+	if _item_needs_hero_target(selected_item):
 		target_index = selected_hero_target_index
 
 	var result: Dictionary = GameState.buy_shop_item(selected_item, target_index)
@@ -279,6 +279,7 @@ func _play_slot_sold_out_tween(slot_index: int, on_finished: Callable) -> void:
 
 func _on_leave_button_pressed() -> void:
 	UiAudio.play_click()
+	MapState.complete_selected_map_node()
 
 	if ResourceLoader.exists(MAP_SCENE_PATH):
 		SceneTransition.change_scene(MAP_SCENE_PATH)
@@ -313,7 +314,7 @@ func _refresh_selection_ui() -> void:
 
 func _refresh_hero_target(item: ItemConfig) -> void:
 	var team: Team = GameState.player_team
-	var needs_target: bool = item.item_kind == ItemConfig.ItemKind.HEAL_SINGLE
+	var needs_target: bool = _item_needs_hero_target(item)
 
 	_set_target_section_enabled(needs_target)
 
@@ -332,6 +333,7 @@ func _refresh_hero_target(item: ItemConfig) -> void:
 	if team == null:
 		return
 
+	target_label.text = "Cel"
 	for i in range(team.characters.size()):
 		var hero: Player = team.characters[i]
 		if hero == null:
@@ -381,6 +383,17 @@ func _refresh_buy_availability(item: ItemConfig, stock_quantity: int = 1) -> voi
 				if target_hero == null or target_hero.current_life >= target_hero.max_life:
 					can_buy = false
 					reason = "Bohater ma pełne HP."
+	elif item.item_kind == ItemConfig.ItemKind.STRENGTH_EQUIPMENT or item.item_kind == ItemConfig.ItemKind.ARMOUR_EQUIPMENT:
+		if hero_target_select_buttons.is_empty():
+			can_buy = false
+			reason = "Wybierz bohatera do wyposażenia."
+		elif selected_hero_target_index < 0 or selected_hero_target_index >= team.characters.size():
+			can_buy = false
+			reason = "Wybierz bohatera do wyposażenia."
+	elif item.item_kind == ItemConfig.ItemKind.REVIVE:
+		if not team.has_fallen_characters():
+			can_buy = false
+			reason = "Nikt z drużyny nie poległ."
 
 	buy_button.disabled = not can_buy
 	if not can_buy and not reason.is_empty():
@@ -422,11 +435,11 @@ func _set_target_section_enabled(enabled: bool) -> void:
 
 func _get_hero_symbol(hero: Player) -> String:
 	match hero.character_name:
-		"Knight":
+		"Knight", "Rycerz":
 			return "[K]"
-		"Rogue":
+		"Rogue", "Łotrzyk":
 			return "[R]"
-		"Archer":
+		"Archer", "Łucznik":
 			return "[A]"
 		_:
 			return "[?]"
@@ -434,11 +447,11 @@ func _get_hero_symbol(hero: Player) -> String:
 
 func _get_short_polish_hero_label(hero: Player) -> String:
 	match hero.character_name:
-		"Knight":
+		"Knight", "Rycerz":
 			return "Wojownik"
-		"Rogue":
+		"Rogue", "Łotrzyk":
 			return "Łotrzyk"
-		"Archer":
+		"Archer", "Łucznik":
 			return "Łowca"
 		_:
 			return _display_name(hero)
@@ -474,10 +487,23 @@ func _refresh_party_info() -> void:
 	for hero: Player in team.characters:
 		if hero == null:
 			continue
-		lines.append("%s: %d / %d HP" % [_display_name(hero), hero.current_life, hero.max_life])
+		lines.append("%s: %d / %d HP · Siła %d · Pancerz %d" % [
+			_display_name(hero),
+			hero.current_life,
+			hero.max_life,
+			hero.strength,
+			hero.armour
+		])
+
+	if team.has_fallen_characters():
+		lines.append("")
+		lines.append("Polegli:")
+		for hero: Player in team.fallen_characters:
+			if hero != null:
+				lines.append("%s: wymaga wskrzeszenia" % _display_name(hero))
 
 	lines.append("")
-	lines.append("Przedmioty kupione: %d" % team.inventory_item_ids.size())
+	lines.append("Ekwipunek i mikstury: %d" % team.inventory_item_ids.size())
 
 	party_info_label.text = "\n".join(lines)
 
@@ -498,8 +524,12 @@ func _get_item_kind_label(item_kind: ItemConfig.ItemKind) -> String:
 			return "Typ: Leczenie bohatera"
 		ItemConfig.ItemKind.HEAL_TEAM:
 			return "Typ: Leczenie drużyny"
-		ItemConfig.ItemKind.FUTURE_EQUIPMENT:
-			return "Typ: Przedmiot przyszły"
+		ItemConfig.ItemKind.STRENGTH_EQUIPMENT:
+			return "Typ: Broń"
+		ItemConfig.ItemKind.ARMOUR_EQUIPMENT:
+			return "Typ: Pancerz"
+		ItemConfig.ItemKind.REVIVE:
+			return "Typ: Wskrzeszenie"
 		_:
 			return "Typ: Nieznany"
 
@@ -520,14 +550,24 @@ func _load_icon(item: ItemConfig) -> Texture2D:
 
 func _display_name(character: Player) -> String:
 	match character.character_name:
-		"Knight":
+		"Knight", "Rycerz":
 			return "Wojownik"
-		"Rogue":
+		"Rogue", "Łotrzyk":
 			return "Łotrzyk"
-		"Archer":
+		"Archer", "Łucznik":
 			return "Łowca"
 		_:
 			return character.character_name
+
+
+func _item_needs_hero_target(item: ItemConfig) -> bool:
+	if item == null:
+		return false
+	return (
+		item.item_kind == ItemConfig.ItemKind.HEAL_SINGLE
+		or item.item_kind == ItemConfig.ItemKind.STRENGTH_EQUIPMENT
+		or item.item_kind == ItemConfig.ItemKind.ARMOUR_EQUIPMENT
+	)
 
 
 func _create_notice_panel_style() -> StyleBoxFlat:

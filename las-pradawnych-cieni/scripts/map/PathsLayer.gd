@@ -224,9 +224,6 @@ func _get_node_visual_radius(node: MapNode) -> float:
 		MapEnums.NodeType.BOSS:
 			return 33.0
 
-		MapEnums.NodeType.ELITE:
-			return 29.0
-
 		MapEnums.NodeType.CHECKPOINT:
 			return 28.0
 

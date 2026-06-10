@@ -65,10 +65,10 @@ static func get_stock_entries() -> Array[ShopStockEntry]:
 		"rusty_sword",
 		"Zardzewiały miecz",
 		"Miecz",
-		"Kupiony do ekwipunku. Na razie bez wpływu na walkę.",
-		ItemConfig.ItemKind.FUTURE_EQUIPMENT,
+		"Wybrany bohater otrzymuje +1 do siły i obrażeń akcji.",
+		ItemConfig.ItemKind.STRENGTH_EQUIPMENT,
 		18,
-		0,
+		1,
 		"res://assets/ui/shop/items/zardzewialy_miecz.png",
 		1
 	))
@@ -77,22 +77,22 @@ static func get_stock_entries() -> Array[ShopStockEntry]:
 		"hunter_shield",
 		"Tarcza tropiciela",
 		"Tarcza",
-		"Kupiona do ekwipunku. Efekty obronne pojawią się później.",
-		ItemConfig.ItemKind.FUTURE_EQUIPMENT,
+		"Wybrany bohater otrzymuje +1 do pancerza.",
+		ItemConfig.ItemKind.ARMOUR_EQUIPMENT,
 		24,
-		0,
+		1,
 		"res://assets/ui/shop/items/tarcza_tropiciela.png",
 		1
 	))
 
 	entries.append(_create_stock_entry(
 		"alchemist_flask",
-		"Fiolka alchemika",
+		"Fiolka wskrzeszenia",
 		"Fiolka",
-		"Kupiona do ekwipunku. Potencjał pod przyszłe mikstury.",
-		ItemConfig.ItemKind.FUTURE_EQUIPMENT,
+		"Przywraca pierwszego poległego bohatera z 40% maksymalnego HP.",
+		ItemConfig.ItemKind.REVIVE,
 		16,
-		0,
+		40,
 		"res://assets/ui/shop/items/fiolka_alchemika.png",
 		1
 	))

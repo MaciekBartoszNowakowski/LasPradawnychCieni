@@ -5,6 +5,7 @@ extends Player
 func _init() -> void:
 	character_name = "Wróg"
 	color = Color(0.8, 0.2, 0.2)
+	movement_speed_multiplier = 0.68
 
 # Moves toward the closest player character using A*.
 func move(astar: AStarGrid2D, cells: Dictionary, player_characters: Array[Player], all_combatants: Array[Player]) -> void:
@@ -89,6 +90,13 @@ func _draw() -> void:
 			Vector2(-RADIUS, RADIUS)
 		])
 		draw_colored_polygon(points, color)
+
+	if _hit_flash_time > 0.0:
+		var flash_alpha := clampf(_hit_flash_time / 0.18, 0.0, 1.0)
+		draw_circle(Vector2.ZERO, RADIUS + 7.0, Color(1.0, 0.9, 0.55, 0.42 * flash_alpha))
+
+	var hp_width := 58.0 if max_life >= 30 else 44.0
+	_draw_health_bar(HP_ENEMY_COLOR, hp_width)
 
 func _find_closest_player(player_characters: Array[Player]) -> Player:
 	var closest: Player = null
