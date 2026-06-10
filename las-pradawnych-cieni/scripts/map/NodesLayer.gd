@@ -19,9 +19,9 @@ const REST_AVAILABLE_TEXTURE: Texture2D = preload("res://assets/ui/map/nodes/res
 const REST_HOVER_TEXTURE: Texture2D = preload("res://assets/ui/map/nodes/rest_hover_256.png")
 const REST_LOCKED_TEXTURE: Texture2D = preload("res://assets/ui/map/nodes/rest_locked_256.png")
 
-const ELITE_AVAILABLE_TEXTURE: Texture2D = preload("res://assets/ui/map/nodes/elite_base_256.png")
-const ELITE_HOVER_TEXTURE: Texture2D = preload("res://assets/ui/map/nodes/elite_hover_256.png")
-const ELITE_LOCKED_TEXTURE: Texture2D = preload("res://assets/ui/map/nodes/elite_locked_256.png")
+const BOSS_AVAILABLE_TEXTURE: Texture2D = preload("res://assets/ui/map/nodes/elite_base_256.png")
+const BOSS_HOVER_TEXTURE: Texture2D = preload("res://assets/ui/map/nodes/elite_hover_256.png")
+const BOSS_LOCKED_TEXTURE: Texture2D = preload("res://assets/ui/map/nodes/elite_locked_256.png")
 
 var map_nodes: Array[MapNode] = []
 var hovered_node_id: int = -1
@@ -93,13 +93,6 @@ func _get_textures_for_node(node: MapNode) -> Dictionary:
 				REST_LOCKED_TEXTURE
 			)
 
-		MapEnums.NodeType.ELITE:
-			return _make_state_set(
-				ELITE_AVAILABLE_TEXTURE,
-				ELITE_HOVER_TEXTURE,
-				ELITE_LOCKED_TEXTURE
-			)
-
 		MapEnums.NodeType.CHECKPOINT:
 			return _make_state_set(
 				EVENT_AVAILABLE_TEXTURE,
@@ -109,9 +102,9 @@ func _get_textures_for_node(node: MapNode) -> Dictionary:
 
 		MapEnums.NodeType.BOSS:
 			return _make_state_set(
-				ELITE_AVAILABLE_TEXTURE,
-				ELITE_HOVER_TEXTURE,
-				ELITE_LOCKED_TEXTURE
+				BOSS_AVAILABLE_TEXTURE,
+				BOSS_HOVER_TEXTURE,
+				BOSS_LOCKED_TEXTURE
 			)
 
 		_:

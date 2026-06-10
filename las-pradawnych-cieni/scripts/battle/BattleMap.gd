@@ -7,8 +7,8 @@ const CELL_SIZE := 64
 
 const COLOR_GROUND := Color(0.25, 0.65, 0.25)
 const COLOR_OBSTACLE := Color(0.45, 0.45, 0.45)
-const COLOR_GRID := Color.BLACK
-const COLOR_RANGE := Color(1.0, 0.0, 0.0, 0.25)
+const COLOR_GRID := Color(0.10, 0.075, 0.055, 0.30)
+const COLOR_RANGE := Color(0.82, 0.42, 0.30, 0.18)
 
 const OBSTACLE_COLORS: Dictionary = {
 	"stone": Color(0.5, 0.5, 0.55),
@@ -17,15 +17,25 @@ const OBSTACLE_COLORS: Dictionary = {
 }
 
 const TOP_BAR_HEIGHT: float = 64.0
-const BOTTOM_BAR_HEIGHT: float = 80.0
+const BOTTOM_BAR_HEIGHT: float = 92.0
 
 const BATTLE_GOLD_REWARD: int = 50
+const DEFEAT_OVERLAY_SCENE_PATH := "res://scenes/ui/DefeatOverlay.tscn"
 const NOTICE_FONT_PATH := "res://assets/ui/fonts/IMFellEnglishSC-Regular.ttf"
 const NOTICE_TEXT_COLOR := Color(0.8666667, 0.827451, 0.7372549, 1.0)
 const NOTICE_TEXT_HOVER_COLOR := Color(0.9411765, 0.90588236, 0.8156863, 1.0)
 const NOTICE_TEXT_PRESSED_COLOR := Color(0.7607843, 0.6901961, 0.52156866, 1.0)
 const NOTICE_TEXT_DISABLED_COLOR := Color(0.5529412, 0.52156866, 0.46666667, 1.0)
 const NOTICE_OUTLINE_COLOR := Color(0.09411765, 0.078431375, 0.07058824, 1.0)
+const ACTIVE_CELL_COLOR := Color(0.94, 0.74, 0.28, 0.20)
+const ACTIVE_RING_COLOR := Color(1.0, 0.78, 0.28, 0.88)
+const PLAYER_PATH_COLOR := Color(0.82, 0.72, 0.52, 0.78)
+const ENEMY_PATH_COLOR := Color(0.78, 0.34, 0.28, 0.78)
+const MOVE_RANGE_COLOR := Color(0.78, 0.68, 0.44, 0.14)
+const MOVE_RANGE_EDGE_COLOR := Color(0.88, 0.76, 0.48, 0.24)
+const TARGET_HOVER_COLOR := Color(1.0, 0.75, 0.32, 0.86)
+const ENEMY_ACTION_PAUSE := 0.42
+const PROJECTILE_DURATION := 0.18
 
 var cells: Dictionary = {}
 var astar: AStarGrid2D = AStarGrid2D.new()
@@ -56,6 +66,11 @@ var _log_scroll: ScrollContainer
 var _log_container: VBoxContainer
 var _log_visible: bool = false
 var _floating_text_root: Control
+var _victory_summary_layer: CanvasLayer
+var _victory_pending_scene_path: String = ""
+var _combat_visual_time: float = 0.0
+var _defeat_overlay: DefeatOverlay
+var _enemy_action_delay: float = 0.0
 
 func _ready() -> void:
 	_configure_presentation()
@@ -90,18 +105,157 @@ func _get_victory_scene_path() -> String:
 
 func _on_all_enemies_defeated() -> void:
 	GameState.player_team.add_money(BATTLE_GOLD_REWARD)
+	MapState.complete_selected_map_node()
 	_reparent_players_to_game_state()
-	_go_to_scene(_get_victory_scene_path())
+	_show_victory_summary(_get_victory_scene_path(), BATTLE_GOLD_REWARD)
 
 
 func _on_party_wiped() -> void:
-	_reparent_players_to_game_state()
-	_go_to_scene("res://scenes/map/Map.tscn")
+	_enemy_acting = false
+	_targeting_mode = false
+	_pending_action = null
+	set_process(false)
+	if _end_turn_button != null:
+		_end_turn_button.disabled = true
+	if _end_battle_button != null:
+		_end_battle_button.disabled = true
+	_show_defeat_overlay()
 
-func _process(_delta: float) -> void:
+
+func _show_victory_summary(scene_path: String, gold_reward: int) -> void:
+	if _victory_summary_layer != null:
+		return
+
+	_victory_pending_scene_path = scene_path
+	_enemy_acting = false
+	_targeting_mode = false
+	_pending_action = null
+	set_process(false)
+
+	if _end_turn_button != null:
+		_end_turn_button.disabled = true
+	if _end_battle_button != null:
+		_end_battle_button.disabled = true
+
+	_victory_summary_layer = CanvasLayer.new()
+	_victory_summary_layer.name = "VictorySummaryLayer"
+	_victory_summary_layer.layer = 50
+	add_child(_victory_summary_layer)
+
+	var dim := ColorRect.new()
+	dim.color = Color(0.0, 0.0, 0.0, 0.58)
+	dim.set_anchors_preset(Control.PRESET_FULL_RECT)
+	dim.mouse_filter = Control.MOUSE_FILTER_STOP
+	_victory_summary_layer.add_child(dim)
+
+	var center := CenterContainer.new()
+	center.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_victory_summary_layer.add_child(center)
+
+	var panel := PanelContainer.new()
+	panel.custom_minimum_size = Vector2(520.0, 320.0)
+	panel.add_theme_stylebox_override("panel", _create_summary_panel_style())
+	center.add_child(panel)
+
+	var margin := MarginContainer.new()
+	margin.add_theme_constant_override("margin_left", 28)
+	margin.add_theme_constant_override("margin_top", 24)
+	margin.add_theme_constant_override("margin_right", 28)
+	margin.add_theme_constant_override("margin_bottom", 24)
+	panel.add_child(margin)
+
+	var box := VBoxContainer.new()
+	box.add_theme_constant_override("separation", 14)
+	margin.add_child(box)
+
+	var title := Label.new()
+	title.text = "Zwycięstwo"
+	title.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_apply_label_style(title, 30, NOTICE_TEXT_COLOR)
+	box.add_child(title)
+
+	var reward := Label.new()
+	reward.text = "Zdobyto %d złota." % gold_reward
+	reward.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_apply_label_style(reward, 22, Color(0.94, 0.82, 0.48, 1.0))
+	box.add_child(reward)
+
+	var summary := Label.new()
+	summary.text = _build_party_summary_text()
+	summary.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	summary.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_apply_label_style(summary, 17, Color(0.78, 0.70, 0.58, 1.0))
+	box.add_child(summary)
+
+	var spacer := Control.new()
+	spacer.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	box.add_child(spacer)
+
+	var continue_button := Button.new()
+	continue_button.text = "Dalej"
+	continue_button.custom_minimum_size = Vector2(180.0, 48.0)
+	continue_button.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	continue_button.pressed.connect(_on_victory_summary_continue)
+	_apply_button_style(continue_button)
+	box.add_child(continue_button)
+
+
+func _build_party_summary_text() -> String:
+	var lines: Array[String] = []
+
+	if GameState.player_team != null:
+		if not GameState.player_team.characters.is_empty():
+			lines.append("Ocalała drużyna:")
+			for hero: Player in GameState.player_team.characters:
+				if hero != null:
+					lines.append("%s: %d/%d HP" % [hero.character_name, hero.current_life, hero.max_life])
+
+		if GameState.player_team.has_fallen_characters():
+			lines.append("")
+			lines.append("Polegli:")
+			for hero: Player in GameState.player_team.fallen_characters:
+				if hero != null:
+					lines.append("%s" % hero.character_name)
+
+	if lines.is_empty():
+		return "Drużyna wraca na szlak."
+
+	return "\n".join(lines)
+
+
+func _create_summary_panel_style() -> StyleBoxFlat:
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(0.03529412, 0.02745098, 0.01960784, 0.88)
+	style.border_color = Color(0.84705883, 0.8, 0.68235296, 0.44)
+	style.border_width_left = 1
+	style.border_width_top = 1
+	style.border_width_right = 1
+	style.border_width_bottom = 1
+	style.corner_radius_top_left = 5
+	style.corner_radius_top_right = 5
+	style.corner_radius_bottom_right = 5
+	style.corner_radius_bottom_left = 5
+	style.shadow_color = Color(0.0, 0.0, 0.0, 0.55)
+	style.shadow_size = 12
+	return style
+
+
+func _on_victory_summary_continue() -> void:
+	var scene_path := _victory_pending_scene_path
+	if scene_path.is_empty():
+		scene_path = _get_victory_scene_path()
+	_go_to_scene(scene_path)
+
+func _process(delta: float) -> void:
+	_combat_visual_time += delta
+	queue_redraw()
+
 	if _enemy_acting:
 		var current: Player = combatants[current_turn_index]
 		if not current.is_moving():
+			if _enemy_action_delay > 0.0:
+				_enemy_action_delay = maxf(0.0, _enemy_action_delay - delta)
+				return
 			if not current.has_acted and current is Enemy:
 				var attack_result := (current as Enemy).attack(player_characters)
 				if not attack_result.is_empty():
@@ -235,6 +389,7 @@ func start_first_turn() -> void:
 	first.reset_turn()
 	if first is Enemy:
 		_enemy_acting = true
+		_enemy_action_delay = ENEMY_ACTION_PAUSE
 		_end_turn_button.disabled = true
 		(first as Enemy).move(astar, cells, player_characters, combatants)
 	else:
@@ -263,6 +418,7 @@ func _advance_turn() -> void:
 	_update_initiative_display()
 	if current is Enemy:
 		_enemy_acting = true
+		_enemy_action_delay = ENEMY_ACTION_PAUSE
 		_end_turn_button.disabled = true
 		_refresh_action_buttons()
 		(current as Enemy).move(astar, cells, player_characters, combatants)
@@ -292,7 +448,7 @@ func _setup_ui() -> void:
 	var init_scroll := ScrollContainer.new()
 	init_scroll.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	init_scroll.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	init_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_AUTO
+	init_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	init_scroll.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	init_panel.add_child(init_scroll)
 
@@ -338,7 +494,7 @@ func _setup_ui() -> void:
 	stats_vbox.add_child(stat_chips_hbox)
 
 	_stat_value_labels.clear()
-	for abbr: String in ["SZY", "INI", "ZRE", "SIŁ", "PAN"]:
+	for stat_name: String in ["Szybkość", "Inicjatywa", "Zręczność", "Siła", "Pancerz"]:
 		var chip := VBoxContainer.new()
 		chip.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 		chip.alignment = BoxContainer.ALIGNMENT_CENTER
@@ -346,15 +502,15 @@ func _setup_ui() -> void:
 		stat_chips_hbox.add_child(chip)
 
 		var abbr_lbl := Label.new()
-		abbr_lbl.text = abbr
+		abbr_lbl.text = stat_name
 		abbr_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		_apply_label_style(abbr_lbl, 11, Color(0.65, 0.58, 0.48, 1.0))
+		_apply_label_style(abbr_lbl, 13, Color(0.65, 0.58, 0.48, 1.0))
 		chip.add_child(abbr_lbl)
 
 		var val_lbl := Label.new()
 		val_lbl.text = "-"
 		val_lbl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-		_apply_label_style(val_lbl, 20, Color(0.9411765, 0.8666667, 0.54509804, 1.0))
+		_apply_label_style(val_lbl, 22, Color(0.9411765, 0.8666667, 0.54509804, 1.0))
 		chip.add_child(val_lbl)
 		_stat_value_labels.append(val_lbl)
 
@@ -396,14 +552,6 @@ func _setup_ui() -> void:
 	_apply_button_style(_end_battle_button)
 	btn_hbox.add_child(_end_battle_button)
 
-	var log_button := Button.new()
-	log_button.text = "Dziennik"
-	log_button.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	log_button.size_flags_vertical = Control.SIZE_EXPAND_FILL
-	log_button.pressed.connect(_toggle_log)
-	_apply_button_style(log_button)
-	btn_hbox.add_child(log_button)
-
 	# Log panel — hidden by default, left side between the two bars
 	_log_panel = PanelContainer.new()
 	_log_panel.anchor_left = 0.0
@@ -436,6 +584,30 @@ func _setup_ui() -> void:
 	_floating_text_root.set_anchors_preset(Control.PRESET_FULL_RECT)
 	_floating_text_root.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	feedback_layer.add_child(_floating_text_root)
+
+	_setup_defeat_overlay()
+
+
+func _setup_defeat_overlay() -> void:
+	var defeat_scene: PackedScene = load(DEFEAT_OVERLAY_SCENE_PATH) as PackedScene
+	if defeat_scene == null:
+		return
+
+	_defeat_overlay = defeat_scene.instantiate() as DefeatOverlay
+	if _defeat_overlay == null:
+		return
+
+	var defeat_canvas := CanvasLayer.new()
+	defeat_canvas.name = "DefeatLayer"
+	defeat_canvas.layer = 50
+	add_child(defeat_canvas)
+	defeat_canvas.add_child(_defeat_overlay)
+
+
+func _show_defeat_overlay() -> void:
+	if _defeat_overlay != null:
+		_defeat_overlay.show_overlay()
+
 
 func _get_notice_font() -> Font:
 	if ResourceLoader.exists(NOTICE_FONT_PATH):
@@ -507,6 +679,34 @@ func _apply_button_style(button: Button) -> void:
 	if notice_font != null:
 		button.add_theme_font_override("font", notice_font)
 
+
+func _apply_active_action_button_style(button: Button) -> void:
+	_apply_button_style(button)
+
+	var active := StyleBoxFlat.new()
+	active.set_content_margin(SIDE_LEFT, 12.0)
+	active.set_content_margin(SIDE_TOP, 6.0)
+	active.set_content_margin(SIDE_RIGHT, 12.0)
+	active.set_content_margin(SIDE_BOTTOM, 6.0)
+	active.bg_color = Color(0.16, 0.10, 0.035, 0.84)
+	active.border_color = Color(1.0, 0.74, 0.30, 0.76)
+	active.border_width_left = 2
+	active.border_width_top = 2
+	active.border_width_right = 2
+	active.border_width_bottom = 2
+	active.corner_radius_top_left = 5
+	active.corner_radius_top_right = 5
+	active.corner_radius_bottom_right = 5
+	active.corner_radius_bottom_left = 5
+
+	button.add_theme_stylebox_override("normal", active)
+	button.add_theme_stylebox_override("hover", active)
+	button.add_theme_stylebox_override("pressed", active)
+	button.add_theme_stylebox_override("focus", active)
+	button.add_theme_color_override("font_color", Color(1.0, 0.86, 0.48, 1.0))
+	button.add_theme_color_override("font_hover_color", Color(1.0, 0.90, 0.58, 1.0))
+
+
 func _refresh_action_buttons() -> void:
 	for child in _actions_container.get_children():
 		child.queue_free()
@@ -525,7 +725,10 @@ func _refresh_action_buttons() -> void:
 		btn.custom_minimum_size = Vector2(120, 0)
 		btn.size_flags_vertical = Control.SIZE_EXPAND_FILL
 		btn.pressed.connect(_on_action_button_pressed.bind(action))
-		_apply_button_style(btn)
+		if _targeting_mode and _pending_action == action:
+			_apply_active_action_button_style(btn)
+		else:
+			_apply_button_style(btn)
 		_actions_container.add_child(btn)
 
 func _toggle_log() -> void:
@@ -559,8 +762,60 @@ func _show_floating_feedback(info: Dictionary) -> void:
 		var screen_pos := target.global_position + Vector2(0.0, -Player.RADIUS - 10.0)
 		CombatFloatingText.show_at(_floating_text_root, screen_pos, "PUDŁO", Color(0.75, 0.75, 0.8))
 
+
+func _show_projectile_feedback(info: Dictionary) -> void:
+	var attacker := info.get("attacker_ref") as Player
+	var target := info.get("target_ref") as Player
+	if attacker == null or target == null:
+		return
+
+	var action_name := str(info.get("action", ""))
+	var projectile_color := Color(0.0, 0.0, 0.0, 0.0)
+	var projectile_length := 24.0
+	var projectile_width := 3.0
+
+	if action_name.begins_with("Strzał"):
+		projectile_color = Color(0.86, 0.74, 0.46, 0.96)
+		projectile_length = 30.0
+		projectile_width = 2.4
+	elif action_name == "Rzut nożem":
+		projectile_color = Color(0.82, 0.84, 0.80, 0.96)
+		projectile_length = 18.0
+		projectile_width = 3.0
+	else:
+		return
+
+	var start := attacker.global_position
+	var end := target.global_position
+	var delta := end - start
+	if delta.length_squared() <= 1.0:
+		return
+
+	var projectile := Line2D.new()
+	projectile.name = "ProjectileFeedback"
+	projectile.width = projectile_width
+	projectile.default_color = projectile_color
+	projectile.points = PackedVector2Array([
+		Vector2(-projectile_length * 0.5, 0.0),
+		Vector2(projectile_length * 0.5, 0.0),
+	])
+	projectile.global_position = start
+	projectile.rotation = delta.angle()
+	projectile.z_index = 80
+	add_child(projectile)
+
+	var tween := create_tween()
+	tween.tween_property(projectile, "global_position", end, PROJECTILE_DURATION)
+	tween.parallel().tween_property(projectile, "modulate:a", 0.0, PROJECTILE_DURATION)
+	tween.tween_callback(projectile.queue_free)
+
+
 func _log_attack(info: Dictionary) -> void:
+	_show_projectile_feedback(info)
 	_show_floating_feedback(info)
+	var target_ref := info.get("target_ref") as Player
+	if target_ref != null and info.get("hit", false) == true and int(info.get("damage", 0)) > 0:
+		target_ref.flash_hit()
 	var msg: String
 	if info["hit"]:
 		msg = "%s wykonuje %s na %s — rzut %d (unik %d%%) → TRAFIENIE za %d pkt" % [
@@ -592,6 +847,7 @@ func _on_action_button_pressed(action: BattleAction) -> void:
 	if _targeting_mode and _pending_action == action:
 		_targeting_mode = false
 		_pending_action = null
+		_refresh_action_buttons()
 		queue_redraw()
 		return
 
@@ -618,6 +874,7 @@ func _on_action_button_pressed(action: BattleAction) -> void:
 
 	_pending_action = action
 	_targeting_mode = true
+	_refresh_action_buttons()
 	queue_redraw()
 
 
@@ -746,19 +1003,23 @@ func _unhandled_input(event: InputEvent) -> void:
 			queue_redraw()
 			if not is_in_bounds(clicked_cell):
 				_pending_action = null
+				_refresh_action_buttons()
 				return
 			var cell: CellData = cells[clicked_cell]
 			if cell.occupant == null or not (cell.occupant is Enemy):
 				_pending_action = null
+				_refresh_action_buttons()
 				return
 			var target := cell.occupant as Player
 			if target.current_life <= 0:
 				_pending_action = null
+				_refresh_action_buttons()
 				return
 			var dist: int = abs(current.grid_pos.x - target.grid_pos.x) \
 						  + abs(current.grid_pos.y - target.grid_pos.y)
 			if dist > _pending_action.range:
 				_pending_action = null
+				_refresh_action_buttons()
 				return
 			current.has_acted = true
 			var result: Dictionary
@@ -776,6 +1037,7 @@ func _unhandled_input(event: InputEvent) -> void:
 					target.current_life = maxi(target.current_life - result["damage"], 0)
 			var log_info := {
 				"attacker": current.character_name,
+				"attacker_ref": current,
 				"action": _pending_action.action_name,
 				"target": target.character_name,
 				"target_ref": target,
@@ -831,6 +1093,9 @@ func _remove_combatant(character: Player) -> void:
 		return
 	cells[character.grid_pos].occupant = null
 	combatants.remove_at(idx)
+	var was_player_character := player_characters.has(character)
+	if was_player_character and GameState.player_team != null:
+		GameState.player_team.mark_character_fallen(character)
 	player_characters.erase(character)
 	enemies.erase(character)
 	if idx < current_turn_index:
@@ -872,8 +1137,12 @@ func world_to_grid(pos: Vector2) -> Vector2i:
 
 func _draw() -> void:
 	draw_cells()
+	_draw_move_range()
 	draw_grid_lines()
+	_draw_active_turn_indicator()
+	_draw_movement_path_preview()
 	_draw_action_range()
+	_draw_target_hover()
 
 func draw_cells() -> void:
 	var grid_rect := Rect2(Vector2(0.0, TOP_BAR_HEIGHT), Vector2(GRID_WIDTH * CELL_SIZE, GRID_HEIGHT * CELL_SIZE))
@@ -899,10 +1168,41 @@ func draw_grid_lines() -> void:
 	var total_height := GRID_HEIGHT * CELL_SIZE
 	for x in range(GRID_WIDTH + 1):
 		var px := x * CELL_SIZE
-		draw_line(Vector2(px, TOP_BAR_HEIGHT), Vector2(px, total_height + TOP_BAR_HEIGHT), COLOR_GRID, 2.0)
+		draw_line(Vector2(px, TOP_BAR_HEIGHT), Vector2(px, total_height + TOP_BAR_HEIGHT), COLOR_GRID, 1.0)
 	for y in range(GRID_HEIGHT + 1):
 		var py := y * CELL_SIZE + TOP_BAR_HEIGHT
-		draw_line(Vector2(0, py), Vector2(total_width, py), COLOR_GRID, 2.0)
+		draw_line(Vector2(0, py), Vector2(total_width, py), COLOR_GRID, 1.0)
+
+func _draw_move_range() -> void:
+	var current := _get_current_combatant()
+	if current == null or current is Enemy:
+		return
+	if current.is_moving() or _targeting_mode or current.move_points_left <= 0:
+		return
+
+	var blocked_coords := _set_other_combatants_solid(current)
+
+	for x in range(GRID_WIDTH):
+		for y in range(GRID_HEIGHT):
+			var coord := Vector2i(x, y)
+			if coord == current.grid_pos:
+				continue
+			if not cells.has(coord):
+				continue
+			var cell: CellData = cells[coord]
+			if not cell.walkable or cell.occupant != null:
+				continue
+			var path: Array[Vector2i] = astar.get_id_path(current.grid_pos, coord)
+			if path.is_empty() or path.size() - 1 > current.move_points_left:
+				continue
+			var rect := Rect2(
+				Vector2(coord.x * CELL_SIZE, coord.y * CELL_SIZE + TOP_BAR_HEIGHT),
+				Vector2(CELL_SIZE, CELL_SIZE)
+			)
+			draw_rect(rect.grow(-8.0), MOVE_RANGE_COLOR, true)
+			draw_rect(rect.grow(-8.0), MOVE_RANGE_EDGE_COLOR, false, 1.0)
+
+	_restore_solid_points(blocked_coords)
 
 func _draw_action_range() -> void:
 	if not _targeting_mode or _pending_action == null or combatants.is_empty():
@@ -920,7 +1220,226 @@ func _draw_action_range() -> void:
 				Vector2(coord.x * CELL_SIZE, coord.y * CELL_SIZE + TOP_BAR_HEIGHT),
 				Vector2(CELL_SIZE, CELL_SIZE)
 			)
-			draw_rect(rect, COLOR_RANGE, true)
+			var inner := rect.grow(-8.0)
+			draw_rect(inner, COLOR_RANGE, true)
+			draw_rect(inner, Color(0.9, 0.50, 0.34, 0.28), false, 1.0)
+
+
+func _draw_target_hover() -> void:
+	if not _targeting_mode or _pending_action == null or combatants.is_empty():
+		return
+
+	var current := _get_current_combatant()
+	if current == null or current is Enemy:
+		return
+
+	var hover_cell := world_to_grid(get_global_mouse_position())
+	if not is_in_bounds(hover_cell) or not cells.has(hover_cell):
+		return
+
+	var cell: CellData = cells[hover_cell]
+	if cell.occupant == null or not (cell.occupant is Enemy):
+		return
+
+	var target := cell.occupant as Player
+	var dist: int = abs(current.grid_pos.x - target.grid_pos.x) + abs(current.grid_pos.y - target.grid_pos.y)
+	if dist > _pending_action.range:
+		return
+
+	var pulse: float = (sin(_combat_visual_time * 6.0) + 1.0) * 0.5
+	var color := TARGET_HOVER_COLOR
+	color.a = lerpf(0.58, TARGET_HOVER_COLOR.a, pulse)
+	var rect := Rect2(
+		Vector2(hover_cell.x * CELL_SIZE, hover_cell.y * CELL_SIZE + TOP_BAR_HEIGHT),
+		Vector2(CELL_SIZE, CELL_SIZE)
+	)
+	draw_rect(rect.grow(-5.0), color, false, 3.0)
+
+
+func _draw_active_turn_indicator() -> void:
+	var current := _get_current_combatant()
+	if current == null:
+		return
+
+	var cell_rect := Rect2(
+		Vector2(current.grid_pos.x * CELL_SIZE, current.grid_pos.y * CELL_SIZE + TOP_BAR_HEIGHT),
+		Vector2(CELL_SIZE, CELL_SIZE)
+	)
+	var pulse: float = (sin(_combat_visual_time * 5.0) + 1.0) * 0.5
+	var ring_color := ACTIVE_RING_COLOR
+	ring_color.a = lerpf(0.48, 0.92, pulse)
+
+	draw_rect(cell_rect.grow(-4.0), ACTIVE_CELL_COLOR, true)
+	draw_rect(cell_rect.grow(-5.0), ring_color, false, 3.0)
+
+	var center := grid_to_world(current.grid_pos)
+	var arrow_y := center.y - CELL_SIZE * 0.58 - pulse * 6.0
+	var arrow := PackedVector2Array([
+		Vector2(center.x, arrow_y + 18.0),
+		Vector2(center.x - 11.0, arrow_y),
+		Vector2(center.x + 11.0, arrow_y),
+	])
+	draw_colored_polygon(arrow, ring_color)
+
+
+func _draw_movement_path_preview() -> void:
+	var current := _get_current_combatant()
+	if current == null:
+		return
+
+	var path: Array[Vector2i] = []
+	var path_points: Array[Vector2] = []
+	var color := PLAYER_PATH_COLOR
+
+	if current.is_moving():
+		path_points = current.get_remaining_path_world_points()
+		if current is Enemy:
+			color = ENEMY_PATH_COLOR
+	elif not (current is Enemy) and not _targeting_mode:
+		path = _get_hover_movement_path_for_current(current)
+
+	if path_points.size() >= 2:
+		_draw_world_path(path_points, color)
+		return
+
+	if path.size() < 2:
+		return
+
+	_draw_grid_path(path, color)
+
+
+func _get_current_combatant() -> Player:
+	if combatants.is_empty():
+		return null
+	if current_turn_index < 0 or current_turn_index >= combatants.size():
+		return null
+	return combatants[current_turn_index]
+
+
+func _set_other_combatants_solid(current: Player) -> Array[Vector2i]:
+	var blocked_coords: Array[Vector2i] = []
+	for combatant: Player in combatants:
+		if combatant == current:
+			continue
+		astar.set_point_solid(combatant.grid_pos, true)
+		blocked_coords.append(combatant.grid_pos)
+	return blocked_coords
+
+
+func _restore_solid_points(coords: Array[Vector2i]) -> void:
+	for coord: Vector2i in coords:
+		astar.set_point_solid(coord, false)
+
+
+func _get_hover_movement_path_for_current(current: Player) -> Array[Vector2i]:
+	if current.move_points_left <= 0:
+		return []
+
+	var clicked_cell: Vector2i = world_to_grid(get_global_mouse_position())
+
+	if not is_in_bounds(clicked_cell):
+		return []
+	if not cells.has(clicked_cell):
+		return []
+
+	var target_cell: CellData = cells[clicked_cell]
+	if not target_cell.walkable or target_cell.occupant != null:
+		return []
+
+	var blocked_coords := _set_other_combatants_solid(current)
+
+	var path: Array[Vector2i] = astar.get_id_path(current.grid_pos, clicked_cell)
+
+	_restore_solid_points(blocked_coords)
+
+	if path.size() > current.move_points_left + 1:
+		path = path.slice(0, current.move_points_left + 1)
+
+	return path
+
+
+func _draw_grid_path(path: Array[Vector2i], color: Color) -> void:
+	if path.size() < 2:
+		return
+
+	var pulse: float = (sin(_combat_visual_time * 4.0) + 1.0) * 0.5
+	var shadow := Color(0.0, 0.0, 0.0, 0.36)
+	var path_color := color
+	path_color.a = lerpf(0.48, color.a, pulse)
+
+	for i in range(path.size() - 1):
+		var from_coord: Vector2i = path[i]
+		var to_coord: Vector2i = path[i + 1]
+		var from_point := grid_to_world(from_coord)
+		var to_point := grid_to_world(to_coord)
+
+		if from_coord.x != to_coord.x and from_coord.y != to_coord.y:
+			var elbow := Vector2(to_point.x, from_point.y)
+			_draw_path_segment(from_point, elbow, shadow, path_color)
+			_draw_path_segment(elbow, to_point, shadow, path_color)
+		else:
+			_draw_path_segment(from_point, to_point, shadow, path_color)
+
+	for i in range(1, path.size()):
+		var point := grid_to_world(path[i])
+		var marker_rect := Rect2(point - Vector2(6.0, 6.0), Vector2(12.0, 12.0))
+		var marker_color := path_color
+		marker_color.a = lerpf(0.34, 0.68, pulse)
+		draw_rect(marker_rect, marker_color, false, 2.0)
+
+	var end_point := grid_to_world(path[path.size() - 1])
+	var end_rect := Rect2(end_point - Vector2(15.0, 15.0), Vector2(30.0, 30.0))
+	var end_color := path_color
+	end_color.a = lerpf(0.48, 0.86, pulse)
+	draw_rect(end_rect, end_color, false, 3.0)
+
+
+func _draw_world_path(points: Array[Vector2], color: Color) -> void:
+	if points.size() < 2:
+		return
+
+	var pulse: float = (sin(_combat_visual_time * 4.0) + 1.0) * 0.5
+	var shadow := Color(0.0, 0.0, 0.0, 0.36)
+	var path_color := color
+	path_color.a = lerpf(0.48, color.a, pulse)
+
+	for i in range(points.size() - 1):
+		_draw_path_segment(points[i], points[i + 1], shadow, path_color)
+
+	for i in range(1, points.size()):
+		var marker_rect := Rect2(points[i] - Vector2(6.0, 6.0), Vector2(12.0, 12.0))
+		var marker_color := path_color
+		marker_color.a = lerpf(0.30, 0.58, pulse)
+		draw_rect(marker_rect, marker_color, false, 2.0)
+
+	var end_point := points[points.size() - 1]
+	var end_rect := Rect2(end_point - Vector2(15.0, 15.0), Vector2(30.0, 30.0))
+	var end_color := path_color
+	end_color.a = lerpf(0.48, 0.86, pulse)
+	draw_rect(end_rect, end_color, false, 3.0)
+
+
+func _draw_path_segment(from_point: Vector2, to_point: Vector2, shadow: Color, color: Color) -> void:
+	var delta := to_point - from_point
+	if delta.length_squared() <= 1.0:
+		return
+
+	var direction := delta.normalized()
+	var trim := 16.0
+	var start := from_point + direction * trim
+	var end := to_point - direction * trim
+
+	if start.distance_squared_to(end) <= 1.0:
+		return
+
+	draw_line(start + Vector2(0.0, 2.0), end + Vector2(0.0, 2.0), shadow, 5.0)
+	draw_line(start, end, color, 2.4)
+
+	var mid := (start + end) * 0.5
+	var normal := Vector2(-direction.y, direction.x)
+	var notch_color := color
+	notch_color.a = min(color.a + 0.12, 1.0)
+	draw_line(mid - normal * 5.0, mid + normal * 5.0, notch_color, 1.8)
 
 func _on_end_turn_button_pressed() -> void:
 	var current: Player = combatants[current_turn_index]

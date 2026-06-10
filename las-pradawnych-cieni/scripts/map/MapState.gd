@@ -195,6 +195,23 @@ func complete_selected_checkpoint() -> void:
 	selected_checkpoint = null
 
 
+func complete_selected_map_node() -> void:
+	var selected_node := get_node_by_id(selected_node_id)
+	if selected_node == null:
+		return
+
+	for node in map_nodes:
+		node.available = false
+
+	selected_node.visited = true
+	selected_node.available = false
+
+	for next_id in selected_node.connections:
+		var next_node := get_node_by_id(next_id)
+		if next_node != null:
+			next_node.available = true
+
+
 func is_checkpoint_completed(checkpoint_id: String) -> bool:
 	return completed_checkpoint_ids.has(checkpoint_id)
 

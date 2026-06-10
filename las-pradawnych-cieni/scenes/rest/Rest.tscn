@@ -204,14 +204,6 @@ text = "Statystyki:"
 layout_mode = 2
 text = "Brak"
 
-[node name="InventoryTitleLabel" type="Label" parent="UILayer/UIRoot/CharacterPanel/MarginContainer/CharacterPanelContent" unique_id=1367480353]
-layout_mode = 2
-text = "Ekwipunek:"
-
-[node name="InventoryListLabel" type="Label" parent="UILayer/UIRoot/CharacterPanel/MarginContainer/CharacterPanelContent" unique_id=1922441219]
-layout_mode = 2
-text = "Brak"
-
 [node name="PopupLayer" type="CanvasLayer" parent="." unique_id=1121304619]
 
 [node name="TransitionOverlay" type="ColorRect" parent="PopupLayer" unique_id=2011331897]

@@ -828,8 +828,6 @@ func _is_recovery_eligible_node(node: MapNode) -> bool:
 		return false
 	if node.type == MapEnums.NodeType.BOSS:
 		return false
-	if node.type == MapEnums.NodeType.ELITE:
-		return false
 
 	return true
 
@@ -1076,22 +1074,6 @@ func _pick_regular_node_type(
 		)
 	)
 
-	if _can_place_elite(config, act_index, generated_counts, layer_index, total_layers):
-		_add_weighted_node_candidate(
-			candidates,
-			weights,
-			MapEnums.NodeType.ELITE,
-			_calculate_node_type_weight(
-				MapEnums.NodeType.ELITE,
-				config,
-				act_rule,
-				layer_index,
-				total_layers,
-				generated_counts,
-				layer_type_history
-			)
-		)
-
 	if candidates.is_empty():
 		return config.dominant_node_type
 
@@ -1135,9 +1117,6 @@ func _calculate_node_type_weight(
 	weight *= _get_history_multiplier_for_node_type(node_type, layer_type_history)
 	weight *= _get_pacing_multiplier_for_node_type(node_type, layer_type_history)
 
-	if node_type == MapEnums.NodeType.ELITE:
-		weight += max(0.0, float(config.miniboss_target_count - current_count))
-
 	if _pre_boss_zone_layer_set.has(layer_index):
 		if node_type == MapEnums.NodeType.SHOP or node_type == MapEnums.NodeType.REST:
 			return 0
@@ -1155,8 +1134,6 @@ func _get_base_target_for_node_type(config: MapGenerationConfig, node_type: int)
 			return config.shop_target_count
 		MapEnums.NodeType.REST:
 			return config.rest_target_count
-		MapEnums.NodeType.ELITE:
-			return config.miniboss_target_count
 		_:
 			return 0
 
@@ -1171,8 +1148,6 @@ func _get_density_multiplier_for_node_type(node_type: int, act_rule: MapActRuleC
 			return max(0.0, act_rule.shop_density)
 		MapEnums.NodeType.REST:
 			return max(0.0, act_rule.rest_density)
-		MapEnums.NodeType.ELITE:
-			return max(0.0, act_rule.miniboss_chance * 2.0)
 		_:
 			return 1.0
 
@@ -1213,13 +1188,6 @@ func _get_position_multiplier_for_node_type(
 		MapEnums.NodeType.EVENT:
 			if progress < 0.10:
 				return 0.70
-			return 1.0
-
-		MapEnums.NodeType.ELITE:
-			if progress < 0.20:
-				return 0.25
-			if progress > 0.85:
-				return 0.25
 			return 1.0
 
 		_:
@@ -1273,11 +1241,6 @@ func _get_pacing_multiplier_for_node_type(
 				return 0.40
 			return 1.0
 
-		MapEnums.NodeType.ELITE:
-			if _has_recent_elite(layer_type_history, 3):
-				return 0.10
-			return 1.0
-
 		_:
 			return 1.0
 
@@ -1298,51 +1261,15 @@ func _layer_contains_special_type(layer_types: Array) -> bool:
 		layer_types.has(MapEnums.NodeType.REST)
 		or layer_types.has(MapEnums.NodeType.SHOP)
 		or layer_types.has(MapEnums.NodeType.EVENT)
-		or layer_types.has(MapEnums.NodeType.ELITE)
 	)
 
 
-func _has_recent_elite(layer_type_history: Array, depth: int) -> bool:
-	var start_index: int = max(0, layer_type_history.size() - depth)
-
-	for i in range(start_index, layer_type_history.size()):
-		var layer_types: Array = layer_type_history[i]
-		if layer_types.has(MapEnums.NodeType.ELITE):
-			return true
-
-	return false
-	
-	
 func _add_weighted_node_candidate(candidates: Array[int], weights: Array[int], node_type: int, weight: int) -> void:
 	if weight <= 0:
 		return
 
 	candidates.append(node_type)
 	weights.append(weight)
-
-
-func _can_place_elite(
-	config: MapGenerationConfig,
-	act_index: int,
-	generated_counts: Dictionary,
-	layer_index: int,
-	total_layers: int
-) -> bool:
-	if not config.is_act_allowed_for_miniboss(act_index):
-		return false
-
-	if layer_index <= 1:
-		return false
-
-	if layer_index >= total_layers - 2:
-		return false
-
-	var existing_elites: int = _get_node_count(generated_counts, MapEnums.NodeType.ELITE)
-
-	if existing_elites >= config.miniboss_target_count and config.miniboss_mode == MapGenerationConfig.MinibossMode.OPTIONAL:
-		return false
-
-	return true
 
 
 func _get_node_count(counts: Dictionary, node_type: int) -> int:

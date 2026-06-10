@@ -5,7 +5,7 @@ const BATTLE_ICON: Texture2D = preload("res://assets/ui/map/nodes/battle_base_25
 const EVENT_ICON: Texture2D = preload("res://assets/ui/map/nodes/event_base_256.png")
 const SHOP_ICON: Texture2D = preload("res://assets/ui/map/nodes/shop_base_256.png")
 const REST_ICON: Texture2D = preload("res://assets/ui/map/nodes/rest_base_256.png")
-const ELITE_ICON: Texture2D = preload("res://assets/ui/map/nodes/elite_base_256.png")
+const BOSS_ICON: Texture2D = preload("res://assets/ui/map/nodes/elite_base_256.png")
 
 @onready var left_block: HBoxContainer = $MarginContainer/HBoxContainer/LeftBlock
 @onready var icon_box: CenterContainer = $MarginContainer/HBoxContainer/LeftBlock/IconBox
@@ -92,8 +92,6 @@ func _get_type_name(node_type: int) -> String:
 			return "Sklep"
 		MapEnums.NodeType.REST:
 			return "Odpoczynek"
-		MapEnums.NodeType.ELITE:
-			return "Elita"
 		MapEnums.NodeType.BOSS:
 			return "Serce lasu"
 		MapEnums.NodeType.CHECKPOINT:
@@ -112,8 +110,6 @@ func _get_description(node_type: int) -> String:
 			return "Wydaj złoto na wsparcie przed kolejnymi starciami."
 		MapEnums.NodeType.REST:
 			return "Chwila wytchnienia i przygotowanie do dalszej wyprawy."
-		MapEnums.NodeType.ELITE:
-			return "Trudniejsze starcie, ale większa nagroda."
 		MapEnums.NodeType.BOSS:
 			return "Serce lasu — finał wyprawy i rozstrzygnięcie losu wsi."
 		MapEnums.NodeType.CHECKPOINT:
@@ -158,10 +154,8 @@ func _get_icon_for_node_type(node_type: int) -> Texture2D:
 			return SHOP_ICON
 		MapEnums.NodeType.REST:
 			return REST_ICON
-		MapEnums.NodeType.ELITE:
-			return ELITE_ICON
 		MapEnums.NodeType.BOSS:
-			return ELITE_ICON
+			return BOSS_ICON
 		MapEnums.NodeType.CHECKPOINT:
 			return EVENT_ICON
 		_:

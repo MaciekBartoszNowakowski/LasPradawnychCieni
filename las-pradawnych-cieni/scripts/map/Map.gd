@@ -18,7 +18,7 @@ const SIDE_QUEST_SCENE_PATH: String = "res://scenes/quests/SideQuest.tscn"
 const CHECKPOINT_SCENE_PATH: String = "res://scenes/checkpoints/Checkpoint.tscn"
 const SHOP_SCENE_PATH: String = "res://scenes/shop/Shop.tscn"
 const FINALE_SCENE_PATH: String = "res://scenes/finale/Finale.tscn"
-const ROOM_MOCK_SCENE_PATH: String = "res://scenes/RoomMock.tscn"
+const MAP_SCENE_PATH: String = "res://scenes/map/Map.tscn"
 const MAIN_MENU_SCENE_PATH: String = "res://scenes/MainMenu.tscn"
 
 @onready var map_world: Node2D = $MapWorld
@@ -370,16 +370,6 @@ func _try_select_node() -> void:
 
 
 func _select_node(node: MapNode) -> void:
-	for other_node in map_nodes:
-		other_node.available = false
-
-	node.visited = true
-
-	for next_id in node.connections:
-		if node_by_id.has(next_id):
-			var next_node: MapNode = node_by_id[next_id] as MapNode
-			next_node.available = true
-
 	MapState.selected_node_id = node.id
 	MapState.selected_node_type = node.type
 	MapState.selected_node_act = node.act
@@ -417,7 +407,7 @@ func _get_scene_path_for_node(node: MapNode) -> String:
 		MapEnums.NodeType.BOSS:
 			return FINALE_SCENE_PATH
 		_:
-			return ROOM_MOCK_SCENE_PATH
+			return MAP_SCENE_PATH
 
 
 func _change_scene_with_transition(scene_path: String) -> void:
@@ -432,21 +422,19 @@ func _change_scene_with_transition(scene_path: String) -> void:
 func _get_scene_path_for_selected_node() -> String:
 	match MapState.selected_node_type:
 		MapEnums.NodeType.BATTLE:
-			return "res://scenes/battle/BattleMap.tscn"
+			return BATTLE_SCENE_PATH
 		MapEnums.NodeType.REST:
-			return "res://scenes/rest/Rest.tscn"
+			return REST_SCENE_PATH
 		MapEnums.NodeType.EVENT:
-			return "res://scenes/RoomMock.tscn"
+			return SIDE_QUEST_SCENE_PATH
 		MapEnums.NodeType.CHECKPOINT:
-			return "res://scenes/checkpoints/Checkpoint.tscn"
+			return CHECKPOINT_SCENE_PATH
 		MapEnums.NodeType.SHOP:
 			return SHOP_SCENE_PATH
-		MapEnums.NodeType.ELITE:
-			return "res://scenes/RoomMock.tscn"
 		MapEnums.NodeType.BOSS:
-			return "res://scenes/RoomMock.tscn"
+			return FINALE_SCENE_PATH
 		_:
-			return "res://scenes/RoomMock.tscn"
+			return MAP_SCENE_PATH
 
 
 func _get_max_scroll_x() -> float:

@@ -393,6 +393,8 @@ func _on_continue_button_pressed() -> void:
 
 	if has_node("/root/MapState") and MapState.has_method("complete_selected_side_quest"):
 		MapState.complete_selected_side_quest()
+	if has_node("/root/MapState") and MapState.has_method("complete_selected_map_node"):
+		MapState.complete_selected_map_node()
 
 	var out_tween := create_tween()
 	out_tween.tween_property(quest_panel, "modulate:a", 0.0, 0.35)

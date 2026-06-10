@@ -118,9 +118,42 @@ func buy_shop_item(item: ItemConfig, target_hero_index: int = -1) -> Dictionary:
 				return result
 			result.healed = healed_single
 			result.message = "Bohater odzyskał %d HP." % healed_single
-		ItemConfig.ItemKind.FUTURE_EQUIPMENT:
+		ItemConfig.ItemKind.STRENGTH_EQUIPMENT, ItemConfig.ItemKind.ARMOUR_EQUIPMENT:
+			if target_hero_index < 0 or target_hero_index >= player_team.characters.size():
+				add_money(item.price)
+				result.success = false
+				result.spent = 0
+				result.message = "Wybierz bohatera do wyposażenia."
+				return result
+
+			if not player_team.add_equipment_to_character(target_hero_index, item):
+				add_money(item.price)
+				result.success = false
+				result.spent = 0
+				result.message = "Nie udało się wyposażyć bohatera."
+				return result
+
+			var hero: Player = player_team.characters[target_hero_index]
+			result.message = "%s otrzymuje: %s." % [hero.character_name, item.display_name]
+		ItemConfig.ItemKind.REVIVE:
+			if not player_team.has_fallen_characters():
+				add_money(item.price)
+				result.success = false
+				result.spent = 0
+				result.message = "Nikt z drużyny nie poległ."
+				return result
+
+			var revived: Player = player_team.revive_first_fallen(float(item.effect_value) / 100.0)
+			if revived == null:
+				add_money(item.price)
+				result.success = false
+				result.spent = 0
+				result.message = "Nie udało się wskrzesić bohatera."
+				return result
+
 			player_team.add_item_to_inventory(item.item_id)
-			result.message = "Kupiono: %s (bez wpływu na walkę w tej wersji)." % item.display_name
+			result.healed = revived.current_life
+			result.message = "%s wraca do drużyny z %d HP." % [revived.character_name, revived.current_life]
 		_:
 			result.message = "Kupiono przedmiot."
 

@@ -3,6 +3,9 @@ class_name Player
 
 const MOVE_SPEED := 220.0
 const RADIUS := 18.0
+const HP_BACK_COLOR := Color(0.04, 0.025, 0.018, 0.82)
+const HP_ALLY_COLOR := Color(0.36, 0.76, 0.42, 0.94)
+const HP_ENEMY_COLOR := Color(0.78, 0.30, 0.25, 0.94)
 
 var grid_pos: Vector2i = Vector2i.ZERO
 var cell_size: int = 64
@@ -30,11 +33,14 @@ var halve_stats_rounds: int = 0
 
 var move_points_max: int = 6
 var move_points_left: int = 6
+var movement_speed_multiplier: float = 1.0
 var equipped_item_ids: Array[String] = []
 
 var _path: Array[Vector2i] = []
 var _moving: bool = false
 var _target_world: Vector2 = Vector2.ZERO
+var _target_grid: Vector2i = Vector2i.ZERO
+var _hit_flash_time: float = 0.0
 
 func _ready() -> void:
 	move_points_max = speed
@@ -42,10 +48,14 @@ func _ready() -> void:
 	queue_redraw()
 
 func _process(delta: float) -> void:
+	if _hit_flash_time > 0.0:
+		_hit_flash_time = maxf(0.0, _hit_flash_time - delta)
+		queue_redraw()
+
 	if not _moving:
 		return
 
-	global_position = global_position.move_toward(_target_world, MOVE_SPEED * delta)
+	global_position = global_position.move_toward(_target_world, MOVE_SPEED * movement_speed_multiplier * delta)
 
 	if global_position.distance_to(_target_world) < 1.0:
 		global_position = _target_world
@@ -61,6 +71,7 @@ func _process(delta: float) -> void:
 			_moving = false
 		else:
 			var next_cell: Vector2i = _path.pop_front()
+			_target_grid = next_cell
 			_target_world = grid_to_world(next_cell)
 
 func set_path(path: Array[Vector2i]) -> void:
@@ -84,6 +95,7 @@ func set_path(path: Array[Vector2i]) -> void:
 		return
 
 	var next_cell: Vector2i = _path.pop_front()
+	_target_grid = next_cell
 	_target_world = grid_to_world(next_cell)
 	_moving = true
 
@@ -94,6 +106,32 @@ func reset_turn() -> void:
 
 func is_moving() -> bool:
 	return _moving
+
+
+func get_remaining_path() -> Array[Vector2i]:
+	if _moving:
+		var moving_result: Array[Vector2i] = [_target_grid]
+		moving_result.append_array(_path)
+		return moving_result
+
+	var result: Array[Vector2i] = [grid_pos]
+	result.append_array(_path)
+	return result
+
+
+func get_remaining_path_world_points() -> Array[Vector2]:
+	var result: Array[Vector2] = []
+
+	if not _moving:
+		for coord in get_remaining_path():
+			result.append(grid_to_world(coord))
+		return result
+
+	result.append(global_position)
+	result.append(_target_world)
+	for coord in _path:
+		result.append(grid_to_world(coord))
+	return result
 
 func grid_to_world(cell: Vector2i) -> Vector2:
 	return Vector2(
@@ -115,9 +153,31 @@ func _draw() -> void:
 	else:
 		draw_circle(Vector2.ZERO, RADIUS, color)
 
+	if _hit_flash_time > 0.0:
+		var flash_alpha := clampf(_hit_flash_time / 0.18, 0.0, 1.0)
+		draw_circle(Vector2.ZERO, RADIUS + 7.0, Color(1.0, 0.9, 0.55, 0.42 * flash_alpha))
+
+	_draw_health_bar()
+
 func _draw_portrait_token(portrait: Texture2D) -> void:
 	var half := (RADIUS + 8.0) * 1.3
 	draw_texture_rect(portrait, Rect2(Vector2(-half, -half), Vector2(half * 2, half * 2)), false)
+
+
+func _draw_health_bar(fill_color: Color = HP_ALLY_COLOR, width: float = 44.0) -> void:
+	if max_life <= 0 or current_life <= 0:
+		return
+
+	var ratio := clampf(float(current_life) / float(max_life), 0.0, 1.0)
+	var height := 6.0
+	var center := Vector2(0.0, RADIUS + 12.0)
+	var rect := Rect2(center - Vector2(width * 0.5, height * 0.5), Vector2(width, height))
+	var fill_rect := Rect2(rect.position, Vector2(width * ratio, height))
+
+	draw_rect(rect.grow(2.0), Color(0.0, 0.0, 0.0, 0.34), true)
+	draw_rect(rect, HP_BACK_COLOR, true)
+	draw_rect(fill_rect, fill_color, true)
+	draw_rect(rect, Color(0.94, 0.84, 0.62, 0.40), false, 1.0)
 
 
 func apply_life_delta(amount: int) -> int:
@@ -149,6 +209,11 @@ func damage(amount: int) -> int:
 		return 0
 
 	return apply_life_delta(-amount)
+
+
+func flash_hit() -> void:
+	_hit_flash_time = 0.18
+	queue_redraw()
 
 
 func heal_missing_percent(percent: float) -> int:
