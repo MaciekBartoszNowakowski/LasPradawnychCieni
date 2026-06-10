@@ -11,9 +11,9 @@ config_version=5
 [application]
 
 config/name="LasPradawnych Cieni"
-run/main_scene="uid://by0thtrjcijjo"
+run/main_scene="uid://b4652dvvicjqu"
 config/features=PackedStringArray("4.6", "Forward Plus")
-config/icon="res://icon.svg"
+config/icon="uid://cxsdwifurlvuk"
 
 [autoload]
 
@@ -29,7 +29,6 @@ SceneTransition="*uid://cymxtwxb8glem"
 window/size/viewport_width=1280
 window/size/viewport_height=720
 window/stretch/mode="canvas_items"
-window/stretch/aspect="keep_height"
 
 [physics]
 

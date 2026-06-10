@@ -109,22 +109,27 @@ anchor_top = 1.0
 anchor_right = 0.5
 anchor_bottom = 1.0
 offset_left = -430.0
-offset_top = -195.0
+offset_top = -245.0
 offset_right = 430.0
-offset_bottom = -105.0
+offset_bottom = -52.0
 grow_horizontal = 2
 grow_vertical = 0
 theme_override_styles/panel = SubResource("StyleBoxFlat_narration")
 
-[node name="TextWrap" type="MarginContainer" parent="Root/NarrationBox"]
+[node name="ContentBox" type="VBoxContainer" parent="Root/NarrationBox"]
+layout_mode = 2
+theme_override_constants/separation = 10
+alignment = 1
+
+[node name="TextWrap" type="MarginContainer" parent="Root/NarrationBox/ContentBox"]
 layout_mode = 2
 theme_override_constants/margin_left = 20
-theme_override_constants/margin_top = 4
+theme_override_constants/margin_top = 0
 theme_override_constants/margin_right = 20
-theme_override_constants/margin_bottom = 4
+theme_override_constants/margin_bottom = 0
 
-[node name="NarrationText" type="RichTextLabel" parent="Root/NarrationBox/TextWrap"]
-custom_minimum_size = Vector2(0, 64)
+[node name="NarrationText" type="RichTextLabel" parent="Root/NarrationBox/ContentBox/TextWrap"]
+custom_minimum_size = Vector2(0, 88)
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
@@ -140,19 +145,15 @@ horizontal_alignment = 1
 vertical_alignment = 1
 text = ""
 
-[node name="KnockButton" type="Button" parent="Root"]
+[node name="ButtonRow" type="HBoxContainer" parent="Root/NarrationBox/ContentBox"]
+layout_mode = 2
+size_flags_horizontal = 3
+alignment = 1
+
+[node name="KnockButton" type="Button" parent="Root/NarrationBox/ContentBox/ButtonRow"]
 modulate = Color(1, 1, 1, 0)
-layout_mode = 1
-anchor_left = 1.0
-anchor_top = 1.0
-anchor_right = 1.0
-anchor_bottom = 1.0
-offset_left = -385.0
-offset_top = -115.0
-offset_right = -75.0
-offset_bottom = -55.0
-grow_horizontal = 0
-grow_vertical = 0
+custom_minimum_size = Vector2(240, 50)
+layout_mode = 2
 focus_mode = 0
 theme_override_colors/font_color = Color(0.8666667, 0.827451, 0.7372549, 1)
 theme_override_colors/font_hover_color = Color(0.9411765, 0.90588236, 0.8156863, 1)

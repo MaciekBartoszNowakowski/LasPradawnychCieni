@@ -51,7 +51,7 @@ func _setup_battle() -> void:
 
 
 func _should_show_end_battle_button() -> bool:
-	return false
+	return true
 
 
 func _get_victory_scene_path() -> String:
@@ -73,6 +73,8 @@ func _on_party_wiped() -> void:
 	set_process(false)
 	if _end_turn_button != null:
 		_end_turn_button.disabled = true
+	if _end_battle_button != null:
+		_end_battle_button.disabled = true
 	if _defeat_overlay != null:
 		_defeat_overlay.show_overlay()
 
