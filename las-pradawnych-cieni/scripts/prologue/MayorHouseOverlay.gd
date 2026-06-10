@@ -5,8 +5,8 @@ signal finished
 @onready var background: TextureRect = $Root/Background
 @onready var dark_overlay: ColorRect = $Root/DarkOverlay
 @onready var narration_box: PanelContainer = $Root/NarrationBox
-@onready var narration_text: RichTextLabel = $Root/NarrationBox/TextWrap/NarrationText
-@onready var knock_button: Button = $Root/KnockButton
+@onready var narration_text: RichTextLabel = $Root/NarrationBox/ContentBox/TextWrap/NarrationText
+@onready var knock_button: Button = $Root/NarrationBox/ContentBox/ButtonRow/KnockButton
 
 var can_continue := false
 

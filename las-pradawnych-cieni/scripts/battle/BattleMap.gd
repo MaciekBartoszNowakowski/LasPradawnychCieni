@@ -1454,5 +1454,4 @@ func _on_end_battle_button_pressed() -> void:
 	for char: Player in player_characters:
 		if char.is_moving():
 			return
-	_reparent_players_to_game_state()
-	_go_to_scene(_get_victory_scene_path())
+	_on_all_enemies_defeated()
