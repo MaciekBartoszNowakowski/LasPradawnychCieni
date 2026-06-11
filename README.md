@@ -23,6 +23,7 @@ Projekt został przygotowany jako semestralny prototyp gry jednoosobowej. Jego z
 - [Zakres MVP](#zakres-mvp)
 - [Technologie](#technologie)
 - [Autorzy](#autorzy)
+- [Wykorzystanie AI](#wykorzystanie-ai)
 - [Release](#release)
 
 ## O projekcie
