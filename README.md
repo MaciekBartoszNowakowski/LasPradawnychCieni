@@ -7,7 +7,7 @@ Projekt został przygotowany jako semestralny prototyp gry jednoosobowej. Jego z
 ## Spis treści
 
 - [O projekcie](#o-projekcie)
-- [Założenia z dokumentu koncepcyjnego](#założenia-z-dokumentu-koncepcyjnego)
+- [Założenia z dokumentu koncepcyjnego](#pierwotne-założenia-koncepcyjne)
 - [Fabuła](#fabuła)
 - [Główna pętla rozgrywki](#główna-pętla-rozgrywki)
 - [Mapa świata](#mapa-świata)
@@ -305,6 +305,10 @@ Autorzy:
 - Kacper Bieniasz
 - Maciej Nowakowski
 
+## Wykorzystanie AI
+
+Grafiki zostały wygenerowane przy pomocy dużych modeli językowych ChatGPT i Gemini.
+
 ## Release
 
-Repozytorium zawiera konfigurację eksportu dla platformy **Windows Desktop**.
+Repozytorium zawiera konfigurację eksportu oraz release dla platformy **Windows Desktop**.
