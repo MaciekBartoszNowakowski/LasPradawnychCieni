@@ -183,6 +183,7 @@ Poniższe miejsca są przygotowane na zrzuty ekranu z gry. Pliki można umieści
 ### Sklep
 
 ![Sklep](docs/screenshots/sklep.png)
+![Sklep Menu](docs/screenshots/sklep-menu.png)
 
 ### Odpoczynek
 
